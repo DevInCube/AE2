@@ -3,5 +3,5 @@ MIDlet-Vendor: MIDlet Suite Vendor
 MIDlet-Jar-URL: AncientEmpires2.jar
 MicroEdition-Configuration: CLDC-1.0
 MicroEdition-Profile: MIDP-1.0
-MIDlet-1: MIDlet-1,,B_MainMIDlet
+MIDlet-1: MIDlet-1,/gameicon.png,B_MainMIDlet
 MIDlet-Name: AncientEmpires2 MIDlet Suite

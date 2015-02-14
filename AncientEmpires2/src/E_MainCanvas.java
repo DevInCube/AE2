@@ -148,11 +148,11 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	}
 
 	public static final int sub_1761(byte paramByte, String paramString) {
-		return charsSprites[paramByte].var_7f4 * paramString.length();
+		return charsSprites[paramByte].frameWidth * paramString.length();
 	}
 
 	public static final int sub_1789(byte paramByte) {
-		return charsSprites[paramByte].var_7fc;
+		return charsSprites[paramByte].frameHeight;
 	}
 
 	public static final void sub_17ac(Graphics paramGraphics, int paramInt) {
@@ -210,10 +210,10 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 					&& (k <= var_13ac[paramInt3])) {
 				int j;
 				if ((j = var_13b4[paramInt3][(k - var_13a4[paramInt3])]) != -1) {
-					charsSprites[paramInt3].sub_108a(j);
-					charsSprites[paramInt3].sub_12d2(paramGraphics, paramInt1,
+					charsSprites[paramInt3].setCurrentFrameIndex(j);
+					charsSprites[paramInt3].draw(paramGraphics, paramInt1,
 							paramInt2);
-					paramInt1 += charsSprites[paramInt3].var_7f4;
+					paramInt1 += charsSprites[paramInt3].frameWidth;
 				} else {
 					byte[] arrayOfByte = { (byte) k };
 					String str = new String(arrayOfByte);

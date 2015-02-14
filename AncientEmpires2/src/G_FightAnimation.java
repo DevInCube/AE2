@@ -62,7 +62,7 @@ public final class G_FightAnimation {
 			throws Exception {
 		this.var_b15 = paramClass_i_168;
 		this.var_b1d = paramClass_c_032;
-		this.var_b25 = paramClass_c_032.var_ac3;
+		this.var_b25 = paramClass_c_032.unitTypeId;
 		this.var_bed = paramClass_g_066;
 		this.var_b45 = ((byte) paramClass_c_032.var_b0b);
 		this.var_c1d = this.var_b45;
@@ -108,15 +108,15 @@ public final class G_FightAnimation {
 		} catch (Exception localException) {
 		}
 		if (this.var_be5 != null) {
-			this.var_bfd = this.var_be5.var_4e3;
+			this.var_bfd = this.var_be5.imageHeight;
 		}
-		this.var_c05 = (paramClass_i_168.var_32db / this.var_bdd[0].var_4db);
-		if (paramClass_i_168.var_32db % this.var_bdd[0].var_4db != 0) {
+		this.var_c05 = (paramClass_i_168.var_32db / this.var_bdd[0].imageWidth);
+		if (paramClass_i_168.var_32db % this.var_bdd[0].imageWidth != 0) {
 			this.var_c05 += 1;
 		}
-		this.var_c0d = ((paramClass_i_168.var_3bfb - this.var_bfd) / this.var_bdd[0].var_4e3);
+		this.var_c0d = ((paramClass_i_168.var_3bfb - this.var_bfd) / this.var_bdd[0].imageHeight);
 		if ((paramClass_i_168.var_3bfb - this.var_bfd)
-				% this.var_bdd[0].var_4e3 != 0) {
+				% this.var_bdd[0].imageHeight != 0) {
 			this.var_c0d += 1;
 		}
 		this.var_c5d = new byte[this.var_c05][this.var_c0d];
@@ -163,19 +163,19 @@ public final class G_FightAnimation {
 			this.var_b9d = this.var_b95;
 		}
 		if (this.var_b95 != null) {
-			this.var_b95.sub_115e(0, this.var_b75);
+			this.var_b95.startAnimation(0, this.var_b75);
 		}
 		if (this.var_b9d != null) {
-			this.var_b9d.sub_115e(0, this.var_b75);
+			this.var_b9d.startAnimation(0, this.var_b75);
 		}
 		if (this.var_ba5 != null) {
-			this.var_ba5.sub_115e(0, this.var_b75);
+			this.var_ba5.startAnimation(0, this.var_b75);
 		}
 		if (this.var_c65 != null) {
-			this.var_c65.sub_115e(paramClass_c_032.var_b7b, this.var_b75);
-			this.var_c65.sub_108a(paramClass_c_032.var_b7b);
-			this.var_c6d.sub_115e(0, this.var_b75);
-			this.var_c6d.sub_108a(paramClass_c_032.var_b7b);
+			this.var_c65.startAnimation(paramClass_c_032.var_b7b, this.var_b75);
+			this.var_c65.setCurrentFrameIndex(paramClass_c_032.var_b7b);
+			this.var_c6d.startAnimation(0, this.var_b75);
+			this.var_c6d.setCurrentFrameIndex(paramClass_c_032.var_b7b);
 		}
 		this.var_c2d = new int[paramClass_c_032.var_aa3.length][2];
 		for (int m = 0; m < this.var_c2d.length; m++) {
@@ -183,10 +183,10 @@ public final class G_FightAnimation {
 					* paramClass_i_168.someCanWidth / 128);
 			if (this.var_b6d == 1) {
 				this.var_c2d[m][0] = (paramClass_i_168.var_32db
-						- this.var_c2d[m][0] - this.var_b8d.var_7f4 + i);
+						- this.var_c2d[m][0] - this.var_b8d.frameWidth + i);
 			}
 			this.var_c2d[m][1] = (paramClass_c_032.var_aa3[m][1]
-					* paramClass_i_168.var_3bfb / 128 - this.var_b8d.var_7fc);
+					* paramClass_i_168.var_3bfb / 128 - this.var_b8d.frameHeight);
 		}
 		this.var_bd5 = new F_Sprite[this.var_b55];
 		if ((this.var_b25 == 4) || (this.var_b25 == 6)) {
@@ -195,8 +195,8 @@ public final class G_FightAnimation {
 		for (int m = 0; m < this.var_b55; m++) {
 			this.var_bd5[m] = new F_Sprite(this.var_b8d);
 			paramClass_i_168.sub_145c5(this.var_bd5[m]);
-			this.var_bd5[m].sub_10c6(this.var_c2d[m][0], this.var_c2d[m][1]);
-			this.var_bd5[m].sub_115e(0, this.var_b75);
+			this.var_bd5[m].setSpritePosition(this.var_c2d[m][0], this.var_c2d[m][1]);
+			this.var_bd5[m].startAnimation(0, this.var_b75);
 			this.var_bd5[m].var_854 = false;
 			this.var_bd5[m].var_83c = 0;
 			if (this.var_b25 == 6) {
@@ -217,7 +217,7 @@ public final class G_FightAnimation {
 
 	public final int sub_1673(F_Sprite paramClass_f_045, int paramInt) {
 		if (this.var_b6d == 1) {
-			return this.var_b8d.var_7f4 - paramInt - paramClass_f_045.var_7f4;
+			return this.var_b8d.frameWidth - paramInt - paramClass_f_045.frameWidth;
 		}
 		return paramInt;
 	}
@@ -268,7 +268,7 @@ public final class G_FightAnimation {
 							this.var_bd5[this.var_c85].var_87c = 0;
 							this.var_bd5[this.var_c85].var_844 = 0;
 							this.var_bd5[this.var_c85]
-									.sub_115e(2, this.var_b75);
+									.startAnimation(2, this.var_b75);
 							this.var_bd5[this.var_c85].var_81c = 1;
 						}
 						if (++this.var_c85 < this.var_b65) {
@@ -279,7 +279,7 @@ public final class G_FightAnimation {
 					}
 					for (int j = 0; j < this.var_b65; j++) {
 						if (this.var_bd5[j].var_87c == 0) {
-							if (this.var_bd5[j].var_7d4 == 1) {
+							if (this.var_bd5[j].currentFrameIndex == 1) {
 								this.var_bd5[j].var_80c = 0;
 								this.var_bd5[j].var_87c = 1;
 								E_MainCanvas.sub_233e(200);
@@ -291,14 +291,14 @@ public final class G_FightAnimation {
 											this.var_b15.smokeSprite, 0, 0, -1, 1,
 											E_MainCanvas.sub_1544(4) * 50,
 											(byte) 0))
-											.sub_10c6(
-													this.var_bd5[j].var_7dc
+											.setSpritePosition(
+													this.var_bd5[j].posX
 															+ E_MainCanvas
-																	.sub_1544(this.var_b8d.var_7f4
-																			- localClass_f_0456.var_7f4),
-													this.var_bd5[j].var_7e4
-															+ this.var_b8d.var_7fc
-															- localClass_f_0456.var_7fc
+																	.sub_1544(this.var_b8d.frameWidth
+																			- localClass_f_0456.frameWidth),
+													this.var_bd5[j].posY
+															+ this.var_b8d.frameHeight
+															- localClass_f_0456.frameHeight
 															+ 2);
 									localClass_f_0456.var_85c = true;
 									this.var_b15.sub_145c5(localClass_f_0456);
@@ -306,24 +306,24 @@ public final class G_FightAnimation {
 								(localClass_f_0454 = F_Sprite.sub_1616(
 										this.var_b15.smokeSprite, -1, 0, -1, 1,
 										E_MainCanvas.sub_1544(4) * 50, (byte) 0))
-										.sub_10c6(
-												this.var_bd5[j].var_7dc,
-												this.var_bd5[j].var_7e4
-														+ this.var_b8d.var_7fc
-														- localClass_f_0454.var_7fc
+										.setSpritePosition(
+												this.var_bd5[j].posX,
+												this.var_bd5[j].posY
+														+ this.var_b8d.frameHeight
+														- localClass_f_0454.frameHeight
 														+ 2);
 								localClass_f_0454.var_85c = true;
 								this.var_b15.sub_145c5(localClass_f_0454);
 								(localClass_f_0454 = F_Sprite.sub_1616(
 										this.var_b15.smokeSprite, 1, 0, -1, 1,
 										E_MainCanvas.sub_1544(4) * 50, (byte) 0))
-										.sub_10c6(
-												this.var_bd5[j].var_7dc
-														+ this.var_b8d.var_7f4
-														- localClass_f_0454.var_7f4,
-												this.var_bd5[j].var_7e4
-														+ this.var_b8d.var_7fc
-														- localClass_f_0454.var_7fc
+										.setSpritePosition(
+												this.var_bd5[j].posX
+														+ this.var_b8d.frameWidth
+														- localClass_f_0454.frameWidth,
+												this.var_bd5[j].posY
+														+ this.var_b8d.frameHeight
+														- localClass_f_0454.frameHeight
 														+ 2);
 								localClass_f_0454.var_85c = true;
 								this.var_b15.sub_145c5(localClass_f_0454);
@@ -334,7 +334,7 @@ public final class G_FightAnimation {
 								i = 0;
 							} else if (this.var_bd5[j].var_81c != -1) {
 								if (this.var_bd5[j].var_87c == 1) {
-									this.var_bd5[j].sub_115e(3, this.var_b75);
+									this.var_bd5[j].startAnimation(3, this.var_b75);
 									this.var_bd5[j].var_81c = 1;
 									this.var_bd5[j].var_87c = 2;
 									i = 0;
@@ -343,7 +343,7 @@ public final class G_FightAnimation {
 									this.var_bd5[j].var_874 = true;
 									this.var_bd5[j].var_844 = E_MainCanvas
 											.sub_1564(-2, 3);
-									this.var_bd5[j].sub_115e(0, this.var_b75);
+									this.var_bd5[j].startAnimation(0, this.var_b75);
 									this.var_bd5[j].var_81c = -1;
 									this.var_bd5[j].var_87c = 3;
 									i = 0;
@@ -371,31 +371,31 @@ public final class G_FightAnimation {
 			} else if (this.var_c4d == 1) {
 				i = 1;
 				if (this.var_c85 < this.var_b65) {
-					this.var_bd5[this.var_c85].sub_115e(2, this.var_b75);
+					this.var_bd5[this.var_c85].startAnimation(2, this.var_b75);
 					this.var_bd5[this.var_c85].var_81c = 1;
 					if ((this.var_b25 == 3) || (this.var_b25 == 2)) {
 						this.var_c75[this.var_c85] = F_Sprite.sub_1616(
 								this.var_b95, 0, 0, 0, 1, 50, (byte) 0);
 						this.var_c75[this.var_c85]
-								.sub_10c6(
-										this.var_bd5[this.var_c85].var_7dc
+								.setSpritePosition(
+										this.var_bd5[this.var_c85].posX
 												+ sub_1673(
 														this.var_c75[this.var_c85],
-														this.var_bd5[this.var_c85].var_7f4),
-										this.var_bd5[this.var_c85].var_7e4);
+														this.var_bd5[this.var_c85].frameWidth),
+										this.var_bd5[this.var_c85].posY);
 						this.var_b15.sub_145c5(this.var_c75[this.var_c85]);
 					} else if (this.var_b25 == 1) {
 						F_Sprite localClass_f_0451;
 						(localClass_f_0451 = F_Sprite.sub_1616(this.var_b9d,
-								0, 0, 0, 1, 0, (byte) 0)).sub_115e(1,
+								0, 0, 0, 1, 0, (byte) 0)).startAnimation(1,
 								this.var_b75);
 						localClass_f_0451
-								.sub_10c6(
-										this.var_bd5[this.var_c85].var_7dc
+								.setSpritePosition(
+										this.var_bd5[this.var_c85].posX
 												+ sub_1673(
 														localClass_f_0451,
-														this.var_bd5[this.var_c85].var_7f4),
-										this.var_bd5[this.var_c85].var_7e4);
+														this.var_bd5[this.var_c85].frameWidth),
+										this.var_bd5[this.var_c85].posY);
 						this.var_b15.sub_145c5(localClass_f_0451);
 					} else {
 						if (this.var_b25 == 7) {
@@ -405,11 +405,11 @@ public final class G_FightAnimation {
 										this.var_b15.bigSmokeSprite,
 										E_MainCanvas.sub_1564(-1, 2), 0, 0, 1,
 										E_MainCanvas.sub_1544(4) * 50, (byte) 0))
-										.sub_10c6(
-												this.var_bd5[this.var_c85].var_7dc
-														+ this.var_b8d.var_7f4
+										.setSpritePosition(
+												this.var_bd5[this.var_c85].posX
+														+ this.var_b8d.frameWidth
 														/ 2,
-												this.var_bd5[this.var_c85].var_7e4);
+												this.var_bd5[this.var_c85].posY);
 								localClass_f_0454.var_85c = true;
 								this.var_b15.sub_145c5(localClass_f_0454);
 							}
@@ -418,26 +418,26 @@ public final class G_FightAnimation {
 							F_Sprite localClass_f_0452;
 							(localClass_f_0452 = F_Sprite.sub_1616(
 									this.var_ba5, 0, 0, 0, 1, 200, (byte) 0))
-									.sub_10c6(this.var_bd5[0].var_7dc,
-											this.var_bd5[0].var_7e4
-													+ this.var_b8d.var_7fc);
-							localClass_f_0452.var_80c = (-this.var_b8d.var_7fc);
+									.setSpritePosition(this.var_bd5[0].posX,
+											this.var_bd5[0].posY
+													+ this.var_b8d.frameHeight);
+							localClass_f_0452.var_80c = (-this.var_b8d.frameHeight);
 							this.var_b15.sub_145c5(localClass_f_0452);
 							this.var_c75[0] = F_Sprite.sub_1616(
 									this.var_b95, var_b85[this.var_b6d] * 3,
 									-2, 0, -1, 100, (byte) 0);
-							int i1 = this.var_bd5[this.var_c85].var_7dc
+							int i1 = this.var_bd5[this.var_c85].posX
 									+ sub_1673(
 											this.var_c75[this.var_c85],
-											this.var_bd5[this.var_c85].var_7f4 / 2);
-							i3 = this.var_bd5[this.var_c85].var_7e4
-									+ this.var_b8d.var_7fc
-									- this.var_c75[this.var_c85].var_7fc + 2;
-							this.var_c75[0].sub_10c6(i1, i3);
+											this.var_bd5[this.var_c85].frameWidth / 2);
+							i3 = this.var_bd5[this.var_c85].posY
+									+ this.var_b8d.frameHeight
+									- this.var_c75[this.var_c85].frameHeight + 2;
+							this.var_c75[0].setSpritePosition(i1, i3);
 							this.var_c75[1] = F_Sprite.sub_1616(
 									this.var_b95, var_b85[this.var_b6d] * 3, 1,
 									0, -1, 100, (byte) 0);
-							this.var_c75[1].sub_10c6(i1, i3);
+							this.var_c75[1].setSpritePosition(i1, i3);
 							this.var_b15.sub_145c5(this.var_c75[1]);
 							this.var_c75[1].var_86c = this.var_b6d;
 							this.var_b15.sub_145c5(this.var_c75[0]);
@@ -447,12 +447,12 @@ public final class G_FightAnimation {
 									null, var_b85[this.var_b6d], 0, 0, -1,
 									2000, (byte) 6);
 							this.var_c75[this.var_c85]
-									.sub_10c6(
-											this.var_bd5[this.var_c85].var_7dc
+									.setSpritePosition(
+											this.var_bd5[this.var_c85].posX
 													+ sub_1673(
 															this.var_c75[this.var_c85],
-															this.var_bd5[this.var_c85].var_7f4 + 2),
-											this.var_bd5[this.var_c85].var_7e4 + 30);
+															this.var_bd5[this.var_c85].frameWidth + 2),
+											this.var_bd5[this.var_c85].posY + 30);
 							this.var_c75[this.var_c85].var_85c = true;
 							E_MainCanvas.sub_233e(200);
 							this.var_b15.sub_14bd3(1200);
@@ -470,7 +470,7 @@ public final class G_FightAnimation {
 					} else if ((this.var_b25 != 7)
 							&& (this.var_bd5[m].var_81c != -1)) {
 						if (this.var_bd5[m].var_87c == 0) {
-							this.var_bd5[m].sub_115e(3, this.var_b75);
+							this.var_bd5[m].startAnimation(3, this.var_b75);
 							this.var_bd5[m].var_81c = 1;
 							this.var_bd5[m].var_87c = 1;
 							if (this.var_b25 == 8) {
@@ -478,7 +478,7 @@ public final class G_FightAnimation {
 							}
 							i = 0;
 						} else if (this.var_bd5[m].var_87c == 1) {
-							this.var_bd5[m].sub_115e(0, this.var_b75);
+							this.var_bd5[m].startAnimation(0, this.var_b75);
 							this.var_bd5[m].var_81c = -1;
 							this.var_bd5[m].var_87c = 2;
 							i = 0;
@@ -491,26 +491,26 @@ public final class G_FightAnimation {
 										* E_MainCanvas.sub_1564(1, 4),
 								E_MainCanvas.sub_1564(-2, 3), 0, 1,
 								50 * E_MainCanvas.sub_1544(4), (byte) 0))
-								.sub_10c6(
-										this.var_bd5[m].var_7dc
+								.setSpritePosition(
+										this.var_bd5[m].posX
 												+ sub_1673(localClass_f_0455,
-														this.var_b8d.var_7f4),
-										this.var_c75[m].var_7e4
+														this.var_b8d.frameWidth),
+										this.var_c75[m].posY
 												+ E_MainCanvas
-														.sub_1544(30 - this.var_c75[m].var_7fc)
+														.sub_1544(30 - this.var_c75[m].frameHeight)
 												- 15);
 						localClass_f_0455.var_85c = true;
 						this.var_b15.sub_145c5(localClass_f_0455);
 					}
 				}
 				if (i != 0) {
-					if (this.var_b1d.var_ac3 == 9) {
+					if (this.var_b1d.unitTypeId == 9) {
 						this.var_b7d = 6;
 					} else {
 						this.var_b7d = 4;
 					}
 					this.var_c55 = 400;
-					if (this.var_b1d.var_ac3 == 8) {
+					if (this.var_b1d.unitTypeId == 8) {
 						this.var_c55 = 0;
 					}
 					this.var_bc5 = this.var_b15.time;
@@ -525,11 +525,11 @@ public final class G_FightAnimation {
 				if ((this.var_b25 == 9) && (E_MainCanvas.sub_1544(2) == 0)) {
 					(localClass_f_0455 = F_Sprite.sub_1616(
 							this.var_b15.bigSmokeSprite, E_MainCanvas.sub_1564(-2, 1),
-							0, -1, 1, 100, (byte) 0)).sub_10c6(
-							this.var_c75[m].var_7dc
+							0, -1, 1, 100, (byte) 0)).setSpritePosition(
+							this.var_c75[m].posX
 									+ sub_1673(this.var_c75[m], 0),
-							this.var_c75[m].var_7e4 + this.var_c75[m].var_7fc
-									- localClass_f_0455.var_7fc);
+							this.var_c75[m].posY + this.var_c75[m].frameHeight
+									- localClass_f_0455.frameHeight);
 					if (this.var_c75[m].var_87c == 1) {
 						localClass_f_0455.var_86c = this.var_bed.var_b6d;
 					} else {
@@ -539,11 +539,11 @@ public final class G_FightAnimation {
 				}
 				if (this.var_b25 == 9) {
 					if (this.var_b6d == 0) {
-						if (this.var_c75[m].var_7dc >= this.var_b15.var_32cb) {
+						if (this.var_c75[m].posX >= this.var_b15.var_32cb) {
 							if (this.var_c75[m].var_87c == 0) {
-								this.var_c75[m].sub_10c6(this.var_b15.var_32db
-										- this.var_c75[m].var_7f4,
-										this.var_c75[m].var_7e4);
+								this.var_c75[m].setSpritePosition(this.var_b15.var_32db
+										- this.var_c75[m].frameWidth,
+										this.var_c75[m].posY);
 								this.var_c75[m].var_86c = this.var_bed.var_b6d;
 								this.var_c75[m].var_87c = 1;
 								i = 0;
@@ -555,10 +555,10 @@ public final class G_FightAnimation {
 							i = 0;
 						}
 					} else if (this.var_b6d == 1) {
-						if (this.var_c75[m].var_7dc + this.var_c75[m].var_7f4 < 0) {
+						if (this.var_c75[m].posX + this.var_c75[m].frameWidth < 0) {
 							if (this.var_c75[m].var_87c == 0) {
-								this.var_c75[m].sub_10c6(this.var_b15.var_32db,
-										this.var_c75[m].var_7e4);
+								this.var_c75[m].setSpritePosition(this.var_b15.var_32db,
+										this.var_c75[m].posY);
 								this.var_c75[m].var_86c = this.var_bed.var_b6d;
 								this.var_c75[m].var_87c = 1;
 								i = 0;
@@ -608,15 +608,15 @@ public final class G_FightAnimation {
 						localClass_f_0453.var_854 = false;
 					}
 					int i2 = E_MainCanvas.sub_1544(this.var_b15.var_32cb / 2
-							- localClass_f_0453.var_7f4);
+							- localClass_f_0453.frameWidth);
 					i3 = 0;
 					if (this.var_bed.var_be5 != null) {
-						i3 = 0 + (this.var_bed.var_be5.var_4e3 - localClass_f_0453.var_7fc);
+						i3 = 0 + (this.var_bed.var_be5.imageHeight - localClass_f_0453.frameHeight);
 					}
 					int i4 = (this.var_b15.var_3bfb - i3)
 							* (this.var_c7d * 2 + 1)
 							/ (C_Unit.var_bc3[this.var_b25].length * 2)
-							- localClass_f_0453.var_7fc / 2 + i3;
+							- localClass_f_0453.frameHeight / 2 + i3;
 					if (this.var_b6d == 0) {
 						i2 += this.var_b15.var_32db;
 					}
@@ -624,7 +624,7 @@ public final class G_FightAnimation {
 						localClass_f_0453.var_80c = i4;
 						i4 = 0;
 					}
-					localClass_f_0453.sub_10c6(i2, i4);
+					localClass_f_0453.setSpritePosition(i2, i4);
 					this.var_b15.sub_145c5(localClass_f_0453);
 					for (int i5 = 0; i5 < 3; i5++) {
 						F_Sprite localClass_f_0457;
@@ -634,28 +634,28 @@ public final class G_FightAnimation {
 									E_MainCanvas.sub_1564(-1, 2), 0,
 									E_MainCanvas.sub_1564(-2, 0), 1,
 									E_MainCanvas.sub_1544(4) * 50, (byte) 0))
-									.sub_10c6(
+									.setSpritePosition(
 											i2
 													+ E_MainCanvas
-															.sub_1544(localClass_f_0453.var_7f4
-																	- localClass_f_0457.var_7f4),
+															.sub_1544(localClass_f_0453.frameWidth
+																	- localClass_f_0457.frameWidth),
 											localClass_f_0453.var_80c
-													+ localClass_f_0453.var_7fc
-													- localClass_f_0457.var_7fc
+													+ localClass_f_0453.frameHeight
+													- localClass_f_0457.frameHeight
 													+ 1);
-							localClass_f_0457.var_80c = (-localClass_f_0453.var_7fc / 2);
+							localClass_f_0457.var_80c = (-localClass_f_0453.frameHeight / 2);
 						} else {
 							(localClass_f_0457 = F_Sprite.sub_1616(
 									this.var_b15.bigSmokeSprite,
 									E_MainCanvas.sub_1564(-1, 2), 0, -1, 1, 100,
 									(byte) 0))
-									.sub_10c6(
+									.setSpritePosition(
 											i2
 													+ E_MainCanvas
-															.sub_1544(localClass_f_0453.var_7f4
-																	- localClass_f_0457.var_7f4),
-											i4 + localClass_f_0453.var_7fc
-													- localClass_f_0457.var_7fc
+															.sub_1544(localClass_f_0453.frameWidth
+																	- localClass_f_0457.frameWidth),
+											i4 + localClass_f_0453.frameHeight
+													- localClass_f_0457.frameHeight
 													+ 1);
 						}
 						this.var_b15.sub_145c5(localClass_f_0457);
@@ -703,14 +703,14 @@ public final class G_FightAnimation {
 									this.var_b15.bigSmokeSprite,
 									E_MainCanvas.sub_1564(-1, 2), 0, 0, 1, 100,
 									(byte) 0))
-									.sub_10c6(
-											this.var_bd5[i].var_7dc
+									.setSpritePosition(
+											this.var_bd5[i].posX
 													+ E_MainCanvas
-															.sub_1544(this.var_b8d.var_7f4
-																	- localClass_f_0451.var_7f4),
-											this.var_bd5[i].var_7e4
-													+ this.var_b8d.var_7fc
-													- localClass_f_0451.var_7fc
+															.sub_1544(this.var_b8d.frameWidth
+																	- localClass_f_0451.frameWidth),
+											this.var_bd5[i].posY
+													+ this.var_b8d.frameHeight
+													- localClass_f_0451.frameHeight
 													+ 1);
 							this.var_b15.sub_145c5(localClass_f_0451);
 						}
@@ -728,15 +728,15 @@ public final class G_FightAnimation {
 						(localClass_f_0451 = F_Sprite
 								.sub_1616(this.var_b15.redsparkSprite, 0, 0, 0, 1,
 										50, (byte) 0))
-								.sub_10c6(
-										this.var_bed.var_bd5[i].var_7dc
+								.setSpritePosition(
+										this.var_bed.var_bd5[i].posX
 												+ E_MainCanvas
-														.sub_1544(this.var_bed.var_bd5[i].var_7f4
-																- localClass_f_0451.var_7f4),
-										this.var_bed.var_bd5[i].var_7e4
+														.sub_1544(this.var_bed.var_bd5[i].frameWidth
+																- localClass_f_0451.frameWidth),
+										this.var_bed.var_bd5[i].posY
 												+ E_MainCanvas
-														.sub_1544(this.var_bed.var_bd5[i].var_7fc
-																- localClass_f_0451.var_7fc));
+														.sub_1544(this.var_bed.var_bd5[i].frameHeight
+																- localClass_f_0451.frameHeight));
 						localClass_f_0451.var_85c = true;
 						this.var_b15.sub_145c5(localClass_f_0451);
 					}
@@ -762,16 +762,16 @@ public final class G_FightAnimation {
 				F_Sprite localClass_f_0452;
 				(localClass_f_0452 = F_Sprite.sub_1616(null, 0, 0, 0, 1,
 						500, (byte) 4))
-						.sub_10c6(this.var_bd5[j].var_7dc
-								+ (this.var_bd5[j].var_7f4 >> 1),
-								this.var_bd5[j].var_7e4
-										+ (this.var_bd5[j].var_7fc >> 1)
+						.setSpritePosition(this.var_bd5[j].posX
+								+ (this.var_bd5[j].frameWidth >> 1),
+								this.var_bd5[j].posY
+										+ (this.var_bd5[j].frameHeight >> 1)
 										+ this.var_bb5);
 				this.var_b15.sub_145c5(localClass_f_0452);
 			}
-			int k = this.var_bd5[j].var_7f4 / 3;
+			int k = this.var_bd5[j].frameWidth / 3;
 			this.var_bd5[j]
-					.sub_10c6(
+					.setSpritePosition(
 							this.var_c2d[j][0]
 									+ (k * A_MenuBase.sub_fc1(this.var_c35[j]) >> 10),
 							this.var_c2d[j][1]
@@ -834,20 +834,20 @@ public final class G_FightAnimation {
 									this.var_b15.bigSmokeSprite,
 									E_MainCanvas.sub_1564(-1, 2), 0, -1, 1, 100,
 									(byte) 0))
-									.sub_10c6(
-											this.var_bd5[this.var_c4d].var_7dc
+									.setSpritePosition(
+											this.var_bd5[this.var_c4d].posX
 													+ E_MainCanvas
-															.sub_1544(this.var_b8d.var_7f4
-																	- localClass_f_045.var_7f4),
-											this.var_bd5[this.var_c4d].var_7e4
-													+ this.var_b8d.var_7fc
-													- localClass_f_045.var_7fc
+															.sub_1544(this.var_b8d.frameWidth
+																	- localClass_f_045.frameWidth),
+											this.var_bd5[this.var_c4d].posY
+													+ this.var_b8d.frameHeight
+													- localClass_f_045.frameHeight
 													+ 1);
 							this.var_b15.sub_145c5(localClass_f_045);
 						}
 					}
 					this.var_bd5[this.var_c4d].var_834 = var_b85[this.var_b6d];
-					this.var_bd5[this.var_c4d].sub_115e(1, this.var_b75);
+					this.var_bd5[this.var_c4d].startAnimation(1, this.var_b75);
 					this.var_c4d += 1;
 					j = 0;
 				}
@@ -856,26 +856,26 @@ public final class G_FightAnimation {
 						if (this.var_bd5[k].var_87c != -1) {
 							this.var_bd5[k].var_87c += 1;
 							if (this.var_bd5[k].var_87c >= 16) {
-								this.var_bd5[k].sub_115e(2, this.var_b75);
+								this.var_bd5[k].startAnimation(2, this.var_b75);
 								this.var_bd5[k].var_834 = 0;
 								this.var_bd5[k].var_87c = -1;
 								(localClass_f_045 = F_Sprite.sub_1616(null,
-										0, 0, 0, 1, 800, (byte) 2)).sub_10c6(
-										this.var_bd5[k].var_7dc
+										0, 0, 0, 1, 800, (byte) 2)).setSpritePosition(
+										this.var_bd5[k].posX
 												+ sub_1673(localClass_f_045,
-														this.var_b8d.var_7f4),
-										this.var_bd5[k].var_7e4
-												+ this.var_b8d.var_7fc);
+														this.var_b8d.frameWidth),
+										this.var_bd5[k].posY
+												+ this.var_b8d.frameHeight);
 								this.var_b15.sub_145c5(localClass_f_045);
 								(localClass_f_045 = F_Sprite
 										.sub_1616(this.var_ba5, 0, 0, 0, 1,
 												150, (byte) 0))
-										.sub_10c6(
-												this.var_bd5[k].var_7dc
+										.setSpritePosition(
+												this.var_bd5[k].posX
 														+ sub_1673(
 																localClass_f_045,
 																24),
-												this.var_bd5[k].var_7e4 + 3);
+												this.var_bd5[k].posY + 3);
 								this.var_b15.sub_145c5(localClass_f_045);
 							} else {
 								j = 0;
@@ -889,32 +889,32 @@ public final class G_FightAnimation {
 						this.var_bd5[k].var_844 = 0;
 						this.var_bd5[k].var_834 = 0;
 						if ((this.var_b25 == 0) || (this.var_b25 == 5)) {
-							this.var_bd5[k].sub_115e(2, this.var_b75);
+							this.var_bd5[k].startAnimation(2, this.var_b75);
 							if (this.var_b25 == 0) {
 								(localClass_f_045 = F_Sprite
 										.sub_1616(this.var_ba5, 0, 0, 0, 1,
 												150, (byte) 0))
-										.sub_10c6(
-												this.var_bd5[k].var_7dc
+										.setSpritePosition(
+												this.var_bd5[k].posX
 														+ sub_1673(
 																localClass_f_045,
 																14),
-												this.var_bd5[k].var_7e4
-														+ this.var_bd5[k].var_7fc);
-								localClass_f_045.var_80c = (4 - this.var_bd5[k].var_7fc);
+												this.var_bd5[k].posY
+														+ this.var_bd5[k].frameHeight);
+								localClass_f_045.var_80c = (4 - this.var_bd5[k].frameHeight);
 								this.var_b15.sub_145c5(localClass_f_045);
 							} else if (this.var_b25 == 5) {
 								(localClass_f_045 = F_Sprite.sub_1616(
 										this.var_b15.redsparkSprite, 0, 0, 0, 1, 50,
 										(byte) 0))
-										.sub_10c6(
-												this.var_bd5[k].var_7dc
+										.setSpritePosition(
+												this.var_bd5[k].posX
 														+ sub_1673(
 																localClass_f_045,
-																this.var_b8d.var_7f4 * 3 / 4),
-												this.var_bd5[k].var_7e4
-														+ this.var_bd5[k].var_7fc);
-								localClass_f_045.var_80c = (-localClass_f_045.var_7fc);
+																this.var_b8d.frameWidth * 3 / 4),
+												this.var_bd5[k].posY
+														+ this.var_bd5[k].frameHeight);
+								localClass_f_045.var_80c = (-localClass_f_045.frameHeight);
 								this.var_b15.sub_145c5(localClass_f_045);
 							}
 						}
@@ -952,7 +952,7 @@ public final class G_FightAnimation {
 					} else {
 						this.var_bd5[this.var_c4d].var_834 = (-var_b85[this.var_b6d]);
 					}
-					this.var_bd5[this.var_c4d].sub_115e(3, this.var_b75);
+					this.var_bd5[this.var_c4d].startAnimation(3, this.var_b75);
 					this.var_c4d += 1;
 					j = 0;
 				}
@@ -961,7 +961,7 @@ public final class G_FightAnimation {
 						if (this.var_bd5[k].var_87c != -1) {
 							this.var_bd5[k].var_87c += 1;
 							if (this.var_bd5[k].var_87c >= 16) {
-								this.var_bd5[k].sub_115e(0, this.var_b75);
+								this.var_bd5[k].startAnimation(0, this.var_b75);
 								this.var_bd5[k].var_834 = 0;
 								this.var_bd5[k].var_87c = -1;
 							} else {
@@ -975,7 +975,7 @@ public final class G_FightAnimation {
 						this.var_bd5[k].var_844 = 0;
 						this.var_bd5[k].var_834 = 0;
 						this.var_bd5[k].var_80c = 0;
-						this.var_bd5[k].sub_115e(0, this.var_b75);
+						this.var_bd5[k].startAnimation(0, this.var_b75);
 					}
 				}
 				if (j != 0) {
@@ -1007,12 +1007,12 @@ public final class G_FightAnimation {
 			F_Sprite localClass_f_0451;
 			(localClass_f_0451 = F_Sprite.sub_1616(this.var_b15.redsparkSprite, 0,
 					0, 0, 1, 0, (byte) 0))
-					.sub_10c6(
-							this.var_bd5[i].var_7dc
-									+ (this.var_bd5[i].var_7f4 - localClass_f_0451.var_7f4)
+					.setSpritePosition(
+							this.var_bd5[i].posX
+									+ (this.var_bd5[i].frameWidth - localClass_f_0451.frameWidth)
 									/ 2, this.var_b15.someCanHeight);
-			localClass_f_0451.var_80c = (this.var_bd5[i].var_7e4
-					+ (this.var_bd5[i].var_7fc - localClass_f_0451.var_7fc) / 2 - this.var_b15.someCanHeight);
+			localClass_f_0451.var_80c = (this.var_bd5[i].posY
+					+ (this.var_bd5[i].frameHeight - localClass_f_0451.frameHeight) / 2 - this.var_b15.someCanHeight);
 			this.var_b15.sub_145c5(localClass_f_0451);
 			F_Sprite localClass_f_0452;
 			for (k = 0; k < 3; k++) {
@@ -1020,22 +1020,22 @@ public final class G_FightAnimation {
 						this.var_b15.bigSmokeSprite, -1 + k, 0,
 						E_MainCanvas.sub_1564(-4, -1), 1,
 						E_MainCanvas.sub_1544(4) * 50, (byte) 0))
-						.sub_10c6(
-								this.var_bd5[i].var_7dc
-										+ (this.var_bd5[i].var_7f4 - localClass_f_0452.var_7f4)
-										/ 2, this.var_bd5[i].var_7e4
-										+ this.var_bd5[i].var_7fc
-										- localClass_f_0452.var_7fc + 3);
+						.setSpritePosition(
+								this.var_bd5[i].posX
+										+ (this.var_bd5[i].frameWidth - localClass_f_0452.frameWidth)
+										/ 2, this.var_bd5[i].posY
+										+ this.var_bd5[i].frameHeight
+										- localClass_f_0452.frameHeight + 3);
 				this.var_b15.sub_145c5(localClass_f_0452);
 			}
 			(localClass_f_0452 = F_Sprite.sub_1616(this.var_b15.smokeSprite, 0,
 					0, -1, 1, 200, (byte) 0))
-					.sub_10c6(
-							this.var_bd5[i].var_7dc
-									+ (this.var_bd5[i].var_7f4 - localClass_f_0452.var_7f4)
-									/ 2, this.var_bd5[i].var_7e4
-									+ this.var_bd5[i].var_7fc
-									- localClass_f_0452.var_7fc + 3);
+					.setSpritePosition(
+							this.var_bd5[i].posX
+									+ (this.var_bd5[i].frameWidth - localClass_f_0452.frameWidth)
+									/ 2, this.var_bd5[i].posY
+									+ this.var_bd5[i].frameHeight
+									- localClass_f_0452.frameHeight + 3);
 			this.var_b15.sub_145c5(localClass_f_0452);
 		}
 		F_Sprite[] arrayOfClass_f_045 = new F_Sprite[this.var_b65];
@@ -1046,8 +1046,8 @@ public final class G_FightAnimation {
 				+ (this.var_b4d - this.var_b45), 0, -4, (byte) 1);
 		int j;
 		if (this.var_b5d == 1) {
-			j = this.var_bd5[0].var_7dc + this.var_bd5[0].var_7f4 / 2;
-			k = this.var_bd5[0].var_7e4 + this.var_bd5[0].var_7fc + 1;
+			j = this.var_bd5[0].posX + this.var_bd5[0].frameWidth / 2;
+			k = this.var_bd5[0].posY + this.var_bd5[0].frameHeight + 1;
 		} else {
 			j = this.var_b15.var_32db / 2;
 			if (this.var_b6d == 1) {
@@ -1055,7 +1055,7 @@ public final class G_FightAnimation {
 			}
 			k = (this.var_b15.var_3bfb + this.var_bfd) / 2;
 		}
-		localClass_f_0451.sub_10c6(j, k);
+		localClass_f_0451.setSpritePosition(j, k);
 		localClass_f_0451.var_85c = true;
 		this.var_b15.sub_145c5(localClass_f_0451);
 	}
@@ -1072,7 +1072,7 @@ public final class G_FightAnimation {
 			n = 0;
 			int i1 = this.var_c0d;
 			while (n < i1) {
-				this.var_bdd[this.var_c5d[k][n]].sub_852(paramGraphics, i, j);
+				this.var_bdd[this.var_c5d[k][n]].drawImageExt(paramGraphics, i, j);
 				j += 24;
 				n++;
 			}
@@ -1080,12 +1080,12 @@ public final class G_FightAnimation {
 			k++;
 		}
 		if (this.var_be5 != null) {
-			k = this.var_be5.var_4db;
+			k = this.var_be5.imageWidth;
 			i = 0;
 			m = 0;
 			n = this.var_b15.var_32db / k;
 			while (m < n) {
-				this.var_be5.sub_852(paramGraphics, i, 0);
+				this.var_be5.drawImageExt(paramGraphics, i, 0);
 				i += k;
 				m++;
 			}
@@ -1105,10 +1105,10 @@ public final class G_FightAnimation {
 			F_Sprite localClass_f_045 = this.var_bd5[i];
 			if ((this.var_b25 == 0) || (this.var_b25 == 4)
 					|| (this.var_b25 == 5) || (this.var_b25 == 6)) {
-				paramGraphics.fillArc(localClass_f_045.var_7dc,
-						localClass_f_045.var_7e4 + localClass_f_045.var_7fc * 4
-								/ 5, localClass_f_045.var_7f4,
-						localClass_f_045.var_7fc / 4, 0, 360);
+				paramGraphics.fillArc(localClass_f_045.posX,
+						localClass_f_045.posY + localClass_f_045.frameHeight * 4
+								/ 5, localClass_f_045.frameWidth,
+						localClass_f_045.frameHeight / 4, 0, 360);
 			}
 		}
 	}
