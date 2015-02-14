@@ -83,7 +83,7 @@ public final class C_Unit extends F_Sprite {
 
 	public final void sub_d0e(int paramInt) {
 		this.var_b3b = true;
-		this.var_b53 = var_a83.var_34d3;
+		this.var_b53 = var_a83.time;
 		this.var_b4b = paramInt;
 	}
 
@@ -558,7 +558,7 @@ public final class C_Unit extends F_Sprite {
 
 	public final void sub_1fde() {
 		if (this.var_b3b) {
-			if (var_a83.var_34d3 - this.var_b53 >= this.var_b4b) {
+			if (var_a83.time - this.var_b53 >= this.var_b4b) {
 				this.var_b3b = false;
 			} else {
 				this.var_b43 = (!this.var_b43);
@@ -633,9 +633,9 @@ public final class C_Unit extends F_Sprite {
 			sub_10ed();
 			return;
 		}
-		if ((this.var_b13 == 0) && (var_a83.var_34d3 - this.var_abb >= 200L)) {
+		if ((this.var_b13 == 0) && (var_a83.time - this.var_abb >= 200L)) {
 			sub_10ed();
-			this.var_abb = var_a83.var_34d3;
+			this.var_abb = var_a83.time;
 		}
 	}
 

@@ -8,29 +8,29 @@ import javax.microedition.lcdui.Graphics;
 public class A_MenuBase {
 	
 	public static E_MainCanvas mainCanvas;
-	public int var_7a3 = mainCanvas.getWidth();
-	public int var_7ab = mainCanvas.getHeight();
-	public int var_7b3 = this.var_7a3 >> 1;
-	public int var_7bb = this.var_7ab >> 1;
+	public int someCanWidth = mainCanvas.getWidth();
+	public int someCanHeight = mainCanvas.getHeight();
+	public int var_7b3 = this.someCanWidth >> 1;
+	public int var_7bb = this.someCanHeight >> 1;
 	public static String[] langStrings;
 	public static short[] var_7cb = null;
 	public static int var_7d3 = 360;
 	public static int var_7db = 0;
 	public static int var_7e3 = 0;
 
-	public void sub_84a() {
+	public void onLoad() {
 		//@todo override
 	}
 
 	public void sub_865(int paramInt1, int paramInt2) {
+		//@todo override or not?
+	}
+
+	public void onUpdate() throws Exception {
 		//@todo override
 	}
 
-	public void sub_880() throws Exception {
-		//@todo override
-	}
-
-	public void sub_8a5(Graphics paramGraphics) {
+	public void onPaint(Graphics paramGraphics) {
 		//@todo override
 	}
 

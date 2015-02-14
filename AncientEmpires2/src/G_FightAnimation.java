@@ -122,7 +122,7 @@ public final class G_FightAnimation {
 		this.var_c5d = new byte[this.var_c05][this.var_c0d];
 		for (int m = 0; m < this.var_c05; m++) {
 			for (int n = 0; n < this.var_c0d; n++) {
-				this.var_c5d[m][n] = ((byte) Math.abs(E_MainCanvas.var_1414
+				this.var_c5d[m][n] = ((byte) Math.abs(E_MainCanvas.random
 						.nextInt() % this.var_bdd.length));
 			}
 		}
@@ -180,7 +180,7 @@ public final class G_FightAnimation {
 		this.var_c2d = new int[paramClass_c_032.var_aa3.length][2];
 		for (int m = 0; m < this.var_c2d.length; m++) {
 			this.var_c2d[m][0] = (paramClass_c_032.var_aa3[m][0]
-					* paramClass_i_168.var_7a3 / 128);
+					* paramClass_i_168.someCanWidth / 128);
 			if (this.var_b6d == 1) {
 				this.var_c2d[m][0] = (paramClass_i_168.var_32db
 						- this.var_c2d[m][0] - this.var_b8d.var_7f4 + i);
@@ -225,7 +225,7 @@ public final class G_FightAnimation {
 	public final void sub_16bb() {
 		this.var_b2d = true;
 		this.var_b7d = 1;
-		this.var_bc5 = this.var_b15.var_34d3;
+		this.var_bc5 = this.var_b15.time;
 	}
 
 	public final void sub_16eb() {
@@ -238,7 +238,7 @@ public final class G_FightAnimation {
 			F_Sprite localClass_f_0454;
 			if (this.var_b25 == 6) {
 				if (this.var_c4d == 0) {
-					if (this.var_b15.var_34d3 - this.var_bc5 >= 200L) {
+					if (this.var_b15.time - this.var_bc5 >= 200L) {
 						if (this.var_c85 < this.var_b65) {
 							this.var_bd5[this.var_c85].var_87c = -1;
 							this.var_bd5[this.var_c85].var_874 = false;
@@ -247,23 +247,23 @@ public final class G_FightAnimation {
 						if (++this.var_c85 >= this.var_b65) {
 							this.var_c85 = 0;
 							this.var_c4d = 1;
-							this.var_bc5 = this.var_b15.var_34d3;
+							this.var_bc5 = this.var_b15.time;
 						}
 					}
 				} else if (this.var_c4d == 1) {
-					if (this.var_b15.var_34d3 - this.var_bc5 >= 200L) {
+					if (this.var_b15.time - this.var_bc5 >= 200L) {
 						if (this.var_c85 < this.var_b65) {
 							this.var_bd5[this.var_c85].var_844 = -1;
 						}
 						if (++this.var_c85 >= this.var_b65) {
 							this.var_c85 = 0;
 							this.var_c4d = 2;
-							this.var_bc5 = this.var_b15.var_34d3;
+							this.var_bc5 = this.var_b15.time;
 						}
 					}
 				} else if (this.var_c4d == 2) {
 					i = 1;
-					if (this.var_b15.var_34d3 - this.var_bc5 >= 200L) {
+					if (this.var_b15.time - this.var_bc5 >= 200L) {
 						if (this.var_c85 < this.var_b65) {
 							this.var_bd5[this.var_c85].var_87c = 0;
 							this.var_bd5[this.var_c85].var_844 = 0;
@@ -284,7 +284,7 @@ public final class G_FightAnimation {
 								this.var_bd5[j].var_87c = 1;
 								E_MainCanvas.sub_233e(200);
 								this.var_b15.sub_14bd3(1200);
-								E_MainCanvas.sub_24ab(14, 1);
+								E_MainCanvas.playMusicLooped(14, 1);
 								for (int n = 0; n < 2; n++) {
 									F_Sprite localClass_f_0456;
 									(localClass_f_0456 = F_Sprite.sub_1616(
@@ -353,12 +353,12 @@ public final class G_FightAnimation {
 					}
 					if (i != 0) {
 						this.var_c4d = 0;
-						this.var_bc5 = this.var_b15.var_34d3;
+						this.var_bc5 = this.var_b15.time;
 						this.var_b7d = 4;
 					}
 				}
 			} else if (this.var_c4d == 0) {
-				if (this.var_b15.var_34d3 - this.var_bc5 >= 200L) {
+				if (this.var_b15.time - this.var_bc5 >= 200L) {
 					if (this.var_b25 == 9) {
 						this.var_c75 = new F_Sprite[this.var_b65 * 2];
 					} else if ((this.var_b25 != 7) && (this.var_b25 != 1)) {
@@ -366,7 +366,7 @@ public final class G_FightAnimation {
 					}
 					this.var_c4d = 1;
 					this.var_c85 = 0;
-					this.var_bc5 = this.var_b15.var_34d3;
+					this.var_bc5 = this.var_b15.time;
 				}
 			} else if (this.var_c4d == 1) {
 				i = 1;
@@ -456,7 +456,7 @@ public final class G_FightAnimation {
 							this.var_c75[this.var_c85].var_85c = true;
 							E_MainCanvas.sub_233e(200);
 							this.var_b15.sub_14bd3(1200);
-							E_MainCanvas.sub_24ab(14, 1);
+							E_MainCanvas.playMusicLooped(14, 1);
 							this.var_b15.sub_145c5(this.var_c75[this.var_c85]);
 						}
 					}
@@ -513,7 +513,7 @@ public final class G_FightAnimation {
 					if (this.var_b1d.var_ac3 == 8) {
 						this.var_c55 = 0;
 					}
-					this.var_bc5 = this.var_b15.var_34d3;
+					this.var_bc5 = this.var_b15.time;
 					this.var_c4d = 0;
 					return;
 				}
@@ -575,19 +575,19 @@ public final class G_FightAnimation {
 			if (i != 0) {
 				this.var_c4d = 0;
 				this.var_b7d = 4;
-				this.var_bc5 = this.var_b15.var_34d3;
+				this.var_bc5 = this.var_b15.time;
 				return;
 			}
 			break;
 		case 4:
 			if (this.var_c4d == 0) {
-				if (this.var_b15.var_34d3 - this.var_bc5 >= this.var_c55) {
+				if (this.var_b15.time - this.var_bc5 >= this.var_c55) {
 					this.var_bed.sub_3363();
 					if (this.var_b25 != 1) {
 						this.var_b15.sub_14bd3(200);
 					}
 					E_MainCanvas.sub_233e(200);
-					E_MainCanvas.sub_24ab(14, 1);
+					E_MainCanvas.playMusicLooped(14, 1);
 					if (this.var_b9d != null) {
 						this.var_c7d = C_Unit.var_bc3[this.var_b25].length;
 					}
@@ -662,12 +662,12 @@ public final class G_FightAnimation {
 					}
 				}
 				this.var_b7d = 7;
-				this.var_bc5 = this.var_b15.var_34d3;
+				this.var_bc5 = this.var_b15.time;
 				return;
 			}
 			break;
 		case 7:
-			if (this.var_b15.var_34d3 - this.var_bc5 >= 1000L) {
+			if (this.var_b15.time - this.var_bc5 >= 1000L) {
 				this.var_b7d = 0;
 				this.var_b35 = true;
 			}
@@ -685,9 +685,9 @@ public final class G_FightAnimation {
 		switch (this.var_b7d) {
 		case 1:
 			if (this.var_c4d == 0) {
-				if (this.var_b15.var_34d3 - this.var_bc5 >= 200L) {
+				if (this.var_b15.time - this.var_bc5 >= 200L) {
 					this.var_c4d = 1;
-					this.var_bc5 = this.var_b15.var_34d3;
+					this.var_bc5 = this.var_b15.time;
 				}
 			} else {
 				F_Sprite localClass_f_0451;
@@ -695,7 +695,7 @@ public final class G_FightAnimation {
 					this.var_c45 += 5;
 					if (this.var_c45 >= 90) {
 						this.var_c4d += 1;
-						this.var_bc5 = this.var_b15.var_34d3;
+						this.var_bc5 = this.var_b15.time;
 					}
 					if ((this.var_c45 - 20) % 15 == 0) {
 						for (int i = 0; i < this.var_bd5.length; i++) {
@@ -716,12 +716,12 @@ public final class G_FightAnimation {
 						}
 					}
 				} else if ((this.var_c4d == 2)
-						&& (this.var_b15.var_34d3 - this.var_bc5 >= 400L)) {
+						&& (this.var_b15.time - this.var_bc5 >= 400L)) {
 					this.var_c45 = 20;
 					this.var_bed.sub_3363();
 					this.var_b7d = 4;
 					this.var_bed.var_c15 = false;
-					this.var_bc5 = this.var_b15.var_34d3;
+					this.var_bc5 = this.var_b15.time;
 				}
 				if (++this.var_c3d >= 2) {
 					for (int i = 0; i < this.var_bed.var_bd5.length; i++) {
@@ -746,16 +746,16 @@ public final class G_FightAnimation {
 			}
 			break;
 		case 4:
-			if (this.var_b15.var_34d3 - this.var_bc5 >= 800L) {
+			if (this.var_b15.time - this.var_bc5 >= 800L) {
 				this.var_b35 = true;
 				this.var_b7d = 0;
 			}
 			break;
 		}
 		int i = 0;
-		if (this.var_b15.var_34d3 - this.var_bbd >= 300L) {
+		if (this.var_b15.time - this.var_bbd >= 300L) {
 			i = 1;
-			this.var_bbd = this.var_b15.var_34d3;
+			this.var_bbd = this.var_b15.time;
 		}
 		for (int j = 0; j < this.var_bd5.length; j++) {
 			if (i != 0) {
@@ -783,7 +783,7 @@ public final class G_FightAnimation {
 
 	public final void sub_2ae8() {
 		if (this.var_c15) {
-			if (this.var_b15.var_34d3 - this.var_bcd >= 300L) {
+			if (this.var_b15.time - this.var_bcd >= 300L) {
 				this.var_c15 = false;
 				this.var_bad = 0;
 				this.var_bb5 = 0;
@@ -793,7 +793,7 @@ public final class G_FightAnimation {
 				} else {
 					this.var_bad = 2;
 				}
-				this.var_bb5 = (E_MainCanvas.var_1414.nextInt() % 1);
+				this.var_bb5 = (E_MainCanvas.random.nextInt() % 1);
 			}
 		}
 		if ((this.var_b3d) && (this.var_c1d > this.var_b4d)) {
@@ -816,7 +816,7 @@ public final class G_FightAnimation {
 			int k;
 			switch (this.var_b7d) {
 			case 1:
-				if (this.var_b15.var_34d3 - this.var_bc5 >= 200L) {
+				if (this.var_b15.time - this.var_bc5 >= 200L) {
 					this.var_b7d = 3;
 				}
 				break;
@@ -926,14 +926,14 @@ public final class G_FightAnimation {
 					this.var_bed.sub_3363();
 					this.var_b15.sub_14bd3(200);
 					E_MainCanvas.sub_233e(200);
-					E_MainCanvas.sub_24ab(14, 1);
-					this.var_bc5 = this.var_b15.var_34d3;
+					E_MainCanvas.playMusicLooped(14, 1);
+					this.var_bc5 = this.var_b15.time;
 				}
 				break;
 			case 6:
-				if (((this.var_b25 == 10) && (this.var_b15.var_34d3
+				if (((this.var_b25 == 10) && (this.var_b15.time
 						- this.var_bc5 >= 400L))
-						|| (((this.var_b25 == 0) || (this.var_b25 == 2) || (this.var_b25 == 5)) && (this.var_b15.var_34d3
+						|| (((this.var_b25 == 0) || (this.var_b25 == 2) || (this.var_b25 == 5)) && (this.var_b15.time
 								- this.var_bc5 >= 50L))) {
 					this.var_b7d = 4;
 				}
@@ -981,7 +981,7 @@ public final class G_FightAnimation {
 				if (j != 0) {
 					this.var_b35 = true;
 					this.var_b7d = 0;
-					this.var_bc5 = this.var_b15.var_34d3;
+					this.var_bc5 = this.var_b15.time;
 				}
 				break;
 			}
@@ -1010,9 +1010,9 @@ public final class G_FightAnimation {
 					.sub_10c6(
 							this.var_bd5[i].var_7dc
 									+ (this.var_bd5[i].var_7f4 - localClass_f_0451.var_7f4)
-									/ 2, this.var_b15.var_7ab);
+									/ 2, this.var_b15.someCanHeight);
 			localClass_f_0451.var_80c = (this.var_bd5[i].var_7e4
-					+ (this.var_bd5[i].var_7fc - localClass_f_0451.var_7fc) / 2 - this.var_b15.var_7ab);
+					+ (this.var_bd5[i].var_7fc - localClass_f_0451.var_7fc) / 2 - this.var_b15.someCanHeight);
 			this.var_b15.sub_145c5(localClass_f_0451);
 			F_Sprite localClass_f_0452;
 			for (k = 0; k < 3; k++) {
@@ -1094,7 +1094,7 @@ public final class G_FightAnimation {
 	}
 
 	public final void sub_3734(Graphics paramGraphics) {
-		int i = this.var_b15.var_7ab - I_Game.var_32c3 / 2;
+		int i = this.var_b15.someCanHeight - I_Game.var_32c3 / 2;
 		E_MainCanvas.sub_189a(paramGraphics, this.var_c1d + "/" + 100,
 				this.var_b15.var_32db / 2, i, 1, 3);
 	}

@@ -336,18 +336,18 @@ public class F_Sprite {
 				for (int k = 0; k < 5; k++) {
 					localClass_f_045.var_8c4[k] = true;
 					if (paramByte == 4) {
-						localClass_f_045.var_8ac[k][0] = ((short) (E_MainCanvas.var_1414
+						localClass_f_045.var_8ac[k][0] = ((short) (E_MainCanvas.random
 								.nextInt() % 4 << 10));
-						localClass_f_045.var_8ac[k][1] = ((short) (E_MainCanvas.var_1414
+						localClass_f_045.var_8ac[k][1] = ((short) (E_MainCanvas.random
 								.nextInt() % 4 << 10));
 					} else {
 						localClass_f_045.var_8ac[k][0] = ((short) (Math
-								.abs(E_MainCanvas.var_1414.nextInt()) % 8192 + -4096));
+								.abs(E_MainCanvas.random.nextInt()) % 8192 + -4096));
 						localClass_f_045.var_8ac[k][1] = ((short) (Math
-								.abs(E_MainCanvas.var_1414.nextInt()) % 4096 + -2048));
+								.abs(E_MainCanvas.random.nextInt()) % 4096 + -2048));
 					}
 					localClass_f_045.var_8bc[k] = ((byte) (Math
-							.abs(E_MainCanvas.var_1414.nextInt()) % 2 + 1));
+							.abs(E_MainCanvas.random.nextInt()) % 2 + 1));
 				}
 			}
 		}

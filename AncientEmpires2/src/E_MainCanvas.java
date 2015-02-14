@@ -19,12 +19,12 @@ import javax.microedition.rms.RecordStore;
 public final class E_MainCanvas extends Canvas implements Runnable,
 		CommandListener {
 	
-	public static final Font var_1374 = Font.getFont(0, 1, 0);
-	public static final Font var_137c = Font.getFont(0, 1, 8);
-	public static final int var_1384 = var_137c.getBaselinePosition();
-	public static final int var_138c = var_1384 + 6;
-	public static final int var_1394 = var_1374.getBaselinePosition();
-	public static final int var_139c = var_1394 + 8;
+	public static final Font font0 = Font.getFont(0, 1, 0);
+	public static final Font font8 = Font.getFont(0, 1, 8);
+	public static final int font8BaselinePos = font8.getBaselinePosition();
+	public static final int var_138c = font8BaselinePos + 6;
+	public static final int font0BaselinePos = font0.getBaselinePosition();
+	public static final int var_139c = font0BaselinePos + 8;
 	public static final short[] var_13a4 = { 45, 43 };
 	public static final short[] var_13ac = { 57, 57 };
 	public static final byte[][] var_13b4 = {
@@ -41,7 +41,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public int var_13fc = 0;
 	public long var_1404;
 	public static F_Sprite[] charsSprites = new F_Sprite[2];
-	public static Random var_1414 = new Random();
+	public static Random random = new Random();
 	public static boolean[] settings = { true, true, true, true };
 	public static String[] settingsNames;
 	public boolean var_142c = false;
@@ -52,11 +52,11 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 			"bg_good", "bg_bad", "battle_good", "battle_bad", "victory",
 			"gameover", "game_complete" };
 	public static final byte[] var_1454 = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-	public static Player[] var_145c;
-	public static Player var_1464;
-	public static boolean[] var_146c;
-	public static int var_1474;
-	public static int var_147c;
+	public static Player[] musicPlayers;
+	public static Player currentMusicPlayer;
+	public static boolean[] musicPlayersLoaded;
+	public static int currentMusicId;
+	public static int currentMusicLoopCount;
 	public static byte[][] resourcesData;
 	public static String[] resourcesNames;
 
@@ -81,12 +81,12 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	}
 
 	public static final int sub_1564(int paramInt1, int paramInt2) {
-		return paramInt1 + Math.abs(var_1414.nextInt())
+		return paramInt1 + Math.abs(random.nextInt())
 				% (paramInt2 - paramInt1);
 	}
 
 	public static final int sub_158e() {
-		return var_1414.nextInt();
+		return random.nextInt();
 	}
 
 	public static final byte[] getRecordStoreData(String paramString, int paramInt)
@@ -164,7 +164,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		var_1444 = false;
 		sub_1f57();
 		if (this.currentMenuMb != null) {
-			this.currentMenuMb.sub_84a();
+			this.currentMenuMb.onLoad();
 		}
 	}
 
@@ -173,10 +173,10 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		if (this.currentMenuMb != null) {
 			if (!this.var_142c) {
 				var_1444 = true;
-				if ((var_1464 != null) && (var_1464.getState() == 400)
-						&& (var_1454[var_1474] == 1)) {
-					var_1434 = var_1474;
-					var_143c = var_147c;
+				if ((currentMusicPlayer != null) && (currentMusicPlayer.getState() == 400)
+						&& (var_1454[currentMusicId] == 1)) {
+					var_1434 = currentMusicId;
+					var_143c = currentMusicLoopCount;
 				}
 				sub_2459();
 			}
@@ -225,15 +225,15 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final void sub_1a66(Graphics paramGraphics,
-			String paramString, int paramInt1, int paramInt2, int paramInt3) {
-		paramGraphics.drawString(paramString, paramInt1, paramInt2 - 2,
-				paramInt3);
+	public static final void drawString(Graphics gr,
+			String string, int centerX, int centerY, int anchor) {
+		gr.drawString(string, centerX, centerY - 2,
+				anchor);
 	}
 
 	public final void showMenu(A_MenuBase menu) {
 		sub_1f57();
-		menu.sub_84a();
+		menu.onLoad();
 		this.currentMenuMb = menu;
 	}
 
@@ -242,18 +242,18 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		serviceRepaints();
 	}
 
-	public final void paint(Graphics paramGraphics) {
+	public final void paint(Graphics graphics) {
 		if (this.isLoading) {
-			paramGraphics.setColor(16777215); //#FFFFFF
-			paramGraphics.fillRect(0, 0, canvasWidth, canvasHeight);
-			paramGraphics.setFont(var_137c);
-			paramGraphics.setColor(0);
+			graphics.setColor(16777215); //#FFFFFF
+			graphics.fillRect(0, 0, canvasWidth, canvasHeight);
+			graphics.setFont(font8);
+			graphics.setColor(0);
 			//LOADING...
-			paramGraphics.drawString(A_MenuBase.getLangString(58), canvasWidth / 2,
+			graphics.drawString(A_MenuBase.getLangString(58), canvasWidth / 2,
 					canvasHeight / 2 - 1, 33);
 			return;
 		}
-		this.currentMenuMb.sub_8a5(paramGraphics);
+		this.currentMenuMb.onPaint(graphics);
 	}
 
 	public final int getGameAction(int paramInt) {
@@ -402,7 +402,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		this.isRunning = false;
 	}
 
-	public static final void sub_2168() throws Exception {
+	public static final void loadCharsSprites() throws Exception {
 		charsSprites[0] = new F_Sprite("chars");
 		charsSprites[1] = new F_Sprite("lchars");
 	}
@@ -413,22 +413,23 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 			settingsNames = new String[] { A_MenuBase.getLangString(26),
 					A_MenuBase.getLangString(28), A_MenuBase.getLangString(25),
 					A_MenuBase.getLangString(24) };
-			I_Game localClass_i_168 = new I_Game();
+			
+			I_Game aGame = new I_Game();
 			repaintAll();
-			this.currentMenuMb = localClass_i_168;
+			this.currentMenuMb = aGame;
 			this.isLoading = false;
 			this.isRunning = true;
-			localClass_i_168.sub_3fd8();
+			aGame.runLoading();
 			while (this.isRunning) {
 				long time = System.currentTimeMillis();
 				if ((isShown()) && (!var_1444)) {
 					if (var_1434 >= 0) {
-						sub_24ab(var_1434, var_143c);
-						if ((var_1464 != null) && (var_1464.getState() == 400)) {
+						playMusicLooped(var_1434, var_143c);
+						if ((currentMusicPlayer != null) && (currentMusicPlayer.getState() == 400)) {
 							var_1434 = -1;
 						}
 					}
-					this.currentMenuMb.sub_880();
+					this.currentMenuMb.onUpdate();
 					repaintAll();
 				}
 				int timeElapsed = (int) (System.currentTimeMillis() - time);
@@ -465,36 +466,37 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final void sub_238e() {
-		var_145c = new Player[musicNames.length];
-		var_146c = new boolean[musicNames.length];
+	public static final void initMusicVars() {
+		musicPlayers = new Player[musicNames.length];
+		musicPlayersLoaded = new boolean[musicNames.length];
 	}
 
-	public static final void sub_23bc(int paramInt) {
+	public static final void loadMusic(int musicId) {
 		try {
-			var_146c[paramInt] = false;
-			InputStream localInputStream = getResourceStream(musicNames[paramInt]
+			musicPlayersLoaded[musicId] = false;
+			InputStream stream = getResourceStream(musicNames[musicId]
 					+ ".mid");
-			var_145c[paramInt] = Manager.createPlayer(localInputStream,
+			musicPlayers[musicId] = Manager.createPlayer(stream,
 					"audio/midi");
-			var_145c[paramInt].realize();
-			var_145c[paramInt].prefetch();
-			var_146c[paramInt] = true;
+			musicPlayers[musicId].realize();
+			musicPlayers[musicId].prefetch();
+			musicPlayersLoaded[musicId] = true;
 			return;
-		} catch (Exception localException) {
+		} catch (Exception ex) {
+			//
 		}
 	}
 
 	public static final void sub_2439(int paramInt1, int paramInt2) {
-		sub_24ab(paramInt1, paramInt2);
+		playMusicLooped(paramInt1, paramInt2);
 	}
 
 	public static final void sub_2459() {
 		try {
-			if (var_1464 != null) {
-				var_1464.stop();
-				var_1464 = null;
-				var_1474 = -1;
+			if (currentMusicPlayer != null) {
+				currentMusicPlayer.stop();
+				currentMusicPlayer = null;
+				currentMusicId = -1;
 			}
 			return;
 		} catch (Exception ex) {
@@ -502,27 +504,27 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final void sub_24ab(int paramInt1, int paramInt2) {
+	public static final void playMusicLooped(int musicId, int loopCount) {
 		try {
-			if (var_146c[paramInt1] == false) {
+			if (musicPlayersLoaded[musicId] == false) {
 				return;
 			}
-			if (var_1464 != null) {
-				var_1464.stop();
+			if (currentMusicPlayer != null) {
+				currentMusicPlayer.stop();
 			}
-			if ((var_1454[paramInt1] == 1) && (settings[0] != false)) {
-				if (paramInt2 == 0) {
-					paramInt2 = -1;
+			if ((var_1454[musicId] == 1) && (settings[0] != false)) {
+				if (loopCount == 0) {
+					loopCount = -1;
 				}
 				if (var_1444) {
-					var_1434 = paramInt1;
-					var_143c = paramInt2;
+					var_1434 = musicId;
+					var_143c = loopCount;
 				} else {
-					var_1464 = var_145c[paramInt1];
-					var_1464.setLoopCount(paramInt2);
-					var_1464.start();
-					var_1474 = paramInt1;
-					var_147c = paramInt2;
+					currentMusicPlayer = musicPlayers[musicId];
+					currentMusicPlayer.setLoopCount(loopCount);
+					currentMusicPlayer.start();
+					currentMusicId = musicId;
+					currentMusicLoopCount = loopCount;
 				}
 			}
 			return;
@@ -533,13 +535,13 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 
 	public static final void sub_2573(int paramInt) {
 		try {
-			if (var_146c[paramInt] == false) {
+			if (musicPlayersLoaded[paramInt] == false) {
 				return;
 			}
-			if (var_1464 == var_145c[paramInt]) {
-				var_1464.stop();
-				var_1464 = null;
-				var_1474 = -1;
+			if (currentMusicPlayer == musicPlayers[paramInt]) {
+				currentMusicPlayer.stop();
+				currentMusicPlayer = null;
+				currentMusicId = -1;
 			}
 			return;
 		} catch (Exception localException) {
