@@ -16,7 +16,7 @@ import javax.microedition.media.Player;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.rms.RecordStore;
 
-public final class Class_e_034 extends Canvas implements Runnable,
+public final class E_MainCanvas extends Canvas implements Runnable,
 		CommandListener {
 	
 	public static final Font var_1374 = Font.getFont(0, 1, 0);
@@ -30,20 +30,20 @@ public final class Class_e_034 extends Canvas implements Runnable,
 	public static final byte[][] var_13b4 = {
 			{ 10, 11, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 			{ 12, -1, 11, -1, 10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
-	private static Display var_13bc;
-	private boolean var_13c4 = false;
-	private boolean var_13cc = true;
-	public Class_a_000 var_13d4;
-	public static int var_13dc;
-	public static int var_13e4;
+	private static Display display;
+	private boolean isRunning = false;
+	private boolean isLoading = true;
+	public A_MenuBase currentMenuMb;
+	public static int canvasWidth;
+	public static int canvasHeight;
 	public int var_13ec = 0;
 	public int var_13f4;
 	public int var_13fc = 0;
 	public long var_1404;
-	public static Class_f_045[] var_140c;
+	public static F_Sprite[] charsSprites = new F_Sprite[2];
 	public static Random var_1414 = new Random();
-	public static boolean[] var_141c = { true, true, true, true };
-	public static String[] var_1424;
+	public static boolean[] settings = { true, true, true, true };
+	public static String[] settingsNames;
 	public boolean var_142c = false;
 	public static int var_1434 = -1;
 	public static int var_143c;
@@ -57,22 +57,22 @@ public final class Class_e_034 extends Canvas implements Runnable,
 	public static boolean[] var_146c;
 	public static int var_1474;
 	public static int var_147c;
-	public static byte[][] var_1484;
-	public static String[] var_148c;
+	public static byte[][] resourcesData;
+	public static String[] resourcesNames;
 
-	public Class_e_034(MIDlet paramMIDlet) {
+	public E_MainCanvas(MIDlet paramMIDlet) {
 		try {
 			setFullScreenMode(true);
-			Class_a_000.var_79b = this;
-			Class_a_000.sub_bfe("/lang.dat", false);
-			var_13dc = getWidth();
-			var_13e4 = getHeight();
-			var_13bc = Display.getDisplay(paramMIDlet);
-			var_13bc.setCurrent(this);
+			A_MenuBase.mainCanvas = this;
+			A_MenuBase.loadLangStrings("/lang.dat", false);
+			canvasWidth = getWidth();
+			canvasHeight = getHeight();
+			display = Display.getDisplay(paramMIDlet);
+			display.setCurrent(this);
 			new Thread(this).start();
 			return;
-		} catch (Exception localException) {
-			sub_20fa(localException.toString());
+		} catch (Exception ex) {
+			showFatalError(ex.toString());
 		}
 	}
 
@@ -89,21 +89,21 @@ public final class Class_e_034 extends Canvas implements Runnable,
 		return var_1414.nextInt();
 	}
 
-	public static final byte[] sub_15af(String paramString, int paramInt)
+	public static final byte[] getRecordStoreData(String paramString, int paramInt)
 			throws Exception {
-		RecordStore localRecordStore;
-		byte[] arrayOfByte = (localRecordStore = RecordStore.openRecordStore(
-				paramString, false)).getRecord(paramInt + 1);
-		localRecordStore.closeRecordStore();
+		RecordStore store = RecordStore.openRecordStore(
+				paramString, false);
+		byte[] arrayOfByte = store.getRecord(paramInt + 1);
+		store.closeRecordStore();
 		return arrayOfByte;
 	}
 
-	public static final void sub_15e7(String paramString, int paramInt,
+	public static final void saveRecordStoreData(String recordName, int paramInt,
 			byte[] paramArrayOfByte) throws Exception {
-		RecordStore localRecordStore;
-		int i;
-		if ((i = (localRecordStore = RecordStore.openRecordStore(paramString,
-				true)).getNumRecords()) <= paramInt) {
+		RecordStore localRecordStore = RecordStore.openRecordStore(recordName,
+				true);
+		int i = localRecordStore.getNumRecords();
+		if (i <= paramInt) {
 			while (i < paramInt) {
 				localRecordStore.addRecord(null, 0, 0);
 				i++;
@@ -134,24 +134,25 @@ public final class Class_e_034 extends Canvas implements Runnable,
 		localRecordStore.closeRecordStore();
 	}
 
-	public static final int sub_1709(String paramString) {
-		int i = 0;
+	public static final int getRecordStoreAvailableSize(String paramString) {
+		int size = 0;
 		try {
-			RecordStore localRecordStore;
-			i = (localRecordStore = RecordStore.openRecordStore(paramString,
-					true)).getSizeAvailable();
+			RecordStore localRecordStore = RecordStore.openRecordStore(paramString,
+					true);
+			size = localRecordStore.getSizeAvailable();
 			localRecordStore.closeRecordStore();
-		} catch (Exception localException) {
+		} catch (Exception ex) {
+			//
 		}
-		return i;
+		return size;
 	}
 
 	public static final int sub_1761(byte paramByte, String paramString) {
-		return var_140c[paramByte].var_7f4 * paramString.length();
+		return charsSprites[paramByte].var_7f4 * paramString.length();
 	}
 
 	public static final int sub_1789(byte paramByte) {
-		return var_140c[paramByte].var_7fc;
+		return charsSprites[paramByte].var_7fc;
 	}
 
 	public static final void sub_17ac(Graphics paramGraphics, int paramInt) {
@@ -162,14 +163,14 @@ public final class Class_e_034 extends Canvas implements Runnable,
 		this.var_142c = false;
 		var_1444 = false;
 		sub_1f57();
-		if (this.var_13d4 != null) {
-			this.var_13d4.sub_84a();
+		if (this.currentMenuMb != null) {
+			this.currentMenuMb.sub_84a();
 		}
 	}
 
 	public final void hideNotify() {
 		sub_1f57();
-		if (this.var_13d4 != null) {
+		if (this.currentMenuMb != null) {
 			if (!this.var_142c) {
 				var_1444 = true;
 				if ((var_1464 != null) && (var_1464.getState() == 400)
@@ -209,10 +210,10 @@ public final class Class_e_034 extends Canvas implements Runnable,
 					&& (k <= var_13ac[paramInt3])) {
 				int j;
 				if ((j = var_13b4[paramInt3][(k - var_13a4[paramInt3])]) != -1) {
-					var_140c[paramInt3].sub_108a(j);
-					var_140c[paramInt3].sub_12d2(paramGraphics, paramInt1,
+					charsSprites[paramInt3].sub_108a(j);
+					charsSprites[paramInt3].sub_12d2(paramGraphics, paramInt1,
 							paramInt2);
-					paramInt1 += var_140c[paramInt3].var_7f4;
+					paramInt1 += charsSprites[paramInt3].var_7f4;
 				} else {
 					byte[] arrayOfByte = { (byte) k };
 					String str = new String(arrayOfByte);
@@ -230,28 +231,29 @@ public final class Class_e_034 extends Canvas implements Runnable,
 				paramInt3);
 	}
 
-	public final void sub_1a8c(Class_a_000 paramClass_a_000) {
+	public final void showMenu(A_MenuBase menu) {
 		sub_1f57();
-		paramClass_a_000.sub_84a();
-		this.var_13d4 = paramClass_a_000;
+		menu.sub_84a();
+		this.currentMenuMb = menu;
 	}
 
-	public final void sub_1ab4() {
+	public final void repaintAll() {
 		repaint();
 		serviceRepaints();
 	}
 
 	public final void paint(Graphics paramGraphics) {
-		if (this.var_13cc) {
-			paramGraphics.setColor(16777215);
-			paramGraphics.fillRect(0, 0, var_13dc, var_13e4);
+		if (this.isLoading) {
+			paramGraphics.setColor(16777215); //#FFFFFF
+			paramGraphics.fillRect(0, 0, canvasWidth, canvasHeight);
 			paramGraphics.setFont(var_137c);
 			paramGraphics.setColor(0);
-			paramGraphics.drawString(Class_a_000.sub_c99(58), var_13dc / 2,
-					var_13e4 / 2 - 1, 33);
+			//LOADING...
+			paramGraphics.drawString(A_MenuBase.getLangString(58), canvasWidth / 2,
+					canvasHeight / 2 - 1, 33);
 			return;
 		}
-		this.var_13d4.sub_8a5(paramGraphics);
+		this.currentMenuMb.sub_8a5(paramGraphics);
 	}
 
 	public final int getGameAction(int paramInt) {
@@ -338,8 +340,8 @@ public final class Class_e_034 extends Canvas implements Runnable,
 	public final void keyPressed(int paramInt) {
 		int i = getGameAction(paramInt);
 		sub_2079(i);
-		if (this.var_13d4 != null) {
-			this.var_13d4.sub_865(paramInt, i);
+		if (this.currentMenuMb != null) {
+			this.currentMenuMb.sub_865(paramInt, i);
 		}
 	}
 
@@ -386,39 +388,39 @@ public final class Class_e_034 extends Canvas implements Runnable,
 		this.var_13ec &= (paramInt ^ 0xFFFFFFFF);
 	}
 
-	public final void sub_20fa(String paramString) {
-		this.var_13c4 = false;
-		Form localForm;
-		(localForm = new Form("Fatal error!")).append(paramString);
+	public final void showFatalError(String errorMsg) {
+		this.isRunning = false;
+		Form errForm = new Form("Fatal error!");
+		errForm.append(errorMsg);
 		Command localCommand = new Command("Exit", 7, 1);
-		localForm.addCommand(localCommand);
-		localForm.setCommandListener(this);
-		var_13bc.setCurrent(localForm);
+		errForm.addCommand(localCommand);
+		errForm.setCommandListener(this);
+		display.setCurrent(errForm);
 	}
 
-	public final void sub_2148() {
-		this.var_13c4 = false;
+	public final void stopGame() {
+		this.isRunning = false;
 	}
 
 	public static final void sub_2168() throws Exception {
-		var_140c[0] = new Class_f_045("chars");
-		var_140c[1] = new Class_f_045("lchars");
+		charsSprites[0] = new F_Sprite("chars");
+		charsSprites[1] = new F_Sprite("lchars");
 	}
 
 	public final void run() {
 		try {
-			sub_1ab4();
-			var_1424 = new String[] { Class_a_000.sub_c99(26),
-					Class_a_000.sub_c99(28), Class_a_000.sub_c99(25),
-					Class_a_000.sub_c99(24) };
-			Class_i_168 localClass_i_168 = new Class_i_168();
-			sub_1ab4();
-			this.var_13d4 = localClass_i_168;
-			this.var_13cc = false;
-			this.var_13c4 = true;
+			repaintAll();
+			settingsNames = new String[] { A_MenuBase.getLangString(26),
+					A_MenuBase.getLangString(28), A_MenuBase.getLangString(25),
+					A_MenuBase.getLangString(24) };
+			I_Game localClass_i_168 = new I_Game();
+			repaintAll();
+			this.currentMenuMb = localClass_i_168;
+			this.isLoading = false;
+			this.isRunning = true;
 			localClass_i_168.sub_3fd8();
-			while (this.var_13c4) {
-				long l = System.currentTimeMillis();
+			while (this.isRunning) {
+				long time = System.currentTimeMillis();
 				if ((isShown()) && (!var_1444)) {
 					if (var_1434 >= 0) {
 						sub_24ab(var_1434, var_143c);
@@ -426,36 +428,37 @@ public final class Class_e_034 extends Canvas implements Runnable,
 							var_1434 = -1;
 						}
 					}
-					this.var_13d4.sub_880();
-					sub_1ab4();
+					this.currentMenuMb.sub_880();
+					repaintAll();
 				}
-				int i = (int) (System.currentTimeMillis() - l);
-				int j;
-				if ((j = 65 - i) < 10) {
-					j = 10;
+				int timeElapsed = (int) (System.currentTimeMillis() - time);
+				int delay = 65 - timeElapsed;
+				if (delay < 10) {
+					delay = 10;
 				}
-				if (j > 0) {
+				if (delay > 0) {
 					try {
-						Thread.sleep(j);
-					} catch (Exception localException1) {
+						Thread.sleep(delay);
+					} catch (Exception ex1) {
+						//
 					}
 				}
 			}
-			if (Class_b_001.var_101 != null) {
-				Class_b_001.var_101.notifyDestroyed();
-				Class_b_001.var_101.destroyApp(true);
+			if (B_MainMIDlet.midlet != null) {
+				B_MainMIDlet.midlet.notifyDestroyed();
+				B_MainMIDlet.midlet.destroyApp(true);
 			}
 			return;
-		} catch (Exception localException2) {
-			localException2.printStackTrace();
-			sub_20fa(localException2.toString());
+		} catch (Exception ex2) {
+			ex2.printStackTrace();
+			showFatalError(ex2.toString());
 		}
 	}
 
 	public static final void sub_233e(int paramInt) {
 		try {
-			if (var_141c[1] != false) {
-				var_13bc.vibrate(paramInt * 4);
+			if (settings[1] != false) {
+				display.vibrate(paramInt * 4);
 			}
 			return;
 		} catch (Exception localException) {
@@ -470,7 +473,7 @@ public final class Class_e_034 extends Canvas implements Runnable,
 	public static final void sub_23bc(int paramInt) {
 		try {
 			var_146c[paramInt] = false;
-			InputStream localInputStream = sub_278a(musicNames[paramInt]
+			InputStream localInputStream = getResourceStream(musicNames[paramInt]
 					+ ".mid");
 			var_145c[paramInt] = Manager.createPlayer(localInputStream,
 					"audio/midi");
@@ -494,7 +497,8 @@ public final class Class_e_034 extends Canvas implements Runnable,
 				var_1474 = -1;
 			}
 			return;
-		} catch (Exception localException) {
+		} catch (Exception ex) {
+			//
 		}
 	}
 
@@ -506,7 +510,7 @@ public final class Class_e_034 extends Canvas implements Runnable,
 			if (var_1464 != null) {
 				var_1464.stop();
 			}
-			if ((var_1454[paramInt1] == 1) && (var_141c[0] != false)) {
+			if ((var_1454[paramInt1] == 1) && (settings[0] != false)) {
 				if (paramInt2 == 0) {
 					paramInt2 = -1;
 				}
@@ -522,7 +526,8 @@ public final class Class_e_034 extends Canvas implements Runnable,
 				}
 			}
 			return;
-		} catch (Exception localException) {
+		} catch (Exception ex) {
+			//
 		}
 	}
 
@@ -541,56 +546,53 @@ public final class Class_e_034 extends Canvas implements Runnable,
 		}
 	}
 
-	public static final void sub_25e4(String paramString) throws Exception {
-		if (var_148c == null) {
-			var_148c = null;
+	public static final void loadResourcesPak(String pakFileName) throws Exception {
+		if (resourcesNames == null) {
+			resourcesNames = null;
 			int[] arrayOfInt1 = null;
 			int[] arrayOfInt2 = null;
-			InputStream localInputStream = Class_b_001.var_101.getClass()
+			InputStream stream = B_MainMIDlet.midlet.getClass()
 					.getResourceAsStream("/1.pak");
-			DataInputStream localDataInputStream;
-			int i = (localDataInputStream = new DataInputStream(
-					localInputStream)).readShort();
-			int j;
-			var_148c = new String[j = localDataInputStream.readShort()];
-			arrayOfInt1 = new int[j];
-			arrayOfInt2 = new int[j];
-			for (int k = 0; k < j; k++) {
-				var_148c[k] = localDataInputStream.readUTF();
-				arrayOfInt1[k] = (localDataInputStream.readInt() + i);
-				arrayOfInt2[k] = localDataInputStream.readShort();
+			DataInputStream resStream = new DataInputStream(
+					stream);
+			int i = resStream.readShort();
+			int resLength = resStream.readShort();
+			resourcesNames = new String[resLength];
+			arrayOfInt1 = new int[resLength];
+			arrayOfInt2 = new int[resLength];
+			for (int k = 0; k < resLength; k++) {
+				resourcesNames[k] = resStream.readUTF();
+				arrayOfInt1[k] = (resStream.readInt() + i);
+				arrayOfInt2[k] = resStream.readShort();
 			}
-			var_1484 = new byte[var_148c.length][];
-			for (int m = 0; m < var_148c.length; m++) {
-				var_1484[m] = new byte[arrayOfInt2[m]];
-				localDataInputStream.readFully(var_1484[m]);
+			resourcesData = new byte[resourcesNames.length][];
+			for (int m = 0; m < resourcesNames.length; m++) {
+				resourcesData[m] = new byte[arrayOfInt2[m]];
+				resStream.readFully(resourcesData[m]);
 			}
-			localDataInputStream.close();
+			resStream.close();
 		}
 	}
 
-	public static final byte[] sub_2726(String paramString) {
-		for (int i = 0; i < var_148c.length; i++) {
-			if (paramString.equals(var_148c[i])) {
-				return var_1484[i];
+	public static final byte[] getResourceData(String resName) {
+		for (int i = 0; i < resourcesNames.length; i++) {
+			if (resName.equals(resourcesNames[i])) {
+				return resourcesData[i];
 			}
 		}
 		return null;
 	}
 
-	public static final InputStream sub_278a(String paramString)
+	public static final InputStream getResourceStream(String resName)
 			throws Exception {
-		return new ByteArrayInputStream(sub_2726(paramString));
+		return new ByteArrayInputStream(getResourceData(resName));
 	}
 
 	public final void commandAction(Command paramCommand,
 			Displayable paramDisplayable) {
-		Class_b_001.var_101.notifyDestroyed();
+		B_MainMIDlet.midlet.notifyDestroyed();
 	}
 
-	static {
-		var_140c = new Class_f_045[2];
-	}
 }
 
 /*

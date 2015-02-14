@@ -1,6 +1,6 @@
 import javax.microedition.lcdui.Graphics;
 
-public final class Class_g_066 {
+public final class G_FightAnimation {
 	
 	public static final String[] var_af5 = { "road", "grass", "woods", "hill",
 			"mountain", "water", "bridge", "town" };
@@ -9,8 +9,8 @@ public final class Class_g_066 {
 	public static final String[] var_b0d = { "soldier", "archer", "lizard",
 			"wizard", "wisp", "spider", "golem", "catapult", "wyvern", "king",
 			"skeleton" };
-	public Class_i_168 var_b15;
-	public Class_c_032 var_b1d;
+	public I_Game var_b15;
+	public C_Unit var_b1d;
 	public byte var_b25;
 	public boolean var_b2d = false;
 	public boolean var_b35 = false;
@@ -24,19 +24,19 @@ public final class Class_g_066 {
 	public boolean var_b75;
 	public int var_b7d = 0;
 	public static final byte[] var_b85 = { 3, -3 };
-	public Class_f_045 var_b8d;
-	public Class_f_045 var_b95;
-	public Class_f_045 var_b9d;
-	public Class_f_045 var_ba5;
+	public F_Sprite var_b8d;
+	public F_Sprite var_b95;
+	public F_Sprite var_b9d;
+	public F_Sprite var_ba5;
 	public int var_bad;
 	public int var_bb5;
 	public long var_bbd;
 	public long var_bc5;
 	public long var_bcd;
-	public Class_f_045[] var_bd5;
-	public Class_h_017[] var_bdd;
-	public Class_h_017 var_be5;
-	public Class_g_066 var_bed;
+	public F_Sprite[] var_bd5;
+	public H_ImageExt[] var_bdd;
+	public H_ImageExt var_be5;
+	public G_FightAnimation var_bed;
 	public int var_bf5;
 	public int var_bfd;
 	public int var_c05;
@@ -51,14 +51,14 @@ public final class Class_g_066 {
 	public int var_c4d;
 	public int var_c55;
 	public byte[][] var_c5d;
-	public Class_f_045 var_c65;
-	public Class_f_045 var_c6d;
-	public Class_f_045[] var_c75;
+	public F_Sprite var_c65;
+	public F_Sprite var_c6d;
+	public F_Sprite[] var_c75;
 	public int var_c7d;
 	public int var_c85;
 
-	public Class_g_066(Class_i_168 paramClass_i_168,
-			Class_c_032 paramClass_c_032, Class_g_066 paramClass_g_066)
+	public G_FightAnimation(I_Game paramClass_i_168,
+			C_Unit paramClass_c_032, G_FightAnimation paramClass_g_066)
 			throws Exception {
 		this.var_b15 = paramClass_i_168;
 		this.var_b1d = paramClass_c_032;
@@ -78,21 +78,21 @@ public final class Class_g_066 {
 			this.var_b6d = 1;
 			this.var_b7d = 0;
 		}
-		this.var_bf5 = paramClass_i_168.sub_dd5d(paramClass_c_032.var_ad3,
-				paramClass_c_032.var_adb);
+		this.var_bf5 = paramClass_i_168.sub_dd5d(paramClass_c_032.positionX,
+				paramClass_c_032.positionY);
 		int j = var_b05[this.var_bf5];
 		int k = var_afd[this.var_bf5];
 		if ((paramClass_g_066 != null)
 				&& (k == var_afd[paramClass_g_066.var_bf5])) {
-			this.var_bdd = new Class_h_017[paramClass_g_066.var_bdd.length];
+			this.var_bdd = new H_ImageExt[paramClass_g_066.var_bdd.length];
 			System.arraycopy(paramClass_g_066.var_bdd, 0, this.var_bdd, 0,
 					this.var_bdd.length);
 		} else {
-			this.var_bdd = new Class_f_045(var_af5[k]).var_7c4;
+			this.var_bdd = new F_Sprite(var_af5[k]).frameImages;
 		}
 		if (this.var_b6d == 1) {
 			for (int m = 0; m < this.var_bdd.length; m++) {
-				this.var_bdd[m] = new Class_h_017(this.var_bdd[m], 1);
+				this.var_bdd[m] = new H_ImageExt(this.var_bdd[m], 1);
 			}
 		}
 		try {
@@ -100,10 +100,10 @@ public final class Class_g_066 {
 					&& (j == var_b05[paramClass_g_066.var_bf5])) {
 				this.var_be5 = paramClass_g_066.var_be5;
 			} else {
-				this.var_be5 = new Class_h_017(var_af5[j] + "_bg");
+				this.var_be5 = new H_ImageExt(var_af5[j] + "_bg");
 			}
 			if (this.var_b6d == 1) {
-				this.var_be5 = new Class_h_017(this.var_be5, 1);
+				this.var_be5 = new H_ImageExt(this.var_be5, 1);
 			}
 		} catch (Exception localException) {
 		}
@@ -122,44 +122,44 @@ public final class Class_g_066 {
 		this.var_c5d = new byte[this.var_c05][this.var_c0d];
 		for (int m = 0; m < this.var_c05; m++) {
 			for (int n = 0; n < this.var_c0d; n++) {
-				this.var_c5d[m][n] = ((byte) Math.abs(Class_e_034.var_1414
+				this.var_c5d[m][n] = ((byte) Math.abs(E_MainCanvas.var_1414
 						.nextInt() % this.var_bdd.length));
 			}
 		}
-		this.var_b8d = new Class_f_045(var_b0d[this.var_b25],
+		this.var_b8d = new F_Sprite(var_b0d[this.var_b25],
 				paramClass_i_168.var_356b[paramClass_c_032.var_acb]);
 		if ((paramClass_g_066 != null)
 				&& (paramClass_g_066.var_b25 == this.var_b25)) {
 			if (paramClass_g_066.var_ba5 != null) {
-				this.var_ba5 = new Class_f_045(paramClass_g_066.var_ba5);
+				this.var_ba5 = new F_Sprite(paramClass_g_066.var_ba5);
 			}
 			if (paramClass_g_066.var_b95 != null) {
-				this.var_b95 = new Class_f_045(paramClass_g_066.var_b95);
+				this.var_b95 = new F_Sprite(paramClass_g_066.var_b95);
 			}
 			if (paramClass_g_066.var_b9d != null) {
-				this.var_b9d = new Class_f_045(paramClass_g_066.var_b9d);
+				this.var_b9d = new F_Sprite(paramClass_g_066.var_b9d);
 			}
 			if (paramClass_g_066.var_c65 != null) {
-				this.var_c65 = new Class_f_045(paramClass_g_066.var_c65);
-				this.var_c6d = new Class_f_045(paramClass_g_066.var_c6d);
+				this.var_c65 = new F_Sprite(paramClass_g_066.var_c65);
+				this.var_c6d = new F_Sprite(paramClass_g_066.var_c6d);
 			}
 		} else if ((this.var_b25 == 0) || (this.var_b25 == 10)
 				|| (this.var_b25 == 5)) {
-			this.var_ba5 = new Class_f_045("slash");
+			this.var_ba5 = new F_Sprite("slash");
 		} else if (this.var_b25 == 1) {
-			this.var_b9d = new Class_f_045("archer_arrow");
+			this.var_b9d = new F_Sprite("archer_arrow");
 		} else if (this.var_b25 == 9) {
-			this.var_b95 = new Class_f_045("kingwave");
-			this.var_ba5 = new Class_f_045("kingslash");
-			this.var_c65 = new Class_f_045("king_heads");
-			this.var_c6d = new Class_f_045("king_heads_back");
+			this.var_b95 = new F_Sprite("kingwave");
+			this.var_ba5 = new F_Sprite("kingslash");
+			this.var_c65 = new F_Sprite("king_heads");
+			this.var_c6d = new F_Sprite("king_heads_back");
 		} else if (this.var_b25 == 2) {
-			this.var_b95 = new Class_f_045("watermagic");
-			this.var_b9d = new Class_f_045("fish");
+			this.var_b95 = new F_Sprite("watermagic");
+			this.var_b9d = new F_Sprite("fish");
 		} else if ((this.var_b25 == 7) || (this.var_b25 == 6)) {
-			this.var_b9d = new Class_f_045("crater");
+			this.var_b9d = new F_Sprite("crater");
 		} else if (this.var_b25 == 3) {
-			this.var_b95 = new Class_f_045("spell");
+			this.var_b95 = new F_Sprite("spell");
 			this.var_b9d = this.var_b95;
 		}
 		if (this.var_b95 != null) {
@@ -188,12 +188,12 @@ public final class Class_g_066 {
 			this.var_c2d[m][1] = (paramClass_c_032.var_aa3[m][1]
 					* paramClass_i_168.var_3bfb / 128 - this.var_b8d.var_7fc);
 		}
-		this.var_bd5 = new Class_f_045[this.var_b55];
+		this.var_bd5 = new F_Sprite[this.var_b55];
 		if ((this.var_b25 == 4) || (this.var_b25 == 6)) {
 			this.var_c35 = new int[this.var_b55];
 		}
 		for (int m = 0; m < this.var_b55; m++) {
-			this.var_bd5[m] = new Class_f_045(this.var_b8d);
+			this.var_bd5[m] = new F_Sprite(this.var_b8d);
 			paramClass_i_168.sub_145c5(this.var_bd5[m]);
 			this.var_bd5[m].sub_10c6(this.var_c2d[m][0], this.var_c2d[m][1]);
 			this.var_bd5[m].sub_115e(0, this.var_b75);
@@ -201,13 +201,13 @@ public final class Class_g_066 {
 			this.var_bd5[m].var_83c = 0;
 			if (this.var_b25 == 6) {
 				this.var_bd5[m].var_874 = true;
-				this.var_c35[m] = Class_e_034.sub_1544(360);
+				this.var_c35[m] = E_MainCanvas.sub_1544(360);
 				this.var_bd5[m].var_80c = (-6 + 4
-						* Class_a_000.sub_f9b(this.var_c35[m]) >> 10);
+						* A_MenuBase.sub_f9b(this.var_c35[m]) >> 10);
 			} else if (this.var_b25 == 4) {
 				this.var_bd5[m].var_874 = true;
-				this.var_bd5[m].var_80c = (-5 - Class_e_034.sub_1544(10));
-				this.var_c35[m] = Class_e_034.sub_1544(360);
+				this.var_bd5[m].var_80c = (-5 - E_MainCanvas.sub_1544(10));
+				this.var_c35[m] = E_MainCanvas.sub_1544(360);
 			} else if (this.var_b25 == 9) {
 				this.var_bd5[m].var_894 = this.var_c65;
 				this.var_bd5[m].var_89c = this.var_c6d;
@@ -215,7 +215,7 @@ public final class Class_g_066 {
 		}
 	}
 
-	public final int sub_1673(Class_f_045 paramClass_f_045, int paramInt) {
+	public final int sub_1673(F_Sprite paramClass_f_045, int paramInt) {
 		if (this.var_b6d == 1) {
 			return this.var_b8d.var_7f4 - paramInt - paramClass_f_045.var_7f4;
 		}
@@ -232,10 +232,10 @@ public final class Class_g_066 {
 		int i;
 		int i3;
 		int m;
-		Class_f_045 localClass_f_0455;
+		F_Sprite localClass_f_0455;
 		switch (this.var_b7d) {
 		case 1:
-			Class_f_045 localClass_f_0454;
+			F_Sprite localClass_f_0454;
 			if (this.var_b25 == 6) {
 				if (this.var_c4d == 0) {
 					if (this.var_b15.var_34d3 - this.var_bc5 >= 200L) {
@@ -282,18 +282,18 @@ public final class Class_g_066 {
 							if (this.var_bd5[j].var_7d4 == 1) {
 								this.var_bd5[j].var_80c = 0;
 								this.var_bd5[j].var_87c = 1;
-								Class_e_034.sub_233e(200);
+								E_MainCanvas.sub_233e(200);
 								this.var_b15.sub_14bd3(1200);
-								Class_e_034.sub_24ab(14, 1);
+								E_MainCanvas.sub_24ab(14, 1);
 								for (int n = 0; n < 2; n++) {
-									Class_f_045 localClass_f_0456;
-									(localClass_f_0456 = Class_f_045.sub_1616(
-											this.var_b15.var_347b, 0, 0, -1, 1,
-											Class_e_034.sub_1544(4) * 50,
+									F_Sprite localClass_f_0456;
+									(localClass_f_0456 = F_Sprite.sub_1616(
+											this.var_b15.smokeSprite, 0, 0, -1, 1,
+											E_MainCanvas.sub_1544(4) * 50,
 											(byte) 0))
 											.sub_10c6(
 													this.var_bd5[j].var_7dc
-															+ Class_e_034
+															+ E_MainCanvas
 																	.sub_1544(this.var_b8d.var_7f4
 																			- localClass_f_0456.var_7f4),
 													this.var_bd5[j].var_7e4
@@ -303,9 +303,9 @@ public final class Class_g_066 {
 									localClass_f_0456.var_85c = true;
 									this.var_b15.sub_145c5(localClass_f_0456);
 								}
-								(localClass_f_0454 = Class_f_045.sub_1616(
-										this.var_b15.var_347b, -1, 0, -1, 1,
-										Class_e_034.sub_1544(4) * 50, (byte) 0))
+								(localClass_f_0454 = F_Sprite.sub_1616(
+										this.var_b15.smokeSprite, -1, 0, -1, 1,
+										E_MainCanvas.sub_1544(4) * 50, (byte) 0))
 										.sub_10c6(
 												this.var_bd5[j].var_7dc,
 												this.var_bd5[j].var_7e4
@@ -314,9 +314,9 @@ public final class Class_g_066 {
 														+ 2);
 								localClass_f_0454.var_85c = true;
 								this.var_b15.sub_145c5(localClass_f_0454);
-								(localClass_f_0454 = Class_f_045.sub_1616(
-										this.var_b15.var_347b, 1, 0, -1, 1,
-										Class_e_034.sub_1544(4) * 50, (byte) 0))
+								(localClass_f_0454 = F_Sprite.sub_1616(
+										this.var_b15.smokeSprite, 1, 0, -1, 1,
+										E_MainCanvas.sub_1544(4) * 50, (byte) 0))
 										.sub_10c6(
 												this.var_bd5[j].var_7dc
 														+ this.var_b8d.var_7f4
@@ -341,7 +341,7 @@ public final class Class_g_066 {
 								} else if (this.var_bd5[j].var_87c == 2) {
 									this.var_bd5[j].var_80c = -6;
 									this.var_bd5[j].var_874 = true;
-									this.var_bd5[j].var_844 = Class_e_034
+									this.var_bd5[j].var_844 = E_MainCanvas
 											.sub_1564(-2, 3);
 									this.var_bd5[j].sub_115e(0, this.var_b75);
 									this.var_bd5[j].var_81c = -1;
@@ -360,9 +360,9 @@ public final class Class_g_066 {
 			} else if (this.var_c4d == 0) {
 				if (this.var_b15.var_34d3 - this.var_bc5 >= 200L) {
 					if (this.var_b25 == 9) {
-						this.var_c75 = new Class_f_045[this.var_b65 * 2];
+						this.var_c75 = new F_Sprite[this.var_b65 * 2];
 					} else if ((this.var_b25 != 7) && (this.var_b25 != 1)) {
-						this.var_c75 = new Class_f_045[this.var_b65];
+						this.var_c75 = new F_Sprite[this.var_b65];
 					}
 					this.var_c4d = 1;
 					this.var_c85 = 0;
@@ -374,7 +374,7 @@ public final class Class_g_066 {
 					this.var_bd5[this.var_c85].sub_115e(2, this.var_b75);
 					this.var_bd5[this.var_c85].var_81c = 1;
 					if ((this.var_b25 == 3) || (this.var_b25 == 2)) {
-						this.var_c75[this.var_c85] = Class_f_045.sub_1616(
+						this.var_c75[this.var_c85] = F_Sprite.sub_1616(
 								this.var_b95, 0, 0, 0, 1, 50, (byte) 0);
 						this.var_c75[this.var_c85]
 								.sub_10c6(
@@ -385,8 +385,8 @@ public final class Class_g_066 {
 										this.var_bd5[this.var_c85].var_7e4);
 						this.var_b15.sub_145c5(this.var_c75[this.var_c85]);
 					} else if (this.var_b25 == 1) {
-						Class_f_045 localClass_f_0451;
-						(localClass_f_0451 = Class_f_045.sub_1616(this.var_b9d,
+						F_Sprite localClass_f_0451;
+						(localClass_f_0451 = F_Sprite.sub_1616(this.var_b9d,
 								0, 0, 0, 1, 0, (byte) 0)).sub_115e(1,
 								this.var_b75);
 						localClass_f_0451
@@ -401,10 +401,10 @@ public final class Class_g_066 {
 						if (this.var_b25 == 7) {
 							this.var_bd5[this.var_c85].var_864 = 5;
 							for (int k = 0; k < 3; k++) {
-								(localClass_f_0454 = Class_f_045.sub_1616(
-										this.var_b15.var_37ab,
-										Class_e_034.sub_1564(-1, 2), 0, 0, 1,
-										Class_e_034.sub_1544(4) * 50, (byte) 0))
+								(localClass_f_0454 = F_Sprite.sub_1616(
+										this.var_b15.bigSmokeSprite,
+										E_MainCanvas.sub_1564(-1, 2), 0, 0, 1,
+										E_MainCanvas.sub_1544(4) * 50, (byte) 0))
 										.sub_10c6(
 												this.var_bd5[this.var_c85].var_7dc
 														+ this.var_b8d.var_7f4
@@ -415,15 +415,15 @@ public final class Class_g_066 {
 							}
 						}
 						if (this.var_b25 == 9) {
-							Class_f_045 localClass_f_0452;
-							(localClass_f_0452 = Class_f_045.sub_1616(
+							F_Sprite localClass_f_0452;
+							(localClass_f_0452 = F_Sprite.sub_1616(
 									this.var_ba5, 0, 0, 0, 1, 200, (byte) 0))
 									.sub_10c6(this.var_bd5[0].var_7dc,
 											this.var_bd5[0].var_7e4
 													+ this.var_b8d.var_7fc);
 							localClass_f_0452.var_80c = (-this.var_b8d.var_7fc);
 							this.var_b15.sub_145c5(localClass_f_0452);
-							this.var_c75[0] = Class_f_045.sub_1616(
+							this.var_c75[0] = F_Sprite.sub_1616(
 									this.var_b95, var_b85[this.var_b6d] * 3,
 									-2, 0, -1, 100, (byte) 0);
 							int i1 = this.var_bd5[this.var_c85].var_7dc
@@ -434,7 +434,7 @@ public final class Class_g_066 {
 									+ this.var_b8d.var_7fc
 									- this.var_c75[this.var_c85].var_7fc + 2;
 							this.var_c75[0].sub_10c6(i1, i3);
-							this.var_c75[1] = Class_f_045.sub_1616(
+							this.var_c75[1] = F_Sprite.sub_1616(
 									this.var_b95, var_b85[this.var_b6d] * 3, 1,
 									0, -1, 100, (byte) 0);
 							this.var_c75[1].sub_10c6(i1, i3);
@@ -443,7 +443,7 @@ public final class Class_g_066 {
 							this.var_b15.sub_145c5(this.var_c75[0]);
 							this.var_c75[0].var_86c = this.var_b6d;
 						} else if (this.var_b25 == 8) {
-							this.var_c75[this.var_c85] = Class_f_045.sub_1616(
+							this.var_c75[this.var_c85] = F_Sprite.sub_1616(
 									null, var_b85[this.var_b6d], 0, 0, -1,
 									2000, (byte) 6);
 							this.var_c75[this.var_c85]
@@ -454,9 +454,9 @@ public final class Class_g_066 {
 															this.var_bd5[this.var_c85].var_7f4 + 2),
 											this.var_bd5[this.var_c85].var_7e4 + 30);
 							this.var_c75[this.var_c85].var_85c = true;
-							Class_e_034.sub_233e(200);
+							E_MainCanvas.sub_233e(200);
 							this.var_b15.sub_14bd3(1200);
-							Class_e_034.sub_24ab(14, 1);
+							E_MainCanvas.sub_24ab(14, 1);
 							this.var_b15.sub_145c5(this.var_c75[this.var_c85]);
 						}
 					}
@@ -486,17 +486,17 @@ public final class Class_g_066 {
 					}
 					if ((this.var_b25 == 8) && (this.var_c75[m] != null)
 							&& (this.var_c75[m].var_84c)) {
-						(localClass_f_0455 = Class_f_045.sub_1616(
-								this.var_b15.var_37ab, var_b85[this.var_b6d]
-										* Class_e_034.sub_1564(1, 4),
-								Class_e_034.sub_1564(-2, 3), 0, 1,
-								50 * Class_e_034.sub_1544(4), (byte) 0))
+						(localClass_f_0455 = F_Sprite.sub_1616(
+								this.var_b15.bigSmokeSprite, var_b85[this.var_b6d]
+										* E_MainCanvas.sub_1564(1, 4),
+								E_MainCanvas.sub_1564(-2, 3), 0, 1,
+								50 * E_MainCanvas.sub_1544(4), (byte) 0))
 								.sub_10c6(
 										this.var_bd5[m].var_7dc
 												+ sub_1673(localClass_f_0455,
 														this.var_b8d.var_7f4),
 										this.var_c75[m].var_7e4
-												+ Class_e_034
+												+ E_MainCanvas
 														.sub_1544(30 - this.var_c75[m].var_7fc)
 												- 15);
 						localClass_f_0455.var_85c = true;
@@ -522,9 +522,9 @@ public final class Class_g_066 {
 		case 6:
 			i = 1;
 			for (m = 0; m < this.var_c75.length; m++) {
-				if ((this.var_b25 == 9) && (Class_e_034.sub_1544(2) == 0)) {
-					(localClass_f_0455 = Class_f_045.sub_1616(
-							this.var_b15.var_37ab, Class_e_034.sub_1564(-2, 1),
+				if ((this.var_b25 == 9) && (E_MainCanvas.sub_1544(2) == 0)) {
+					(localClass_f_0455 = F_Sprite.sub_1616(
+							this.var_b15.bigSmokeSprite, E_MainCanvas.sub_1564(-2, 1),
 							0, -1, 1, 100, (byte) 0)).sub_10c6(
 							this.var_c75[m].var_7dc
 									+ sub_1673(this.var_c75[m], 0),
@@ -586,28 +586,28 @@ public final class Class_g_066 {
 					if (this.var_b25 != 1) {
 						this.var_b15.sub_14bd3(200);
 					}
-					Class_e_034.sub_233e(200);
-					Class_e_034.sub_24ab(14, 1);
+					E_MainCanvas.sub_233e(200);
+					E_MainCanvas.sub_24ab(14, 1);
 					if (this.var_b9d != null) {
-						this.var_c7d = Class_c_032.var_bc3[this.var_b25].length;
+						this.var_c7d = C_Unit.var_bc3[this.var_b25].length;
 					}
 					this.var_c4d = 1;
 				}
 			} else if (this.var_c4d == 1) {
 				if (--this.var_c7d >= 0) {
-					Class_f_045 localClass_f_0453;
+					F_Sprite localClass_f_0453;
 					if ((this.var_b25 == 3) || (this.var_b25 == 2)
 							|| (this.var_b25 == 1)) {
-						localClass_f_0453 = Class_f_045.sub_1616(this.var_b9d,
+						localClass_f_0453 = F_Sprite.sub_1616(this.var_b9d,
 								0, 0, 0, 1, 0, (byte) 0);
 					} else {
-						localClass_f_0453 = Class_f_045.sub_1616(this.var_b9d,
+						localClass_f_0453 = F_Sprite.sub_1616(this.var_b9d,
 								0, 0, 0, -1, 0, (byte) 0);
 					}
 					if ((this.var_b25 == 2) || (this.var_b25 == 1)) {
 						localClass_f_0453.var_854 = false;
 					}
-					int i2 = Class_e_034.sub_1544(this.var_b15.var_32cb / 2
+					int i2 = E_MainCanvas.sub_1544(this.var_b15.var_32cb / 2
 							- localClass_f_0453.var_7f4);
 					i3 = 0;
 					if (this.var_bed.var_be5 != null) {
@@ -615,7 +615,7 @@ public final class Class_g_066 {
 					}
 					int i4 = (this.var_b15.var_3bfb - i3)
 							* (this.var_c7d * 2 + 1)
-							/ (Class_c_032.var_bc3[this.var_b25].length * 2)
+							/ (C_Unit.var_bc3[this.var_b25].length * 2)
 							- localClass_f_0453.var_7fc / 2 + i3;
 					if (this.var_b6d == 0) {
 						i2 += this.var_b15.var_32db;
@@ -627,16 +627,16 @@ public final class Class_g_066 {
 					localClass_f_0453.sub_10c6(i2, i4);
 					this.var_b15.sub_145c5(localClass_f_0453);
 					for (int i5 = 0; i5 < 3; i5++) {
-						Class_f_045 localClass_f_0457;
+						F_Sprite localClass_f_0457;
 						if ((this.var_b25 == 7) || (this.var_b25 == 6)) {
-							(localClass_f_0457 = Class_f_045.sub_1616(
-									this.var_b15.var_347b,
-									Class_e_034.sub_1564(-1, 2), 0,
-									Class_e_034.sub_1564(-2, 0), 1,
-									Class_e_034.sub_1544(4) * 50, (byte) 0))
+							(localClass_f_0457 = F_Sprite.sub_1616(
+									this.var_b15.smokeSprite,
+									E_MainCanvas.sub_1564(-1, 2), 0,
+									E_MainCanvas.sub_1564(-2, 0), 1,
+									E_MainCanvas.sub_1544(4) * 50, (byte) 0))
 									.sub_10c6(
 											i2
-													+ Class_e_034
+													+ E_MainCanvas
 															.sub_1544(localClass_f_0453.var_7f4
 																	- localClass_f_0457.var_7f4),
 											localClass_f_0453.var_80c
@@ -645,13 +645,13 @@ public final class Class_g_066 {
 													+ 1);
 							localClass_f_0457.var_80c = (-localClass_f_0453.var_7fc / 2);
 						} else {
-							(localClass_f_0457 = Class_f_045.sub_1616(
-									this.var_b15.var_37ab,
-									Class_e_034.sub_1564(-1, 2), 0, -1, 1, 100,
+							(localClass_f_0457 = F_Sprite.sub_1616(
+									this.var_b15.bigSmokeSprite,
+									E_MainCanvas.sub_1564(-1, 2), 0, -1, 1, 100,
 									(byte) 0))
 									.sub_10c6(
 											i2
-													+ Class_e_034
+													+ E_MainCanvas
 															.sub_1544(localClass_f_0453.var_7f4
 																	- localClass_f_0457.var_7f4),
 											i4 + localClass_f_0453.var_7fc
@@ -690,7 +690,7 @@ public final class Class_g_066 {
 					this.var_bc5 = this.var_b15.var_34d3;
 				}
 			} else {
-				Class_f_045 localClass_f_0451;
+				F_Sprite localClass_f_0451;
 				if (this.var_c4d == 1) {
 					this.var_c45 += 5;
 					if (this.var_c45 >= 90) {
@@ -699,13 +699,13 @@ public final class Class_g_066 {
 					}
 					if ((this.var_c45 - 20) % 15 == 0) {
 						for (int i = 0; i < this.var_bd5.length; i++) {
-							(localClass_f_0451 = Class_f_045.sub_1616(
-									this.var_b15.var_37ab,
-									Class_e_034.sub_1564(-1, 2), 0, 0, 1, 100,
+							(localClass_f_0451 = F_Sprite.sub_1616(
+									this.var_b15.bigSmokeSprite,
+									E_MainCanvas.sub_1564(-1, 2), 0, 0, 1, 100,
 									(byte) 0))
 									.sub_10c6(
 											this.var_bd5[i].var_7dc
-													+ Class_e_034
+													+ E_MainCanvas
 															.sub_1544(this.var_b8d.var_7f4
 																	- localClass_f_0451.var_7f4),
 											this.var_bd5[i].var_7e4
@@ -725,16 +725,16 @@ public final class Class_g_066 {
 				}
 				if (++this.var_c3d >= 2) {
 					for (int i = 0; i < this.var_bed.var_bd5.length; i++) {
-						(localClass_f_0451 = Class_f_045
-								.sub_1616(this.var_b15.var_348b, 0, 0, 0, 1,
+						(localClass_f_0451 = F_Sprite
+								.sub_1616(this.var_b15.redsparkSprite, 0, 0, 0, 1,
 										50, (byte) 0))
 								.sub_10c6(
 										this.var_bed.var_bd5[i].var_7dc
-												+ Class_e_034
+												+ E_MainCanvas
 														.sub_1544(this.var_bed.var_bd5[i].var_7f4
 																- localClass_f_0451.var_7f4),
 										this.var_bed.var_bd5[i].var_7e4
-												+ Class_e_034
+												+ E_MainCanvas
 														.sub_1544(this.var_bed.var_bd5[i].var_7fc
 																- localClass_f_0451.var_7fc));
 						localClass_f_0451.var_85c = true;
@@ -759,8 +759,8 @@ public final class Class_g_066 {
 		}
 		for (int j = 0; j < this.var_bd5.length; j++) {
 			if (i != 0) {
-				Class_f_045 localClass_f_0452;
-				(localClass_f_0452 = Class_f_045.sub_1616(null, 0, 0, 0, 1,
+				F_Sprite localClass_f_0452;
+				(localClass_f_0452 = F_Sprite.sub_1616(null, 0, 0, 0, 1,
 						500, (byte) 4))
 						.sub_10c6(this.var_bd5[j].var_7dc
 								+ (this.var_bd5[j].var_7f4 >> 1),
@@ -773,9 +773,9 @@ public final class Class_g_066 {
 			this.var_bd5[j]
 					.sub_10c6(
 							this.var_c2d[j][0]
-									+ (k * Class_a_000.sub_fc1(this.var_c35[j]) >> 10),
+									+ (k * A_MenuBase.sub_fc1(this.var_c35[j]) >> 10),
 							this.var_c2d[j][1]
-									+ (k * Class_a_000.sub_f9b(this.var_c35[j])
+									+ (k * A_MenuBase.sub_f9b(this.var_c35[j])
 											/ 3 >> 10));
 			this.var_c35[j] = ((this.var_c35[j] + this.var_c45) % 360);
 		}
@@ -793,7 +793,7 @@ public final class Class_g_066 {
 				} else {
 					this.var_bad = 2;
 				}
-				this.var_bb5 = (Class_e_034.var_1414.nextInt() % 1);
+				this.var_bb5 = (E_MainCanvas.var_1414.nextInt() % 1);
 			}
 		}
 		if ((this.var_b3d) && (this.var_c1d > this.var_b4d)) {
@@ -822,7 +822,7 @@ public final class Class_g_066 {
 				break;
 			case 3:
 				j = 1;
-				Class_f_045 localClass_f_045;
+				F_Sprite localClass_f_045;
 				if (this.var_c4d < this.var_b65) {
 					if ((this.var_b25 == 0) || (this.var_b25 == 5)) {
 						this.var_bd5[this.var_c4d].var_844 = -6;
@@ -830,13 +830,13 @@ public final class Class_g_066 {
 					if (this.var_b25 == 5) {
 						this.var_bd5[this.var_c4d].var_834 = (2 * var_b85[this.var_b6d]);
 						for (k = 0; k < 3; k++) {
-							(localClass_f_045 = Class_f_045.sub_1616(
-									this.var_b15.var_37ab,
-									Class_e_034.sub_1564(-1, 2), 0, -1, 1, 100,
+							(localClass_f_045 = F_Sprite.sub_1616(
+									this.var_b15.bigSmokeSprite,
+									E_MainCanvas.sub_1564(-1, 2), 0, -1, 1, 100,
 									(byte) 0))
 									.sub_10c6(
 											this.var_bd5[this.var_c4d].var_7dc
-													+ Class_e_034
+													+ E_MainCanvas
 															.sub_1544(this.var_b8d.var_7f4
 																	- localClass_f_045.var_7f4),
 											this.var_bd5[this.var_c4d].var_7e4
@@ -859,7 +859,7 @@ public final class Class_g_066 {
 								this.var_bd5[k].sub_115e(2, this.var_b75);
 								this.var_bd5[k].var_834 = 0;
 								this.var_bd5[k].var_87c = -1;
-								(localClass_f_045 = Class_f_045.sub_1616(null,
+								(localClass_f_045 = F_Sprite.sub_1616(null,
 										0, 0, 0, 1, 800, (byte) 2)).sub_10c6(
 										this.var_bd5[k].var_7dc
 												+ sub_1673(localClass_f_045,
@@ -867,7 +867,7 @@ public final class Class_g_066 {
 										this.var_bd5[k].var_7e4
 												+ this.var_b8d.var_7fc);
 								this.var_b15.sub_145c5(localClass_f_045);
-								(localClass_f_045 = Class_f_045
+								(localClass_f_045 = F_Sprite
 										.sub_1616(this.var_ba5, 0, 0, 0, 1,
 												150, (byte) 0))
 										.sub_10c6(
@@ -891,7 +891,7 @@ public final class Class_g_066 {
 						if ((this.var_b25 == 0) || (this.var_b25 == 5)) {
 							this.var_bd5[k].sub_115e(2, this.var_b75);
 							if (this.var_b25 == 0) {
-								(localClass_f_045 = Class_f_045
+								(localClass_f_045 = F_Sprite
 										.sub_1616(this.var_ba5, 0, 0, 0, 1,
 												150, (byte) 0))
 										.sub_10c6(
@@ -904,8 +904,8 @@ public final class Class_g_066 {
 								localClass_f_045.var_80c = (4 - this.var_bd5[k].var_7fc);
 								this.var_b15.sub_145c5(localClass_f_045);
 							} else if (this.var_b25 == 5) {
-								(localClass_f_045 = Class_f_045.sub_1616(
-										this.var_b15.var_348b, 0, 0, 0, 1, 50,
+								(localClass_f_045 = F_Sprite.sub_1616(
+										this.var_b15.redsparkSprite, 0, 0, 0, 1, 50,
 										(byte) 0))
 										.sub_10c6(
 												this.var_bd5[k].var_7dc
@@ -925,8 +925,8 @@ public final class Class_g_066 {
 					this.var_b7d = 6;
 					this.var_bed.sub_3363();
 					this.var_b15.sub_14bd3(200);
-					Class_e_034.sub_233e(200);
-					Class_e_034.sub_24ab(14, 1);
+					E_MainCanvas.sub_233e(200);
+					E_MainCanvas.sub_24ab(14, 1);
 					this.var_bc5 = this.var_b15.var_34d3;
 				}
 				break;
@@ -990,7 +990,7 @@ public final class Class_g_066 {
 			for (i = 0; i < this.var_bd5.length; i++) {
 				if (this.var_bd5[i].var_874) {
 					this.var_bd5[i].var_80c = (-6 + 4
-							* Class_a_000.sub_f9b(this.var_c35[i]) >> 10);
+							* A_MenuBase.sub_f9b(this.var_c35[i]) >> 10);
 					this.var_c35[i] = ((this.var_c35[i] + 10) % 360);
 				}
 			}
@@ -1004,8 +1004,8 @@ public final class Class_g_066 {
 		int k;
 		for (int i = 0; i < this.var_c25; i++) {
 			this.var_b15.sub_145e8(this.var_bd5[i]);
-			Class_f_045 localClass_f_0451;
-			(localClass_f_0451 = Class_f_045.sub_1616(this.var_b15.var_348b, 0,
+			F_Sprite localClass_f_0451;
+			(localClass_f_0451 = F_Sprite.sub_1616(this.var_b15.redsparkSprite, 0,
 					0, 0, 1, 0, (byte) 0))
 					.sub_10c6(
 							this.var_bd5[i].var_7dc
@@ -1014,12 +1014,12 @@ public final class Class_g_066 {
 			localClass_f_0451.var_80c = (this.var_bd5[i].var_7e4
 					+ (this.var_bd5[i].var_7fc - localClass_f_0451.var_7fc) / 2 - this.var_b15.var_7ab);
 			this.var_b15.sub_145c5(localClass_f_0451);
-			Class_f_045 localClass_f_0452;
+			F_Sprite localClass_f_0452;
 			for (k = 0; k < 3; k++) {
-				(localClass_f_0452 = Class_f_045.sub_1616(
-						this.var_b15.var_37ab, -1 + k, 0,
-						Class_e_034.sub_1564(-4, -1), 1,
-						Class_e_034.sub_1544(4) * 50, (byte) 0))
+				(localClass_f_0452 = F_Sprite.sub_1616(
+						this.var_b15.bigSmokeSprite, -1 + k, 0,
+						E_MainCanvas.sub_1564(-4, -1), 1,
+						E_MainCanvas.sub_1544(4) * 50, (byte) 0))
 						.sub_10c6(
 								this.var_bd5[i].var_7dc
 										+ (this.var_bd5[i].var_7f4 - localClass_f_0452.var_7f4)
@@ -1028,7 +1028,7 @@ public final class Class_g_066 {
 										- localClass_f_0452.var_7fc + 3);
 				this.var_b15.sub_145c5(localClass_f_0452);
 			}
-			(localClass_f_0452 = Class_f_045.sub_1616(this.var_b15.var_347b, 0,
+			(localClass_f_0452 = F_Sprite.sub_1616(this.var_b15.smokeSprite, 0,
 					0, -1, 1, 200, (byte) 0))
 					.sub_10c6(
 							this.var_bd5[i].var_7dc
@@ -1038,11 +1038,11 @@ public final class Class_g_066 {
 									- localClass_f_0452.var_7fc + 3);
 			this.var_b15.sub_145c5(localClass_f_0452);
 		}
-		Class_f_045[] arrayOfClass_f_045 = new Class_f_045[this.var_b65];
+		F_Sprite[] arrayOfClass_f_045 = new F_Sprite[this.var_b65];
 		System.arraycopy(this.var_bd5, this.var_c25, arrayOfClass_f_045, 0,
 				this.var_b65);
 		this.var_bd5 = arrayOfClass_f_045;
-		Class_f_045 localClass_f_0451 = Class_f_045.sub_15c2(""
+		F_Sprite localClass_f_0451 = F_Sprite.sub_15c2(""
 				+ (this.var_b4d - this.var_b45), 0, -4, (byte) 1);
 		int j;
 		if (this.var_b5d == 1) {
@@ -1094,15 +1094,15 @@ public final class Class_g_066 {
 	}
 
 	public final void sub_3734(Graphics paramGraphics) {
-		int i = this.var_b15.var_7ab - Class_i_168.var_32c3 / 2;
-		Class_e_034.sub_189a(paramGraphics, this.var_c1d + "/" + 100,
+		int i = this.var_b15.var_7ab - I_Game.var_32c3 / 2;
+		E_MainCanvas.sub_189a(paramGraphics, this.var_c1d + "/" + 100,
 				this.var_b15.var_32db / 2, i, 1, 3);
 	}
 
 	public final void sub_3788(Graphics paramGraphics) {
 		paramGraphics.setColor(4210752);
 		for (int i = 0; i < this.var_b65; i++) {
-			Class_f_045 localClass_f_045 = this.var_bd5[i];
+			F_Sprite localClass_f_045 = this.var_bd5[i];
 			if ((this.var_b25 == 0) || (this.var_b25 == 4)
 					|| (this.var_b25 == 5) || (this.var_b25 == 6)) {
 				paramGraphics.fillArc(localClass_f_045.var_7dc,

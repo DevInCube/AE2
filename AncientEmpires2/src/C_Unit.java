@@ -3,12 +3,12 @@ import java.util.Vector;
 
 import javax.microedition.lcdui.Graphics;
 
-public final class Class_c_032 extends Class_f_045 {
+public final class C_Unit extends F_Sprite {
 	
 	public static byte var_a6b = 12;
 	public static byte var_a73 = 6;
 	public static byte var_a7b = var_a73;
-	public static Class_i_168 var_a83;
+	public static I_Game var_a83;
 	public String var_a8b;
 	public short var_a93;
 	public int var_a9b;
@@ -18,8 +18,8 @@ public final class Class_c_032 extends Class_f_045 {
 	public long var_abb;
 	public byte var_ac3;
 	public byte var_acb;
-	public short var_ad3;
-	public short var_adb;
+	public short positionX;
+	public short positionY;
 	public int var_ae3;
 	public int var_aeb;
 	public int var_af3;
@@ -38,7 +38,7 @@ public final class Class_c_032 extends Class_f_045 {
 	public byte var_b5b;
 	public byte var_b63;
 	public int var_b6b;
-	public Class_c_032 var_b73;
+	public C_Unit var_b73;
 	public byte var_b7b = 0;
 	public int var_b83;
 	public int var_b8b;
@@ -52,17 +52,17 @@ public final class Class_c_032 extends Class_f_045 {
 	public static short[] var_bcb = new short[12];
 	public static final short[] var_bd3 = new short[12];
 
-	private Class_c_032(byte paramByte1, byte paramByte2, int paramInt1,
-			int paramInt2, boolean paramBoolean) {
+	private C_Unit(byte paramByte1, byte paramByte2, int posX,
+			int posY, boolean showUnit) {
 		super(var_a83.sub_87c3(paramByte2, paramByte1));
 		this.var_ac3 = paramByte1;
 		this.var_b13 = 0;
-		this.var_ad3 = ((short) paramInt1);
-		this.var_adb = ((short) paramInt2);
-		sub_10c6(paramInt1 * 24, paramInt2 * 24);
+		this.positionX = ((short) posX);
+		this.positionY = ((short) posY);
+		sub_10c6(posX * 24, posY * 24);
 		sub_c72((byte) 0);
-		if (paramBoolean) {
-			var_a83.var_3533.addElement(this);
+		if (showUnit) {
+			var_a83.mapSprites.addElement(this);
 		}
 	}
 
@@ -77,7 +77,7 @@ public final class Class_c_032 extends Class_f_045 {
 			if ((j = this.var_a93 / 2) > 3) {
 				j = 3;
 			}
-			this.var_a8b = Class_a_000.sub_c99(139 + this.var_ac3 * 4 + j);
+			this.var_a8b = A_MenuBase.getLangString(139 + this.var_ac3 * 4 + j);
 		}
 	}
 
@@ -87,15 +87,15 @@ public final class Class_c_032 extends Class_f_045 {
 		this.var_b4b = paramInt;
 	}
 
-	public static final Class_c_032 sub_d3d(byte paramByte1, byte paramByte2,
+	public static final C_Unit sub_d3d(byte paramByte1, byte paramByte2,
 			int paramInt1, int paramInt2) {
 		return sub_d60(paramByte1, paramByte2, paramInt1, paramInt2, true);
 	}
 
-	public static final Class_c_032 sub_d60(byte paramByte1, byte paramByte2,
+	public static final C_Unit sub_d60(byte paramByte1, byte paramByte2,
 			int paramInt1, int paramInt2, boolean paramBoolean) {
-		Class_c_032 localClass_c_032;
-		(localClass_c_032 = new Class_c_032(paramByte1,
+		C_Unit localClass_c_032;
+		(localClass_c_032 = new C_Unit(paramByte1,
 				var_a83.var_356b[paramByte2], paramInt1, paramInt2,
 				paramBoolean)).var_ac3 = paramByte1;
 		localClass_c_032.var_acb = paramByte2;
@@ -112,19 +112,19 @@ public final class Class_c_032 extends Class_f_045 {
 	}
 
 	public final void sub_e0d() {
-		var_a83.var_3533.removeElement(this);
+		var_a83.mapSprites.removeElement(this);
 	}
 
 	public final void sub_e33(int paramInt) {
 		this.var_b7b = ((byte) paramInt);
-		this.var_a8b = Class_a_000.sub_c99(paramInt + 93);
+		this.var_a8b = A_MenuBase.getLangString(paramInt + 93);
 	}
 
-	public final int sub_e5f(Class_c_032 paramClass_c_032) {
-		return sub_e87(paramClass_c_032, this.var_ad3, this.var_adb);
+	public final int sub_e5f(C_Unit paramClass_c_032) {
+		return sub_e87(paramClass_c_032, this.positionX, this.positionY);
 	}
 
-	public final int sub_e87(Class_c_032 paramClass_c_032, int paramInt1,
+	public final int sub_e87(C_Unit paramClass_c_032, int paramInt1,
 			int paramInt2) {
 		int i = this.var_b2b;
 		if (paramClass_c_032 != null) {
@@ -146,14 +146,14 @@ public final class Class_c_032 extends Class_f_045 {
 		return i;
 	}
 
-	public final int sub_f43(Class_c_032 paramClass_c_032) {
-		return sub_f6b(paramClass_c_032, this.var_ad3, this.var_adb);
+	public final int sub_f43(C_Unit paramClass_c_032) {
+		return sub_f6b(paramClass_c_032, this.positionX, this.positionY);
 	}
 
-	public final int sub_f6b(Class_c_032 paramClass_c_032, int paramInt1,
+	public final int sub_f6b(C_Unit paramClass_c_032, int paramInt1,
 			int paramInt2) {
 		int i = var_a83.sub_dd5d(paramInt1, paramInt2);
-		int j = this.var_b33 + Class_i_168.var_33e3[i];
+		int j = this.var_b33 + I_Game.var_33e3[i];
 		if ((sub_232f((short) 2)) && (i == 5)) {
 			j += 15;
 		}
@@ -163,8 +163,8 @@ public final class Class_c_032 extends Class_f_045 {
 		return j;
 	}
 
-	public final int sub_fea(Class_c_032 paramClass_c_032) {
-		int i = Class_e_034.sub_1564(this.var_af3, this.var_afb)
+	public final int sub_fea(C_Unit paramClass_c_032) {
+		int i = E_MainCanvas.sub_1564(this.var_af3, this.var_afb)
 				+ sub_e5f(paramClass_c_032);
 		int j = paramClass_c_032.var_b03 + paramClass_c_032.sub_f43(this);
 		int k;
@@ -198,12 +198,12 @@ public final class Class_c_032 extends Class_f_045 {
 		return false;
 	}
 
-	public final boolean sub_1134(Class_c_032 paramClass_c_032, int paramInt1,
+	public final boolean sub_1134(C_Unit paramClass_c_032, int paramInt1,
 			int paramInt2) {
 		return (this.var_b13 != 4)
 				&& (this.var_b0b > 0)
-				&& (Math.abs(this.var_ad3 - paramInt1)
-						+ Math.abs(this.var_adb - paramInt2) == 1)
+				&& (Math.abs(this.positionX - paramInt1)
+						+ Math.abs(this.positionY - paramInt2) == 1)
 				&& (var_bbb[this.var_ac3] == 1);
 	}
 
@@ -234,8 +234,8 @@ public final class Class_c_032 extends Class_f_045 {
 	}
 
 	public final void sub_128b(int paramInt1, int paramInt2) {
-		this.var_ad3 = ((short) paramInt1);
-		this.var_adb = ((short) paramInt2);
+		this.positionX = ((short) paramInt1);
+		this.positionY = ((short) paramInt2);
 		this.var_7dc = ((short) (paramInt1 * 24));
 		this.var_7e4 = ((short) (paramInt2 * 24));
 	}
@@ -250,7 +250,7 @@ public final class Class_c_032 extends Class_f_045 {
 	}
 
 	public final int sub_1318(int paramInt1, int paramInt2,
-			Class_c_032 paramClass_c_032) {
+			C_Unit paramClass_c_032) {
 		return (this.var_af3 + this.var_afb + this.var_b03
 				+ sub_e87(paramClass_c_032, paramInt1, paramInt2) + sub_f6b(
 				paramClass_c_032, paramInt1, paramInt2)) * this.var_b0b / 100;
@@ -289,7 +289,7 @@ public final class Class_c_032 extends Class_f_045 {
 
 	public final void sub_14e8(byte[][] paramArrayOfByte) {
 		if (sub_232f((short) 512)) {
-			sub_1359(paramArrayOfByte, this.var_ad3, this.var_adb);
+			sub_1359(paramArrayOfByte, this.positionX, this.positionY);
 			return;
 		}
 		sub_1d3c(paramArrayOfByte);
@@ -303,13 +303,13 @@ public final class Class_c_032 extends Class_f_045 {
 		}
 	}
 
-	public final Class_c_032[] sub_15b5(int paramInt1, int paramInt2,
+	public final C_Unit[] sub_15b5(int paramInt1, int paramInt2,
 			byte paramByte) {
 		return sub_15e7(paramInt1, paramInt2, var_bbb[this.var_ac3],
 				var_bb3[this.var_ac3], paramByte);
 	}
 
-	public final Class_c_032[] sub_15e7(int paramInt1, int paramInt2,
+	public final C_Unit[] sub_15e7(int paramInt1, int paramInt2,
 			int paramInt3, int paramInt4, byte paramByte) {
 		Vector localVector = new Vector();
 		int i;
@@ -333,7 +333,7 @@ public final class Class_c_032 extends Class_f_045 {
 				int i2;
 				if (((i2 = Math.abs(n - paramInt1) + Math.abs(i1 - paramInt2)) >= paramInt3)
 						&& (i2 <= paramInt4)) {
-					Class_c_032 localClass_c_0321;
+					C_Unit localClass_c_0321;
 					if (paramByte == 0) {
 						if ((localClass_c_0321 = var_a83.sub_dc52(n, i1,
 								(byte) 0)) != null) {
@@ -342,10 +342,10 @@ public final class Class_c_032 extends Class_f_045 {
 							}
 						} else if ((this.var_ac3 == 7)
 								&& (var_a83.sub_dd5d(n, i1) == 8)
-								&& (var_a83.var_34bb[n][i1] >= var_a83.var_33f3)
+								&& (var_a83.var_34bb[n][i1] >= var_a83.tilesCount)
 								&& (!var_a83.sub_e2b4(n, i1,
 										var_a83.var_3573[this.var_acb]))) {
-							Class_c_032 localClass_c_0322;
+							C_Unit localClass_c_0322;
 							(localClass_c_0322 = sub_d60((byte) 0, (byte) 0, n,
 									i1, false)).var_ac3 = -1;
 							localClass_c_0322.var_b13 = 4;
@@ -365,7 +365,7 @@ public final class Class_c_032 extends Class_f_045 {
 				}
 			}
 		}
-		Class_c_032[] arrayOfClass_c_032 = new Class_c_032[localVector.size()];
+		C_Unit[] arrayOfClass_c_032 = new C_Unit[localVector.size()];
 		localVector.copyInto(arrayOfClass_c_032);
 		return arrayOfClass_c_032;
 	}
@@ -378,7 +378,7 @@ public final class Class_c_032 extends Class_f_045 {
 	public final void sub_18da(int paramInt1, int paramInt2,
 			boolean paramBoolean1, boolean paramBoolean2) {
 		if (paramBoolean1) {
-			this.var_aab = sub_1b48(this.var_ad3, this.var_adb, paramInt1,
+			this.var_aab = sub_1b48(this.positionX, this.positionY, paramInt1,
 					paramInt2);
 		} else {
 			int k;
@@ -402,21 +402,21 @@ public final class Class_c_032 extends Class_f_045 {
 				}
 			}
 			this.var_aab = new Vector();
-			short[] arrayOfShort1 = { this.var_ad3, this.var_adb };
+			short[] arrayOfShort1 = { this.positionX, this.positionY };
 			this.var_aab.addElement(arrayOfShort1);
-			short j = this.var_ad3;
+			short j = this.positionX;
 			int n;
-			if ((k = Math.abs(paramInt1 - this.var_ad3)) > 0) {
-				int m = (paramInt1 - this.var_ad3) / k;
+			if ((k = Math.abs(paramInt1 - this.positionX)) > 0) {
+				int m = (paramInt1 - this.positionX) / k;
 				for (n = 0; n < k; n++) {
 					j = (short) (j + m);
-					short[] arrayOfShort2 = { j, this.var_adb };
+					short[] arrayOfShort2 = { j, this.positionY };
 					this.var_aab.addElement(arrayOfShort2);
 				}
 			}
-			short m = this.var_adb;
-			if ((k = Math.abs(paramInt2 - this.var_adb)) > 0) {
-				n = (paramInt2 - this.var_adb) / k;
+			short m = this.positionY;
+			if ((k = Math.abs(paramInt2 - this.positionY)) > 0) {
+				n = (paramInt2 - this.positionY) / k;
 				for (int i1 = 0; i1 < k; i1++) {
 					m = (short) (m + n);
 					short[] arrayOfShort3 = { j, m };
@@ -473,7 +473,7 @@ public final class Class_c_032 extends Class_f_045 {
 	}
 
 	public final void sub_1d3c(byte[][] paramArrayOfByte) {
-		sub_1d7b(paramArrayOfByte, this.var_ad3, this.var_adb,
+		sub_1d7b(paramArrayOfByte, this.positionX, this.positionY,
 				var_b9b[this.var_ac3] + this.var_b23, -1, this.var_ac3,
 				this.var_acb, false);
 	}
@@ -532,7 +532,7 @@ public final class Class_c_032 extends Class_f_045 {
 		if ((paramInt1 >= 0) && (paramInt2 >= 0)
 				&& (paramInt1 < var_a83.var_342b)
 				&& (paramInt2 < var_a83.var_3433)) {
-			Class_c_032 localClass_c_032;
+			C_Unit localClass_c_032;
 			if (((localClass_c_032 = var_a83.sub_dc52(paramInt1, paramInt2,
 					(byte) 0)) != null)
 					&& (var_a83.var_3573[localClass_c_032.var_acb] != var_a83.var_3573[paramByte2])) {
@@ -551,7 +551,7 @@ public final class Class_c_032 extends Class_f_045 {
 					return 1;
 				}
 			}
-			return Class_i_168.var_33eb[i];
+			return I_Game.var_33eb[i];
 		}
 		return 10000;
 	}
@@ -567,25 +567,25 @@ public final class Class_c_032 extends Class_f_045 {
 		if (this.var_b13 == 1) {
 			if (this.var_ab3 >= this.var_aab.size()) {
 				this.var_b13 = 0;
-				this.var_ad3 = ((short) (this.var_7dc / 24));
-				this.var_adb = ((short) (this.var_7e4 / 24));
+				this.positionX = ((short) (this.var_7dc / 24));
+				this.positionY = ((short) (this.var_7e4 / 24));
 				this.var_aab = null;
 				this.var_ab3 = 0;
 			} else {
 				if ((this.var_b73 != null) && (this.var_7dc % 24 == 0)
 						&& (this.var_7e4 % 24 == 0)) {
-					this.var_b73.sub_18b7(this.var_ad3, this.var_adb, false);
+					this.var_b73.sub_18b7(this.positionX, this.positionY, false);
 				}
 				short[] arrayOfShort;
 				int i = (arrayOfShort = (short[]) this.var_aab
 						.elementAt(this.var_ab3))[0] * 24;
 				int j = arrayOfShort[1] * 24;
-				Class_f_045 localClass_f_045 = null;
+				F_Sprite localClass_f_045 = null;
 				if ((this.var_b73 == null)
 						&& (++this.var_b6b >= 24 / var_a7b / 2)) {
-					localClass_f_045 = var_a83.sub_5873(var_a83.var_37ab,
+					localClass_f_045 = var_a83.sub_5873(var_a83.bigSmokeSprite,
 							this.var_7dc, this.var_7e4, 0, 0, 1,
-							Class_e_034.sub_1564(1, 4) * 50);
+							E_MainCanvas.sub_1564(1, 4) * 50);
 					this.var_b6b = 0;
 				}
 				if (i < this.var_7dc) {
@@ -624,8 +624,8 @@ public final class Class_c_032 extends Class_f_045 {
 					}
 				}
 				if ((this.var_7dc == i) && (this.var_7e4 == j)) {
-					this.var_ad3 = arrayOfShort[0];
-					this.var_adb = arrayOfShort[1];
+					this.positionX = arrayOfShort[0];
+					this.positionY = arrayOfShort[1];
 					this.var_ab3 = ((short) (this.var_ab3 + 1));
 				}
 			}
@@ -649,17 +649,17 @@ public final class Class_c_032 extends Class_f_045 {
 
 	public final void sub_2352() {
 		this.var_b13 = 2;
-		Class_c_032 localClass_c_032;
-		if ((localClass_c_032 = var_a83.sub_dc52(this.var_ad3, this.var_adb,
+		C_Unit localClass_c_032;
+		if ((localClass_c_032 = var_a83.sub_dc52(this.positionX, this.positionY,
 				(byte) 1)) != null) {
 			localClass_c_032.sub_e0d();
 		}
 		if (sub_232f((short) 256)) {
-			Class_c_032[] arrayOfClass_c_032 = sub_15e7(this.var_ad3,
-					this.var_adb, 1, 2, (byte) 2);
+			C_Unit[] arrayOfClass_c_032 = sub_15e7(this.positionX,
+					this.positionY, 1, 2, (byte) 2);
 			for (int i = 0; i < arrayOfClass_c_032.length; i++) {
 				arrayOfClass_c_032[i].sub_119a((byte) 2);
-				var_a83.sub_5873(var_a83.var_3483,
+				var_a83.sub_5873(var_a83.sparkSprite,
 						arrayOfClass_c_032[i].var_7dc,
 						arrayOfClass_c_032[i].var_7e4, 0, 0, 1, 50);
 			}
@@ -667,8 +667,8 @@ public final class Class_c_032 extends Class_f_045 {
 		var_a83.var_3b53 = this;
 	}
 
-	public static final Class_c_032[] sub_240e(byte paramByte) {
-		Class_c_032[] arrayOfClass_c_0321 = new Class_c_032[var_a83.var_359b[paramByte]];
+	public static final C_Unit[] sub_240e(byte paramByte) {
+		C_Unit[] arrayOfClass_c_0321 = new C_Unit[var_a83.var_359b[paramByte]];
 		int i = 0;
 		for (int j = 0; j < arrayOfClass_c_0321.length; j++) {
 			if ((var_a83.var_3593[var_a83.var_357b][j] != null)
@@ -676,7 +676,7 @@ public final class Class_c_032 extends Class_f_045 {
 				arrayOfClass_c_0321[(i++)] = var_a83.var_3593[var_a83.var_357b][j];
 			}
 		}
-		Class_c_032[] arrayOfClass_c_0322 = new Class_c_032[var_a83.var_3703
+		C_Unit[] arrayOfClass_c_0322 = new C_Unit[var_a83.var_3703
 				+ 1 + i];
 		for (int k = 0; k < arrayOfClass_c_0322.length; k = (byte) (k + 1)) {
 			if (k < i) {
@@ -705,10 +705,10 @@ public final class Class_c_032 extends Class_f_045 {
 				} else {
 					i = 2;
 				}
-				j = Class_e_034.sub_158e() % 1;
+				j = E_MainCanvas.sub_158e() % 1;
 				super.sub_12d2(paramGraphics, paramInt1 + i, paramInt2 + j);
 			} else if ((paramBoolean) || (this.var_b13 == 2)) {
-				var_a83.var_33d3[0][this.var_ac3].sub_12d2(paramGraphics,
+				var_a83.playersUnitsSprites[0][this.var_ac3].sub_12d2(paramGraphics,
 						this.var_7dc + paramInt1, this.var_7e4 + paramInt2);
 			} else {
 				super.sub_12d2(paramGraphics, paramInt1, paramInt2);
@@ -717,11 +717,11 @@ public final class Class_c_032 extends Class_f_045 {
 				i = this.var_7dc + paramInt1;
 				j = this.var_7e4 + paramInt2;
 				if ((paramBoolean) || (this.var_b13 == 2)) {
-					var_a83.var_3833[1].sub_1209(paramGraphics, this.var_b7b
+					var_a83.kingHeadsSprites[1].sub_1209(paramGraphics, this.var_b7b
 							* 2 + this.var_7d4, i, j, 0);
 					return;
 				}
-				var_a83.var_3833[0].sub_1209(paramGraphics, this.var_b7b * 2
+				var_a83.kingHeadsSprites[0].sub_1209(paramGraphics, this.var_b7b * 2
 						+ this.var_7d4, i, j, 0);
 			}
 		}
@@ -732,16 +732,16 @@ public final class Class_c_032 extends Class_f_045 {
 		int i = this.var_7dc + paramInt1;
 		int j = this.var_7e4 + paramInt2;
 		if ((this.var_b13 != 3) && (this.var_b0b < 100)) {
-			Class_e_034.sub_1954(paramGraphics, "" + this.var_b0b, i, j
+			E_MainCanvas.sub_1954(paramGraphics, "" + this.var_b0b, i, j
 					+ this.var_7fc - 7, 0);
 		}
 	}
 
-	public static final void sub_2745(Class_i_168 paramClass_i_168)
+	public static final void sub_2745(I_Game paramClass_i_168)
 			throws Exception {
 		var_a83 = paramClass_i_168;
 		DataInputStream localDataInputStream = new DataInputStream(
-				Class_e_034.sub_278a("units.bin"));
+				E_MainCanvas.getResourceStream("units.bin"));
 		for (int i = 0; i < 12; i++) {
 			var_b9b[i] = localDataInputStream.readByte();
 			var_ba3[i][0] = localDataInputStream.readByte();

@@ -1,9 +1,9 @@
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
-public final class Class_h_017 {
+public final class H_ImageExt {
 	
-	public Image var_4bb;
+	public Image image;
 	private boolean var_4c3 = false;
 	private int var_4cb;
 	private int var_4d3;
@@ -13,9 +13,9 @@ public final class Class_h_017 {
 	private int var_4f3;
 	public int var_4fb = 0;
 
-	public Class_h_017(Class_h_017 paramClass_h_017, int paramInt1,
+	public H_ImageExt(H_ImageExt paramClass_h_017, int paramInt1,
 			int paramInt2, int paramInt3, int paramInt4) {
-		this.var_4bb = paramClass_h_017.var_4bb;
+		this.image = paramClass_h_017.image;
 		this.var_4db = paramInt3;
 		this.var_4e3 = paramInt4;
 		this.var_4cb = (paramInt1 * paramInt3 + paramClass_h_017.var_4cb);
@@ -23,8 +23,8 @@ public final class Class_h_017 {
 		this.var_4c3 = true;
 	}
 
-	public Class_h_017(Class_h_017 paramClass_h_017, int paramInt) {
-		this.var_4bb = paramClass_h_017.var_4bb;
+	public H_ImageExt(H_ImageExt paramClass_h_017, int paramInt) {
+		this.image = paramClass_h_017.image;
 		this.var_4db = paramClass_h_017.var_4db;
 		this.var_4e3 = paramClass_h_017.var_4e3;
 		this.var_4cb = paramClass_h_017.var_4cb;
@@ -53,11 +53,11 @@ public final class Class_h_017 {
 		}
 	}
 
-	public Class_h_017(String paramString) throws Exception {
-		byte[] arrayOfByte = Class_e_034.sub_2726(paramString + ".png");
-		this.var_4bb = Image.createImage(arrayOfByte, 0, arrayOfByte.length);
-		this.var_4db = ((short) this.var_4bb.getWidth());
-		this.var_4e3 = ((short) this.var_4bb.getHeight());
+	public H_ImageExt(String paramString) throws Exception {
+		byte[] arrayOfByte = E_MainCanvas.getResourceData(paramString + ".png");
+		this.image = Image.createImage(arrayOfByte, 0, arrayOfByte.length);
+		this.var_4db = ((short) this.image.getWidth());
+		this.var_4e3 = ((short) this.image.getHeight());
 		this.var_4c3 = false;
 	}
 
@@ -108,28 +108,28 @@ public final class Class_h_017 {
 			int paramInt2, int paramInt3) {
 		if ((this.var_4c3) || (this.var_4fb != 0)) {
 			paramGraphics
-					.drawRegion(this.var_4bb, this.var_4cb, this.var_4d3,
+					.drawRegion(this.image, this.var_4cb, this.var_4d3,
 							this.var_4db, this.var_4e3, this.var_4fb, paramInt1
 									+ this.var_4eb, paramInt2 + this.var_4f3,
 							paramInt3);
 			return;
 		}
-		paramGraphics.drawImage(this.var_4bb, paramInt1 + this.var_4eb,
+		paramGraphics.drawImage(this.image, paramInt1 + this.var_4eb,
 				paramInt2 + this.var_4f3, paramInt3);
 	}
 
-	public Class_h_017(String paramString, int paramInt) {
-		byte[] localObject = Class_e_034.sub_2726(paramString + ".png");
+	public H_ImageExt(String paramString, int paramInt) {
+		byte[] localObject = E_MainCanvas.getResourceData(paramString + ".png");
 		if (paramInt != 1) {
 			byte[] arrayOfByte = new byte[localObject.length];
 			System.arraycopy(localObject, 0, arrayOfByte, 0, localObject.length);
 			sub_99f(arrayOfByte, paramInt);
 			localObject = arrayOfByte;
 		}
-		this.var_4bb = Image.createImage((byte[]) localObject, 0,
+		this.image = Image.createImage((byte[]) localObject, 0,
 				localObject.length);
-		this.var_4db = ((short) this.var_4bb.getWidth());
-		this.var_4e3 = ((short) this.var_4bb.getHeight());
+		this.var_4db = ((short) this.image.getWidth());
+		this.var_4e3 = ((short) this.image.getHeight());
 	}
 
 	public static final void sub_99f(byte[] paramArrayOfByte, int paramInt) {
@@ -171,8 +171,8 @@ public final class Class_h_017 {
 						paramArrayOfByte[(i3 + 2)] = ((byte) i6);
 					}
 				} else if (paramInt != 1) {
-					int[][] arrayOfInt1 = Class_i_168.var_33b3[1];
-					int[][] arrayOfInt2 = Class_i_168.var_33b3[paramInt];
+					int[][] arrayOfInt1 = I_Game.var_33b3[1];
+					int[][] arrayOfInt2 = I_Game.var_33b3[paramInt];
 					for (int i8 = 0; i8 < arrayOfInt1.length; i8++) {
 						if ((arrayOfInt1[i8][0] == i4)
 								&& (arrayOfInt1[i8][1] == i5)

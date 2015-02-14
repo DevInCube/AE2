@@ -5,29 +5,33 @@ import java.util.Vector;
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
-public class Class_a_000 {
+public class A_MenuBase {
 	
-	public static Class_e_034 var_79b;
-	public int var_7a3 = var_79b.getWidth();
-	public int var_7ab = var_79b.getHeight();
+	public static E_MainCanvas mainCanvas;
+	public int var_7a3 = mainCanvas.getWidth();
+	public int var_7ab = mainCanvas.getHeight();
 	public int var_7b3 = this.var_7a3 >> 1;
 	public int var_7bb = this.var_7ab >> 1;
-	public static String[] var_7c3;
+	public static String[] langStrings;
 	public static short[] var_7cb = null;
 	public static int var_7d3 = 360;
 	public static int var_7db = 0;
 	public static int var_7e3 = 0;
 
 	public void sub_84a() {
+		//@todo override
 	}
 
 	public void sub_865(int paramInt1, int paramInt2) {
+		//@todo override
 	}
 
 	public void sub_880() throws Exception {
+		//@todo override
 	}
 
 	public void sub_8a5(Graphics paramGraphics) {
+		//@todo override
 	}
 
 	public static final String[] sub_8c0(String paramString, int paramInt,
@@ -105,30 +109,29 @@ public class Class_a_000 {
 				|| ((paramInt >= 65280) && (paramInt < 65504));
 	}
 
-	public static final int sub_bfe(String langFile, boolean paramBoolean)
+	public static final int loadLangStrings(String langFile, boolean unusedBool)
 			throws Exception {
-		InputStream stream = Class_b_001.var_101.getClass()
+		InputStream stream = B_MainMIDlet.midlet.getClass()
 				.getResourceAsStream(langFile);
 		DataInputStream dis = new DataInputStream(stream);
-		var_7c3 = new String[dis.readInt()];
+		langStrings = new String[dis.readInt()];
 		int i = 0;
-		int j = var_7c3.length;
-		while (i < j) {
-			String str = dis.readUTF();
-			var_7c3[i] = str;
+		int length = langStrings.length;
+		while (i < length) {
+			langStrings[i] = dis.readUTF();
 			i++;
 		}
 		dis.close();
-		return var_7c3.length;
+		return langStrings.length;
 	}
 
-	public static final String sub_c99(int paramInt) {
+	public static final String getLangString(int paramInt) {
 		return sub_cb9(paramInt, false);
 	}
 
 	public static final String sub_cb9(int paramInt, boolean paramBoolean) {
-		if (paramInt < var_7c3.length) {
-			String str = var_7c3[paramInt];
+		if (paramInt < langStrings.length) {
+			String str = langStrings[paramInt];
 			if ((paramBoolean)
 					&& ((str = sub_e6a(
 							str = sub_e6a(
@@ -136,21 +139,21 @@ public class Class_a_000 {
 											str = sub_e6a(
 													str,
 													"%K5",
-													sub_e44(20, var_79b
+													sub_e44(20, mainCanvas
 															.sub_1da2(16)),
 													true), "%K0",
-											var_79b.sub_1da2(32), true), "%K7",
-									var_79b.sub_1da2(256), true), "%K9",
-							var_79b.sub_1da2(512), true)).indexOf("%KM") != -1)) {
+											mainCanvas.sub_1da2(32), true), "%K7",
+									mainCanvas.sub_1da2(256), true), "%K9",
+							mainCanvas.sub_1da2(512), true)).indexOf("%KM") != -1)) {
 				StringBuffer localStringBuffer = new StringBuffer();
-				String[] arrayOfString = { var_79b.sub_1da2(1),
-						var_79b.sub_1da2(2), var_79b.sub_1da2(4),
-						var_79b.sub_1da2(8) };
+				String[] arrayOfString = { mainCanvas.sub_1da2(1),
+						mainCanvas.sub_1da2(2), mainCanvas.sub_1da2(4),
+						mainCanvas.sub_1da2(8) };
 				localStringBuffer.append(sub_ddf(17, arrayOfString));
 				if (localStringBuffer.length() > 0) {
 					localStringBuffer.append('/');
 				}
-				localStringBuffer.append(sub_c99(18));
+				localStringBuffer.append(getLangString(18));
 				str = sub_e6a(str, "%KM", localStringBuffer.toString(), true);
 			}
 			return str;
@@ -159,7 +162,7 @@ public class Class_a_000 {
 	}
 
 	public static final String sub_ddf(int paramInt, String[] paramArrayOfString) {
-		String str = new String(sub_c99(paramInt));
+		String str = new String(getLangString(paramInt));
 		for (int i = 0; i < paramArrayOfString.length; i++) {
 			str = sub_e6a(str, "%U", paramArrayOfString[i], false);
 		}
@@ -167,7 +170,7 @@ public class Class_a_000 {
 	}
 
 	public static final String sub_e44(int paramInt, String paramString) {
-		return sub_e6a(sub_c99(paramInt), "%U", paramString, false);
+		return sub_e6a(getLangString(paramInt), "%U", paramString, false);
 	}
 
 	public static final String sub_e6a(String paramString1,
