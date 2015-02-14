@@ -982,7 +982,7 @@ public final class D_Menu extends A_MenuBase {
 			return;
 		}
 		this.var_106d = false;
-		if (((A_MenuBase.mainCanvas.currentMenuMb == this) && (this.var_1075))
+		if (((A_MenuBase.mainCanvas.mainDrawElement == this) && (this.var_1075))
 				|| (this.var_105d == 0)) {
 			gameVar.onPaint(paramGraphics);
 		}
@@ -1047,18 +1047,18 @@ public final class D_Menu extends A_MenuBase {
 				i1 = E_MainCanvas.var_138c + this.var_11dd + 2
 						- (A_MenuBase.sub_fc1(i4) * this.var_11cd >> 10);
 				if ((this.var_fd5 == 2) && (i3 == this.var_102d)) {
-					this.var_1225.sub_1209(paramGraphics, 1, n, i1, 3);
+					this.var_1225.drawFrameAt(paramGraphics, 1, n, i1, 3);
 					if (this.var_1205 == 0) {
 						i5 = 0;
 					}
 				} else {
 					while (i5 < this.var_10fd.length) {
-						this.var_10fd[i5].sub_12a5(paramGraphics, n
+						this.var_10fd[i5].drawCurrentFrame(paramGraphics, n
 								- this.var_1215, i1 - this.var_1215, 20);
 						i5++;
 						// continue; @todo
 
-						this.var_1225.sub_1209(paramGraphics, 0, n, i1, 3);
+						this.var_1225.drawFrameAt(paramGraphics, 0, n, i1, 3);
 					}
 				}
 				if ((this.var_fed[i3] != null) && (this.var_ff5 != null)
@@ -1068,7 +1068,7 @@ public final class D_Menu extends A_MenuBase {
 			}
 			if (this.var_fd5 == 2) {
 				for (i3 = 0; i3 < this.var_10fd.length; i3++) {
-					this.var_10fd[i3].sub_12a5(paramGraphics,
+					this.var_10fd[i3].drawCurrentFrame(paramGraphics,
 							(this.var_100d - this.var_120d) / 2,
 							E_MainCanvas.var_138c, 3);
 				}
@@ -1115,7 +1115,7 @@ public final class D_Menu extends A_MenuBase {
 				paramGraphics.setColor(2370117);
 				paramGraphics.fillRect(0, 0, this.someCanWidth,
 						gameVar.buttonsSprite.frameHeight);
-				gameVar.arrowSprite.sub_1209(paramGraphics, 0,
+				gameVar.arrowSprite.drawFrameAt(paramGraphics, 0,
 						gameVar.var_32cb / 2, -this.var_103d, 17);
 			}
 			if (this.var_119d < this.var_11a5) {
@@ -1126,7 +1126,7 @@ public final class D_Menu extends A_MenuBase {
 				}
 				paramGraphics.fillRect(0, i6, this.someCanWidth, gameVar.var_32d3
 						- i6);
-				gameVar.arrowSprite.sub_1209(paramGraphics, 1,
+				gameVar.arrowSprite.drawFrameAt(paramGraphics, 1,
 						gameVar.var_32cb / 2, gameVar.var_32d3 + this.var_103d,
 						33);
 			}
@@ -1178,9 +1178,9 @@ public final class D_Menu extends A_MenuBase {
 				}
 				i10 = n + this.var_101d / 2;
 				if (i9 == this.var_102d) {
-					gameVar.bigCircleSprite.sub_1209(paramGraphics, 1, i10, i1, 3);
+					gameVar.bigCircleSprite.drawFrameAt(paramGraphics, 1, i10, i1, 3);
 				} else {
-					gameVar.bigCircleSprite.sub_1209(paramGraphics, 0, i10, i1, 3);
+					gameVar.bigCircleSprite.drawFrameAt(paramGraphics, 0, i10, i1, 3);
 				}
 				C_Unit localClass_c_0321 = this.var_107d[i9];
 				i12 = i10 - localClass_c_0321.posX
@@ -1198,13 +1198,13 @@ public final class D_Menu extends A_MenuBase {
 					i15 = i1 - this.var_1225.frameWidth / 2;
 					for (i16 = 0; i16 < this.var_10fd.length; i16++) {
 						this.var_10fd[i16]
-								.sub_12a5(paramGraphics, i14, i15, 20);
+								.drawCurrentFrame(paramGraphics, i14, i15, 20);
 					}
 				}
 				n += this.var_101d;
 			}
-			gameVar.sideArrowSprite.sub_1209(paramGraphics, 0, 0, i1, 6);
-			gameVar.sideArrowSprite.sub_1209(paramGraphics, 1, k, i1, 10);
+			gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 0, 0, i1, 6);
+			gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 1, k, i1, 10);
 			break;
 		case 2:
 		case 5:
@@ -1223,12 +1223,12 @@ public final class D_Menu extends A_MenuBase {
 					i2 - E_MainCanvas.font8BaselinePos / 2, 20);
 			if (this.var_105d == 2) {
 				str = "" + this.var_10dd.var_b8b;
-				gameVar.hudIcons2Sprite.sub_1209(paramGraphics, 1, k - i6
-						- E_MainCanvas.sub_1761((byte) 1, str), i2, 10);
+				gameVar.hudIcons2Sprite.drawFrameAt(paramGraphics, 1, k - i6
+						- E_MainCanvas.getCharedStringWidth((byte) 1, str), i2, 10);
 			} else {
 				str = "" + this.var_10dd.var_b0b;
 			}
-			E_MainCanvas.sub_189a(paramGraphics, str, k - i6, i2, 1, 10);
+			E_MainCanvas.drawCharedString(paramGraphics, str, k - i6, i2, 1, 10);
 			this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
 			i1 += this.var_10dd.frameHeight + var_fc5;
 			paramGraphics.setColor(this.var_fbd);
@@ -1253,8 +1253,8 @@ public final class D_Menu extends A_MenuBase {
 				}
 				paramGraphics.fillRect(n + 1, i1 + 1, i12, i9 - 2);
 				n = k - i6 - i7;
-				gameVar.hudIconsSprite.sub_1209(paramGraphics, 2, n, i2, 10);
-				E_MainCanvas.sub_189a(paramGraphics, "" + this.var_10dd.level,
+				gameVar.hudIconsSprite.drawFrameAt(paramGraphics, 2, n, i2, 10);
+				E_MainCanvas.drawCharedString(paramGraphics, "" + this.var_10dd.level,
 						n, i2, 0, 6);
 				i1 += i9 + var_fc5;
 				paramGraphics.setColor(this.var_fbd);
@@ -1273,7 +1273,7 @@ public final class D_Menu extends A_MenuBase {
 						sub_35f8(paramGraphics, i16, i13, i9 - i12, i10);
 						gameVar.smallCircleSprite.draw(paramGraphics, n, i1);
 						if (((i17 = i14 * 2 + i15) == 0) || (i17 == 1)) {
-							gameVar.hudIconsSprite.sub_1209(paramGraphics, i17, i16,
+							gameVar.hudIconsSprite.drawFrameAt(paramGraphics, i17, i16,
 									i1 + i12, 3);
 						}
 						i18 = 0;
@@ -1294,13 +1294,13 @@ public final class D_Menu extends A_MenuBase {
 							str = ""
 									+ C_Unit.var_b9b[this.var_10dd.unitTypeId];
 						}
-						E_MainCanvas.sub_189a(paramGraphics, str, n + i11 + 1,
+						E_MainCanvas.drawCharedString(paramGraphics, str, n + i11 + 1,
 								i1 + i12, 0, 6);
 						if (i18 > 0) {
-							gameVar.arrowIconsSprite.sub_1209(paramGraphics, 1, i16
+							gameVar.arrowIconsSprite.drawFrameAt(paramGraphics, 1, i16
 									+ i9 - i12 - 1, i1 + i12, 10);
 						} else if (i18 < 0) {
-							gameVar.arrowIconsSprite.sub_1209(paramGraphics, 2, i16
+							gameVar.arrowIconsSprite.drawFrameAt(paramGraphics, 2, i16
 									+ i9 - i12 - 1, i1 + i12, 10);
 						}
 						n += i9 + var_fc5;
@@ -1345,7 +1345,7 @@ public final class D_Menu extends A_MenuBase {
 							&& (localClass_c_0322.positionY >= this.var_113d)
 							&& (localClass_c_0322.positionY < i17)) {
 						gameVar.miniIconsSprite
-								.sub_1209(
+								.drawFrameAt(
 										paramGraphics,
 										gameVar.var_356b[localClass_c_0322.var_acb] - 1,
 										localClass_c_0322.positionX * i15 + i19,
@@ -1357,16 +1357,16 @@ public final class D_Menu extends A_MenuBase {
 			}
 			if (this.var_103d == 0) {
 				if (this.var_113d > 0) {
-					gameVar.arrowSprite.sub_1209(paramGraphics, 0, k / 2, 0, 17);
+					gameVar.arrowSprite.drawFrameAt(paramGraphics, 0, k / 2, 0, 17);
 				}
 				if (this.var_113d + this.var_114d < this.var_116d) {
-					gameVar.arrowSprite.sub_1209(paramGraphics, 1, k / 2, m, 33);
+					gameVar.arrowSprite.drawFrameAt(paramGraphics, 1, k / 2, m, 33);
 				}
 				if (this.var_1135 > 0) {
-					gameVar.sideArrowSprite.sub_1209(paramGraphics, 0, 0, m / 2, 6);
+					gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 0, 0, m / 2, 6);
 				}
 				if (this.var_1135 + this.var_1145 < this.var_1165) {
-					gameVar.sideArrowSprite.sub_1209(paramGraphics, 1, k, m / 2, 10);
+					gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 1, k, m / 2, 10);
 				}
 			}
 			break;
@@ -1377,8 +1377,8 @@ public final class D_Menu extends A_MenuBase {
 			i2 = m / 2;
 			E_MainCanvas.drawString(paramGraphics, this.var_fed[this.var_102d],
 					k / 2, (m - E_MainCanvas.font8BaselinePos) / 2, 17);
-			gameVar.sideArrowSprite.sub_1209(paramGraphics, 0, 0, i2, 6);
-			gameVar.sideArrowSprite.sub_1209(paramGraphics, 1, k, i2, 10);
+			gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 0, 0, i2, 6);
+			gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 1, k, i2, 10);
 			break;
 		case 13:
 			i19 = E_MainCanvas.var_138c;
@@ -1397,9 +1397,9 @@ public final class D_Menu extends A_MenuBase {
 		case 11:
 			while (i22 >= 0) {
 				if (i22 == this.var_102d) {
-					gameVar.smallCircleSprite.sub_1209(paramGraphics, 1, i21, 0, 20);
+					gameVar.smallCircleSprite.drawFrameAt(paramGraphics, 1, i21, 0, 20);
 				} else {
-					gameVar.smallCircleSprite.sub_1209(paramGraphics, 0, i21, 0, 20);
+					gameVar.smallCircleSprite.drawFrameAt(paramGraphics, 0, i21, 0, 20);
 				}
 				this.var_ff5[i22].drawImageExt(paramGraphics, i21
 						+ gameVar.smallCircleSprite.frameWidth / 2, this.var_1015 / 2, 3);
@@ -1409,7 +1409,7 @@ public final class D_Menu extends A_MenuBase {
 
 				paramGraphics.setFont(E_MainCanvas.font8);
 				if (this.var_1095 != -1) {
-					gameVar.portraitsSprite.sub_1209(paramGraphics, this.var_1095, -8,
+					gameVar.portraitsSprite.drawFrameAt(paramGraphics, this.var_1095, -8,
 							m, 36);
 				}
 				k -= this.var_10ad;
@@ -1493,17 +1493,17 @@ public final class D_Menu extends A_MenuBase {
 						sub_35f8(paramGraphics, i32 + 1, i28 + (i31 - 2)
 								* this.var_109d / this.var_1035 + 2, i30 - 2,
 								i33);
-						gameVar.arrowSprite.sub_1209(paramGraphics, 0, k - i29, 0,
+						gameVar.arrowSprite.drawFrameAt(paramGraphics, 0, k - i29, 0,
 								20);
-						gameVar.arrowSprite.sub_1209(paramGraphics, 1, k - i29, m,
+						gameVar.arrowSprite.drawFrameAt(paramGraphics, 1, k - i29, m,
 								36);
 					} else {
 						if (this.var_109d > 0) {
-							gameVar.arrowSprite.sub_1209(paramGraphics, 0,
+							gameVar.arrowSprite.drawFrameAt(paramGraphics, 0,
 									k - i29, 0, 20);
 						}
 						if (this.var_109d + this.var_10a5 < this.var_1035) {
-							gameVar.arrowSprite.sub_1209(paramGraphics, 1,
+							gameVar.arrowSprite.drawFrameAt(paramGraphics, 1,
 									k - i29, m, 36);
 						}
 					}
@@ -1514,14 +1514,14 @@ public final class D_Menu extends A_MenuBase {
 					if ((this.var_1065 & 0x2) == 0) {
 						i28 += 5;
 					}
-					gameVar.arrowSprite.sub_1209(paramGraphics, 1, k
+					gameVar.arrowSprite.drawFrameAt(paramGraphics, 1, k
 							+ this.var_10ad, i28, 40);
 				}
 			}
 		}
 		paramGraphics.translate(-i, -j);
 		paramGraphics.setClip(0, 0, this.someCanWidth, this.someCanHeight);
-		if ((A_MenuBase.mainCanvas.currentMenuMb == this) && (this.var_fd5 == 2)) {
+		if ((A_MenuBase.mainCanvas.mainDrawElement == this) && (this.var_fd5 == 2)) {
 			if (this.var_fb5[0] != false) {
 				gameVar.sub_dbd9(paramGraphics, I_Game.var_3333, 0,
 						gameVar.var_32d3);
@@ -1593,11 +1593,11 @@ public final class D_Menu extends A_MenuBase {
 			int i3 = paramInt2 + paramInt4 - localClass_f_045.frameHeight;
 			for (int i4 = 0; i4 < n; i4++) {
 				if (k != 0) {
-					localClass_f_045.sub_1209(paramGraphics, 1, i2, paramInt2,
+					localClass_f_045.drawFrameAt(paramGraphics, 1, i2, paramInt2,
 							0);
 				}
 				if (m != 0) {
-					localClass_f_045.sub_1209(paramGraphics, 6, i2, i3, 0);
+					localClass_f_045.drawFrameAt(paramGraphics, 6, i2, i3, 0);
 				}
 				i2 += localClass_f_045.frameWidth;
 			}
@@ -1608,26 +1608,26 @@ public final class D_Menu extends A_MenuBase {
 			int i5 = paramInt1 + paramInt3 - localClass_f_045.frameWidth;
 			for (int i6 = 0; i6 < i1; i6++) {
 				if (i != 0) {
-					localClass_f_045.sub_1209(paramGraphics, 3, paramInt1, i4,
+					localClass_f_045.drawFrameAt(paramGraphics, 3, paramInt1, i4,
 							0);
 				}
 				if (j != 0) {
-					localClass_f_045.sub_1209(paramGraphics, 4, i5, i4, 0);
+					localClass_f_045.drawFrameAt(paramGraphics, 4, i5, i4, 0);
 				}
 				i4 += localClass_f_045.frameHeight;
 			}
 			if ((i != 0) && (k != 0)) {
-				localClass_f_045.sub_1209(paramGraphics, 0, paramInt1,
+				localClass_f_045.drawFrameAt(paramGraphics, 0, paramInt1,
 						paramInt2, 0);
 			}
 			if ((j != 0) && (k != 0)) {
-				localClass_f_045.sub_1209(paramGraphics, 2, i5, paramInt2, 0);
+				localClass_f_045.drawFrameAt(paramGraphics, 2, i5, paramInt2, 0);
 			}
 			if ((i != 0) && (m != 0)) {
-				localClass_f_045.sub_1209(paramGraphics, 5, paramInt1, i3, 0);
+				localClass_f_045.drawFrameAt(paramGraphics, 5, paramInt1, i3, 0);
 			}
 			if ((j != 0) && (m != 0)) {
-				localClass_f_045.sub_1209(paramGraphics, 7, i5, i3, 0);
+				localClass_f_045.drawFrameAt(paramGraphics, 7, i5, i3, 0);
 			}
 		}
 	}

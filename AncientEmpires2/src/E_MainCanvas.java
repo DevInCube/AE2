@@ -33,7 +33,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	private static Display display;
 	private boolean isRunning = false;
 	private boolean isLoading = true;
-	public A_MenuBase currentMenuMb;
+	public A_MenuBase mainDrawElement;
 	public static int canvasWidth;
 	public static int canvasHeight;
 	public int var_13ec = 0;
@@ -45,8 +45,8 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public static boolean[] settings = { true, true, true, true };
 	public static String[] settingsNames;
 	public boolean var_142c = false;
-	public static int var_1434 = -1;
-	public static int var_143c;
+	public static int musicPlayerId = -1;
+	public static int musicLoopCount;
 	public static boolean var_1444 = false;
 	public static final String[] musicNames = { "main_theme", "bg_story",
 			"bg_good", "bg_bad", "battle_good", "battle_bad", "victory",
@@ -147,36 +147,36 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		return size;
 	}
 
-	public static final int sub_1761(byte paramByte, String paramString) {
-		return charsSprites[paramByte].frameWidth * paramString.length();
+	public static final int getCharedStringWidth(byte charId, String str) {
+		return charsSprites[charId].frameWidth * str.length();
 	}
 
-	public static final int sub_1789(byte paramByte) {
-		return charsSprites[paramByte].frameHeight;
+	public static final int getCharedStringHeight(byte charId) {
+		return charsSprites[charId].frameHeight;
 	}
 
-	public static final void sub_17ac(Graphics paramGraphics, int paramInt) {
-		paramGraphics.setColor(paramInt);
+	public static final void setColor(Graphics gr, int color) {
+		gr.setColor(color);
 	}
 
 	public final void showNotify() {
 		this.var_142c = false;
 		var_1444 = false;
 		sub_1f57();
-		if (this.currentMenuMb != null) {
-			this.currentMenuMb.onLoad();
+		if (this.mainDrawElement != null) {
+			this.mainDrawElement.onLoad();
 		}
 	}
 
 	public final void hideNotify() {
 		sub_1f57();
-		if (this.currentMenuMb != null) {
+		if (this.mainDrawElement != null) {
 			if (!this.var_142c) {
 				var_1444 = true;
 				if ((currentMusicPlayer != null) && (currentMusicPlayer.getState() == 400)
 						&& (var_1454[currentMusicId] == 1)) {
-					var_1434 = currentMusicId;
-					var_143c = currentMusicLoopCount;
+					musicPlayerId = currentMusicId;
+					musicLoopCount = currentMusicLoopCount;
 				}
 				sub_2459();
 			}
@@ -184,23 +184,23 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final void sub_189a(Graphics paramGraphics,
+	public static final void drawCharedString(Graphics gr,
 			String paramString, int paramInt1, int paramInt2, int paramInt3,
 			int paramInt4) {
 		if ((paramInt4 & 0x8) != 0) {
-			paramInt1 -= sub_1761((byte) paramInt3, paramString);
+			paramInt1 -= getCharedStringWidth((byte) paramInt3, paramString);
 		} else if ((paramInt4 & 0x1) != 0) {
-			paramInt1 -= sub_1761((byte) paramInt3, paramString) / 2;
+			paramInt1 -= getCharedStringWidth((byte) paramInt3, paramString) / 2;
 		}
 		if ((paramInt4 & 0x20) != 0) {
-			paramInt2 -= sub_1789((byte) paramInt3);
+			paramInt2 -= getCharedStringHeight((byte) paramInt3);
 		} else if ((paramInt4 & 0x2) != 0) {
-			paramInt2 -= sub_1789((byte) paramInt3) / 2;
+			paramInt2 -= getCharedStringHeight((byte) paramInt3) / 2;
 		}
-		sub_1954(paramGraphics, paramString, paramInt1, paramInt2, paramInt3);
+		drawCharedString(gr, paramString, paramInt1, paramInt2, paramInt3);
 	}
 
-	public static final void sub_1954(Graphics paramGraphics,
+	public static final void drawCharedString(Graphics gr,
 			String paramString, int paramInt1, int paramInt2, int paramInt3) {
 		int m = 0;
 		int n = paramString.length();
@@ -211,14 +211,14 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 				int j;
 				if ((j = var_13b4[paramInt3][(k - var_13a4[paramInt3])]) != -1) {
 					charsSprites[paramInt3].setCurrentFrameIndex(j);
-					charsSprites[paramInt3].draw(paramGraphics, paramInt1,
+					charsSprites[paramInt3].draw(gr, paramInt1,
 							paramInt2);
 					paramInt1 += charsSprites[paramInt3].frameWidth;
 				} else {
 					byte[] arrayOfByte = { (byte) k };
 					String str = new String(arrayOfByte);
-					paramGraphics.drawString(str, paramInt1, paramInt2, 20);
-					paramInt1 += paramGraphics.getFont().stringWidth(str);
+					gr.drawString(str, paramInt1, paramInt2, 20);
+					paramInt1 += gr.getFont().stringWidth(str);
 				}
 			}
 			m++;
@@ -234,7 +234,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public final void showMenu(A_MenuBase menu) {
 		sub_1f57();
 		menu.onLoad();
-		this.currentMenuMb = menu;
+		this.mainDrawElement = menu;
 	}
 
 	public final void repaintAll() {
@@ -253,7 +253,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 					canvasHeight / 2 - 1, 33);
 			return;
 		}
-		this.currentMenuMb.onPaint(graphics);
+		this.mainDrawElement.onPaint(graphics);
 	}
 
 	public final int getGameAction(int paramInt) {
@@ -296,12 +296,13 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 			case 8:
 				return 16;
 			}
-		} catch (Exception localException) {
+		} catch (Exception ex) {
+			//
 		}
 		return 4096;
 	}
 
-	public final String sub_1da2(int paramInt) {
+	public final String getKeyName2(int paramInt) {
 		int i = 0;
 		switch (paramInt) {
 		case 32:
@@ -340,8 +341,8 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public final void keyPressed(int paramInt) {
 		int i = getGameAction(paramInt);
 		sub_2079(i);
-		if (this.currentMenuMb != null) {
-			this.currentMenuMb.sub_865(paramInt, i);
+		if (this.mainDrawElement != null) {
+			this.mainDrawElement.sub_865(paramInt, i);
 		}
 	}
 
@@ -416,20 +417,20 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 			
 			I_Game aGame = new I_Game();
 			repaintAll();
-			this.currentMenuMb = aGame;
+			this.mainDrawElement = aGame;
 			this.isLoading = false;
 			this.isRunning = true;
 			aGame.runLoading();
 			while (this.isRunning) {
 				long time = System.currentTimeMillis();
 				if ((isShown()) && (!var_1444)) {
-					if (var_1434 >= 0) {
-						playMusicLooped(var_1434, var_143c);
+					if (musicPlayerId >= 0) {
+						playMusicLooped(musicPlayerId, musicLoopCount);
 						if ((currentMusicPlayer != null) && (currentMusicPlayer.getState() == 400)) {
-							var_1434 = -1;
+							musicPlayerId = -1;
 						}
 					}
-					this.currentMenuMb.onUpdate();
+					this.mainDrawElement.onUpdate();
 					repaintAll();
 				}
 				int timeElapsed = (int) (System.currentTimeMillis() - time);
@@ -517,8 +518,8 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 					loopCount = -1;
 				}
 				if (var_1444) {
-					var_1434 = musicId;
-					var_143c = loopCount;
+					musicPlayerId = musicId;
+					musicLoopCount = loopCount;
 				} else {
 					currentMusicPlayer = musicPlayers[musicId];
 					currentMusicPlayer.setLoopCount(loopCount);

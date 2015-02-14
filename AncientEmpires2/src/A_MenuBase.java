@@ -140,15 +140,15 @@ public class A_MenuBase {
 													str,
 													"%K5",
 													sub_e44(20, mainCanvas
-															.sub_1da2(16)),
+															.getKeyName2(16)),
 													true), "%K0",
-											mainCanvas.sub_1da2(32), true), "%K7",
-									mainCanvas.sub_1da2(256), true), "%K9",
-							mainCanvas.sub_1da2(512), true)).indexOf("%KM") != -1)) {
+											mainCanvas.getKeyName2(32), true), "%K7",
+									mainCanvas.getKeyName2(256), true), "%K9",
+							mainCanvas.getKeyName2(512), true)).indexOf("%KM") != -1)) {
 				StringBuffer localStringBuffer = new StringBuffer();
-				String[] arrayOfString = { mainCanvas.sub_1da2(1),
-						mainCanvas.sub_1da2(2), mainCanvas.sub_1da2(4),
-						mainCanvas.sub_1da2(8) };
+				String[] arrayOfString = { mainCanvas.getKeyName2(1),
+						mainCanvas.getKeyName2(2), mainCanvas.getKeyName2(4),
+						mainCanvas.getKeyName2(8) };
 				localStringBuffer.append(sub_ddf(17, arrayOfString));
 				if (localStringBuffer.length() > 0) {
 					localStringBuffer.append('/');

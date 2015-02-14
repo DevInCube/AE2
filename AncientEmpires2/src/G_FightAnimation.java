@@ -1095,7 +1095,7 @@ public final class G_FightAnimation {
 
 	public final void sub_3734(Graphics paramGraphics) {
 		int i = this.var_b15.someCanHeight - I_Game.var_32c3 / 2;
-		E_MainCanvas.sub_189a(paramGraphics, this.var_c1d + "/" + 100,
+		E_MainCanvas.drawCharedString(paramGraphics, this.var_c1d + "/" + 100,
 				this.var_b15.var_32db / 2, i, 1, 3);
 	}
 

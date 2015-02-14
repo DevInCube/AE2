@@ -28,13 +28,13 @@ public class F_Sprite {
 	public byte var_86c = -1;
 	public boolean var_874;
 	public int var_87c;
-	public String var_884;
-	public int var_88c;
+	public String spriteString;
+	public int charFontId;
 	public F_Sprite var_894;
 	public F_Sprite var_89c;
 	public int[][] var_8a4;
 	public short[][] var_8ac;
-	public int yellowColor = 16769024; //#FFE000 yellow
+	public int someColor = 16769024; //#FFE000 yellow
 	public byte[] var_8bc;
 	public boolean[] var_8c4;
 
@@ -60,7 +60,7 @@ public class F_Sprite {
 			throws Exception {
 		InputStream stream = E_MainCanvas.getResourceStream(spriteId
 				+ ".sprite");
-		int length = (byte) (stream ).read();
+		int length = (byte)stream.read();
 		this.frameWidth = ((byte) stream.read());
 		this.frameHeight = ((byte) stream.read());
 		this.frameImages = new H_ImageExt[length];
@@ -78,25 +78,25 @@ public class F_Sprite {
 					i1++;
 				}
 			}
-		} catch (Exception localException1) {
+		} catch (Exception ex) {
 			try {
 				for (int it = 0; it < length; it++) {
-					StringBuffer localStringBuffer;
-					(localStringBuffer = new StringBuffer(spriteId))
-							.append('_');
+					StringBuffer tileName = new StringBuffer(spriteId);
+					tileName.append('_');
 					if (it < 10) {
-						localStringBuffer.append('0');
+						tileName.append('0');
 					}
-					localStringBuffer.append(it);
+					tileName.append(it);
 					if (paramInt == 1) {
 						images[it] = new H_ImageExt(
-								localStringBuffer.toString());
+								tileName.toString());
 					} else {
 						images[it] = new H_ImageExt(
-								localStringBuffer.toString(), paramInt);
+								tileName.toString(), paramInt);
 					}
 				}
-			} catch (Exception localException2) {
+			} catch (Exception ex2) {
+				//
 			}
 		}
 		for (int j = 0; j < length; j++) {
@@ -110,25 +110,25 @@ public class F_Sprite {
 				this.frameImages[it].sub_6d9(j, this.frameWidth, this.frameHeight);
 			}
 		}
-		int nn = stream.read();
-		if (nn > 0) {
-			this.frameAnimationsSequences = new byte[nn][];
+		int animationsCount = stream.read();
+		if (animationsCount > 0) {
+			this.frameAnimationsSequences = new byte[animationsCount][];
 			this.mapFrameTime = (stream.read() * 50);
-			for (int n1 = 0; n1 < nn; n1++) {
-				int i1 = stream.read();
-				this.frameAnimationsSequences[n1] = new byte[i1];
-				for (int i2 = 0; i2 < i1; i2++) {
-					this.frameAnimationsSequences[n1][i2] = ((byte) stream.read());
+			for (int animId = 0; animId < animationsCount; animId++) {
+				int animLength = stream.read();
+				this.frameAnimationsSequences[animId] = new byte[animLength];
+				for (int it = 0; it < animLength; it++) {
+					this.frameAnimationsSequences[animId][it] = ((byte) stream.read());
 				}
 			}
 		}
 		for (int n1 = 0; n1 < length; n1++) {
-			byte i1 = (byte) stream.read();
-			byte i2 = (byte) stream.read();
-			if ((i1 == -1) || (i2 == -1)) {
+			byte iX = (byte) stream.read();
+			byte iY = (byte) stream.read();
+			if ((iX == -1) || (iY == -1)) {
 				break;
 			}
-			this.frameImages[n1].translateImage(i1, i2);
+			this.frameImages[n1].translateImage(iX, iY);
 		}
 		stream.close();
 		if (this.frameAnimationsSequences != null) {
@@ -206,30 +206,30 @@ public class F_Sprite {
 		}
 	}
 
-	public final void sub_1209(Graphics gr, int paramInt1,
-			int paramInt2, int paramInt3, int paramInt4) {
+	public final void drawFrameAt(Graphics gr, int frameIndex,
+			int inX, int inY, int paramInt4) {
 		if ((this.var_814 == 2) || (this.var_814 == 4) || (this.var_814 == 3)) {
-			draw(gr, paramInt2, paramInt3);
+			draw(gr, inX, inY);
 			return;
 		}
 		if (this.var_7ec) {
-			int i = this.posX + paramInt2;
-			int j = this.posY + paramInt3;
-			this.frameImages[paramInt1].drawImageExt(gr, i, j, paramInt4);
+			int x = this.posX + inX;
+			int y = this.posY + inY;
+			this.frameImages[frameIndex].drawImageExt(gr, x, y, paramInt4);
 		}
 	}
 
-	public final void sub_12a5(Graphics paramGraphics, int paramInt1,
-			int paramInt2, int paramInt3) {
-		sub_1209(paramGraphics, this.frameSequence[this.currentFrameIndex], paramInt1,
-				paramInt2, paramInt3);
+	public final void drawCurrentFrame(Graphics paramGraphics, int inX,
+			int inY, int paramInt3) {
+		drawFrameAt(paramGraphics, this.frameSequence[this.currentFrameIndex], inX,
+				inY, paramInt3);
 	}
 
 	//this is not virtual
 	public void draw(Graphics gr, int inX, int inY) {
 		int k = 0;
 		if ((this.var_814 == 2) || (this.var_814 == 4)) {
-			gr.setColor(this.yellowColor);
+			gr.setColor(this.someColor);
 			k = 0;
 		}
 		while (k < 5) {
@@ -277,9 +277,9 @@ public class F_Sprite {
 			if (this.var_7ec) {
 				i = this.posX + inX;
 				j = this.posY + inY;
-				if (this.var_884 != null) {
-					E_MainCanvas.sub_189a(gr, this.var_884, i, j,
-							this.var_88c, 33);
+				if (this.spriteString != null) {
+					E_MainCanvas.drawCharedString(gr, this.spriteString, i, j,
+							this.charFontId, 33);
 					return;
 				}
 				if (this.var_864 > 0) {
@@ -304,12 +304,12 @@ public class F_Sprite {
 	}
 
 	public static final F_Sprite sub_15c2(String str, int paramInt1,
-			int paramInt2, byte paramByte) {
-		int i = E_MainCanvas.sub_1761(paramByte, str);
-		int j = E_MainCanvas.sub_1789(paramByte);
-		F_Sprite sprite = new F_Sprite(i, j);
-		sprite.var_88c = paramByte;
-		sprite.var_884 = str;
+			int paramInt2, byte charId) {
+		int strWidth = E_MainCanvas.getCharedStringWidth(charId, str);
+		int strHeight = E_MainCanvas.getCharedStringHeight(charId);
+		F_Sprite sprite = new F_Sprite(strWidth, strHeight);
+		sprite.charFontId = charId;
+		sprite.spriteString = str;
 		sprite.var_834 = paramInt1;
 		sprite.var_844 = paramInt2;
 		sprite.var_814 = 5;
@@ -318,7 +318,7 @@ public class F_Sprite {
 
 	public static final F_Sprite sub_1616(F_Sprite sprite,
 			int paramInt1, int paramInt2, int paramInt3, int paramInt4,
-			int paramInt5, byte paramByte) {
+			int frameTime, byte paramByte) {
 		F_Sprite lspr = null;
 		if (sprite != null) {
 			lspr = new F_Sprite(sprite);
@@ -326,7 +326,7 @@ public class F_Sprite {
 			lspr = new F_Sprite(0, 0);
 			if ((paramByte == 2) || (paramByte == 4)) {
 				if (paramByte == 4) {
-					lspr.yellowColor = 15658751;
+					lspr.someColor = 15658751;
 				}
 				lspr.var_8a4 = new int[5][2];
 				lspr.var_8ac = new short[5][2];
@@ -352,7 +352,7 @@ public class F_Sprite {
 		}
 		lspr.var_814 = paramByte;
 		lspr.var_81c = paramInt4;
-		lspr.mapFrameTime = paramInt5;
+		lspr.mapFrameTime = frameTime;
 		lspr.var_834 = paramInt1;
 		lspr.var_83c = paramInt2;
 		lspr.var_844 = paramInt3;
@@ -427,7 +427,7 @@ public class F_Sprite {
 
 	public final void sub_19ce() {
 		if (this.var_814 != 4) {
-			this.yellowColor += -263168;
+			this.someColor += -263168;
 		}
 		for (int i = 0; i < 5; i++) {
 			if (this.var_8c4[i] != false) {

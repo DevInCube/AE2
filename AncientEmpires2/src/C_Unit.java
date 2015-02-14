@@ -718,11 +718,11 @@ public final class C_Unit extends F_Sprite {
 				i = this.posX + paramInt1;
 				j = this.posY + paramInt2;
 				if ((paramBoolean) || (this.var_b13 == 2)) {
-					sGame.kingHeadsSprites[1].sub_1209(gr, this.var_b7b
+					sGame.kingHeadsSprites[1].drawFrameAt(gr, this.var_b7b
 							* 2 + this.currentFrameIndex, i, j, 0);
 					return;
 				}
-				sGame.kingHeadsSprites[0].sub_1209(gr, this.var_b7b * 2
+				sGame.kingHeadsSprites[0].drawFrameAt(gr, this.var_b7b * 2
 						+ this.currentFrameIndex, i, j, 0);
 			}
 		}
@@ -733,7 +733,7 @@ public final class C_Unit extends F_Sprite {
 		int i = this.posX + paramInt1;
 		int j = this.posY + paramInt2;
 		if ((this.var_b13 != 3) && (this.var_b0b < 100)) {
-			E_MainCanvas.sub_1954(paramGraphics, "" + this.var_b0b, i, j
+			E_MainCanvas.drawCharedString(paramGraphics, "" + this.var_b0b, i, j
 					+ this.frameHeight - 7, 0);
 		}
 	}

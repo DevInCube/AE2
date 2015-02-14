@@ -541,7 +541,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final boolean sub_4789() {
-		return (this.var_3783) && (A_MenuBase.mainCanvas.currentMenuMb == this);
+		return (this.var_3783) && (A_MenuBase.mainCanvas.mainDrawElement == this);
 	}
 
 	public final void sub_47c9() throws Exception {
@@ -602,7 +602,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.alphaMappedTilesImages[alphaId][tileId] = img;
 				Graphics graphics = img.getGraphics();
 				this.allTilesImages[tileId].drawImageExt(graphics, 0, 0);
-				this.alphaMapSprite.sub_1209(graphics, alphaId, 0, 0, 0);
+				this.alphaMapSprite.drawFrameAt(graphics, alphaId, 0, 0, 0);
 			}
 		}
 		this.portraitsSprite = new F_Sprite("portraits");
@@ -2406,7 +2406,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			this.var_36db = -1;
 		}
-		if (A_MenuBase.mainCanvas.currentMenuMb != this) {
+		if (A_MenuBase.mainCanvas.mainDrawElement != this) {
 			return;
 		}
 		if (this.var_34c3 == 0) {
@@ -3837,7 +3837,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					if (i2 == i3 - 1) {
 						gr.setClip(0, 0, this.var_32cb,
 								this.var_32d3);
-						this.var_3453.sub_12a5(gr, i6, i7, 3);
+						this.var_3453.drawCurrentFrame(gr, i6, i7, 3);
 					} else if ((arrayOfShort2 = (short[]) this.var_353b
 							.elementAt(i2 + 1))[0] == arrayOfShort1[0] + 1) {
 						gr.fillRect(i4 + n, i7 - this.var_3a53, m,
@@ -3862,7 +3862,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3423);
 			}
 			if (this.var_352b) {
-				this.cursorSprite.sub_12a5(gr, this.var_341b + 12,
+				this.cursorSprite.drawCurrentFrame(gr, this.var_341b + 12,
 						this.var_3423 + 12, 3);
 			}
 			int k = 0;
@@ -3893,8 +3893,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				i3 = this.someCanHeight - var_32c3 / 2 + this.var_378b;
 				if (this.var_332b == 1) {
 					i4 = i2 / 2;
-					this.hudIcons2Sprite.sub_1209(gr, 0, i4, i3, 6);
-					E_MainCanvas.sub_189a(
+					this.hudIcons2Sprite.drawFrameAt(gr, 0, i4, i3, 6);
+					E_MainCanvas.drawCharedString(
 							gr,
 							sub_e3c8(-1, -1, this.var_357b)
 									- sub_e3c8(10, -1, this.var_357b) + "/"
@@ -3905,13 +3905,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if (this.var_32cb <= 120) {
 					i4 = 4;
 				}
-				this.hudIcons2Sprite.sub_1209(gr, 1, i4, i3, 6);
+				this.hudIcons2Sprite.drawFrameAt(gr, 1, i4, i3, 6);
 				i4 += this.hudIcons2Sprite.frameWidth + 1;
 				if (this.var_35b3[this.var_357b] == 1) {
-					E_MainCanvas.sub_189a(gr, ""
+					E_MainCanvas.drawCharedString(gr, ""
 							+ this.var_35a3[this.var_357b], i4, i3, 1, 6);
 				} else {
-					E_MainCanvas.sub_189a(gr, "- - -", i4, i3, 1, 6);
+					E_MainCanvas.drawCharedString(gr, "- - -", i4, i3, 1, 6);
 				}
 				gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
 			}
@@ -3926,7 +3926,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						.drawImageExt(gr, i3, i4);
 				String str2 = "."
 						+ var_33e3[sub_dd5d(this.var_34ab, this.var_34b3)];
-				E_MainCanvas.sub_189a(gr, str2, i3 + 24, i4 + 24, 0,
+				E_MainCanvas.drawCharedString(gr, str2, i3 + 24, i4 + 24, 0,
 						40);
 				if (m == 0) {
 					gr.setColor(0);
@@ -3988,7 +3988,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		int n;
 		int i1 = (n = i / 2) + paramInt;
 		for (int i4 = 0; i4 < 3; i4++) {
-			this.hudIconsSprite.sub_1209(paramGraphics, i4, k + 1, i1, 6);
+			this.hudIconsSprite.drawFrameAt(paramGraphics, i4, k + 1, i1, 6);
 			k += this.hudIconsSprite.frameWidth + 2;
 			int m = paramInt + 1;
 			int i2;
@@ -4046,26 +4046,26 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				} else {
 					str = "" + localClass_c_0321.level;
 				}
-				E_MainCanvas.sub_1954(paramGraphics, str, i6, m + 1, 0);
+				E_MainCanvas.drawCharedString(paramGraphics, str, i6, m + 1, 0);
 				if (i7 > 0) {
-					this.arrowIconsSprite.sub_1209(paramGraphics, 1, i6 + 1
-							+ E_MainCanvas.sub_1761((byte) 0, str), m + i3 / 2,
+					this.arrowIconsSprite.drawFrameAt(paramGraphics, 1, i6 + 1
+							+ E_MainCanvas.getCharedStringWidth((byte) 0, str), m + i3 / 2,
 							6);
 				} else if (i7 < 0) {
-					this.arrowIconsSprite.sub_1209(paramGraphics, 2, i6 + 1
-							+ E_MainCanvas.sub_1761((byte) 0, str), m + i3 / 2,
+					this.arrowIconsSprite.drawFrameAt(paramGraphics, 2, i6 + 1
+							+ E_MainCanvas.getCharedStringWidth((byte) 0, str), m + i3 / 2,
 							6);
 				}
 				int i8 = k + i2 - 2;
 				if ((i4 == 0) && ((localClass_c_0321.var_b1b & 0x2) != 0)) {
 					this.statusSprite
-							.sub_1209(paramGraphics, 1, i8, m + i3 / 2, 10);
+							.drawFrameAt(paramGraphics, 1, i8, m + i3 / 2, 10);
 					i8 -= this.statusSprite.frameWidth;
 				}
 				if (((i4 == 0) || (i4 == 1))
 						&& ((localClass_c_0321.var_b1b & 0x1) != 0)) {
 					this.statusSprite
-							.sub_1209(paramGraphics, 0, i8, m + i3 / 2, 10);
+							.drawFrameAt(paramGraphics, 0, i8, m + i3 / 2, 10);
 				}
 				m += n;
 			}
@@ -4083,7 +4083,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			i = this.someCanWidth;
 			j = 40;
 		}
-		this.buttonsSprite.sub_1209(paramGraphics, paramInt2, i, paramInt3, j);
+		this.buttonsSprite.drawFrameAt(paramGraphics, paramInt2, i, paramInt3, j);
 	}
 
 	public final C_Unit sub_dc52(int paramInt1, int paramInt2,
@@ -4365,7 +4365,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				i3 = m * i;
 			}
 			int i4 = 255 * i1 / i;
-			E_MainCanvas.sub_17ac(paramGraphics, i4 << 24 | paramInt1);
+			E_MainCanvas.setColor(paramGraphics, i4 << 24 | paramInt1);
 			for (int i5 = 0; i5 < 1; i5++) {
 				paramGraphics.fillRect(paramInt5 + i3, paramInt6, i1, j);
 			}
