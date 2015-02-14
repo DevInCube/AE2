@@ -3183,7 +3183,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		int i = 0;
 		int j = this.mapSprites.size();
 		while (i < j) {
-			((C_Unit) this.mapSprites.elementAt(i)).someUpdate();
+			((C_Unit) this.mapSprites.elementAt(i)).unitUpdate();
 			i++;
 		}
 		if (this.time - this.var_36a3 >= 300L) {
@@ -3216,7 +3216,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		for (i = this.var_35c3.size() - 1; i >= 0; i--) {
 			F_Sprite localObject21 = (F_Sprite) this.var_35c3
 					.elementAt(i);
-			localObject21.sub_17ec();
+			localObject21.spriteUpdate();
 			if (!((F_Sprite) localObject21).var_84c) {
 				this.var_35c3.removeElement(localObject21);
 			}
@@ -6935,7 +6935,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		F_Sprite localClass_f_045;
 		for (int i = 0; i < this.var_3bbb.size(); i++) {
 			(localClass_f_045 = (F_Sprite) this.var_3bbb.elementAt(i))
-					.sub_17ec();
+					.spriteUpdate();
 		}
 		for (int i = 0; i < this.var_3bbb.size(); i++) {
 			if (!(localClass_f_045 = (F_Sprite) this.var_3bbb.elementAt(i)).var_84c) {

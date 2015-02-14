@@ -361,7 +361,7 @@ public class F_Sprite {
 	}
 
 	//@todo override? what is this code about
-	public void sub_17ec() {
+	public void spriteUpdate() {
 		if (this.var_84c) {
 			this.frameTime += 50;
 			if (this.var_864 >= 0) {

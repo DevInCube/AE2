@@ -557,7 +557,7 @@ public final class C_Unit extends F_Sprite {
 	}
 
 	//@todo mb override
-	public final void someUpdate() {
+	public final void unitUpdate() {
 		if (this.var_b3b) {
 			if (sGame.time - this.someUnitTime >= this.var_b4b) {
 				this.var_b3b = false;
