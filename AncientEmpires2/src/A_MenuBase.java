@@ -10,13 +10,13 @@ public class A_MenuBase {
 	public static E_MainCanvas mainCanvas;
 	public int someCanWidth = mainCanvas.getWidth();
 	public int someCanHeight = mainCanvas.getHeight();
-	public int var_7b3 = this.someCanWidth >> 1;
-	public int var_7bb = this.someCanHeight >> 1;
+	public int someCanWidthDiv2 = this.someCanWidth >> 1;
+	public int someCanHeightDiv2 = this.someCanHeight >> 1;
 	public static String[] langStrings;
-	public static short[] var_7cb = null;
-	public static int var_7d3 = 360;
-	public static int var_7db = 0;
-	public static int var_7e3 = 0;
+	public static short[] sin1024Table = null;
+	public static int maxDegrees = 360;
+	public static int maxDegreesDiv2 = 0;
+	public static int maxDegreesDiv4 = 0;
 
 	public void onLoad() {
 		//@todo override
@@ -79,23 +79,23 @@ public class A_MenuBase {
 		return arrayOfString;
 	}
 
-	private static final int sub_ab5(String paramString, int paramInt) {
-		int i = paramString.charAt(paramInt);
+	private static final int sub_ab5(String string, int charPos) {
+		int i = string.charAt(charPos);
 		if (sub_b97(i)) {
-			return paramInt + 1;
+			return charPos + 1;
 		}
 		int j = 0;
 		int k = 0;
-		while ((k = paramString.indexOf(' ', paramInt)) == 0) {
-			paramInt++;
+		while ((k = string.indexOf(' ', charPos)) == 0) {
+			charPos++;
 		}
 		if ((j = k) == -1) {
-			j = paramString.length();
+			j = string.length();
 		} else {
 			j++;
 		}
-		for (int it = paramInt + 1; it < j; it++) {
-			if (sub_b97(paramString.charAt(it))) {
+		for (int it = charPos + 1; it < j; it++) {
+			if (sub_b97(string.charAt(it))) {
 				return it;
 			}
 		}
@@ -124,93 +124,89 @@ public class A_MenuBase {
 		return langStrings.length;
 	}
 
-	public static final String getLangString(int paramInt) {
-		return sub_cb9(paramInt, false);
+	public static final String getLangString(int stringId) {
+		return getSomeHelpString(stringId, false);
 	}
 
-	public static final String sub_cb9(int paramInt, boolean paramBoolean) {
-		if (paramInt < langStrings.length) {
-			String str = langStrings[paramInt];
-			if ((paramBoolean)
-					&& ((str = sub_e6a(
-							str = sub_e6a(
-									str = sub_e6a(
-											str = sub_e6a(
-													str,
-													"%K5",
-													sub_e44(20, mainCanvas
-															.getKeyName2(16)),
-													true), "%K0",
-											mainCanvas.getKeyName2(32), true), "%K7",
-									mainCanvas.getKeyName2(256), true), "%K9",
-							mainCanvas.getKeyName2(512), true)).indexOf("%KM") != -1)) {
-				StringBuffer localStringBuffer = new StringBuffer();
-				String[] arrayOfString = { mainCanvas.getKeyName2(1),
-						mainCanvas.getKeyName2(2), mainCanvas.getKeyName2(4),
-						mainCanvas.getKeyName2(8) };
-				localStringBuffer.append(sub_ddf(17, arrayOfString));
-				if (localStringBuffer.length() > 0) {
-					localStringBuffer.append('/');
+	public static final String getSomeHelpString(int strId, boolean paramBoolean) {
+		if (strId < langStrings.length) {
+			String str = langStrings[strId];
+			if(paramBoolean) {
+				String someStr = replaceStringFirst(20, mainCanvas.getKeyName2(16)); //'%U'/select
+				str = replaceString(str, "%K5", someStr, true);
+				str = replaceString(str, "%K0", mainCanvas.getKeyName2(32), true);
+				str = replaceString(str, "%K7", mainCanvas.getKeyName2(256), true);
+				str = replaceString(str, "%K9", mainCanvas.getKeyName2(512), true);
+				if ((str.indexOf("%KM") != -1)) {
+					StringBuffer buf = new StringBuffer();
+					String[] keyNames = { mainCanvas.getKeyName2(1),
+							mainCanvas.getKeyName2(2), mainCanvas.getKeyName2(4),
+							mainCanvas.getKeyName2(8) };
+					buf.append(stringFormat(17, keyNames)); //'%U', '%U', '%U', '%U'
+					if (buf.length() > 0) {
+						buf.append('/');
+					}
+					buf.append(getLangString(18)); //direction pad
+					str = replaceString(str, "%KM", buf.toString(), true);
 				}
-				localStringBuffer.append(getLangString(18));
-				str = sub_e6a(str, "%KM", localStringBuffer.toString(), true);
 			}
 			return str;
 		}
-		return "?: " + paramInt;
+		return "?: " + strId;
 	}
 
-	public static final String sub_ddf(int paramInt, String[] paramArrayOfString) {
+	public static final String stringFormat(int paramInt, String[] paramArrayOfString) {
 		String str = new String(getLangString(paramInt));
 		for (int i = 0; i < paramArrayOfString.length; i++) {
-			str = sub_e6a(str, "%U", paramArrayOfString[i], false);
+			str = replaceString(str, "%U", paramArrayOfString[i], false);
 		}
 		return str;
 	}
 
-	public static final String sub_e44(int paramInt, String paramString) {
-		return sub_e6a(getLangString(paramInt), "%U", paramString, false);
+	public static final String replaceStringFirst(int strID, String replacement) {
+		return replaceString(getLangString(strID), "%U", replacement, false);
 	}
 
-	public static final String sub_e6a(String paramString1,
-			String paramString2, String paramString3, boolean paramBoolean) {
-		String str = paramString1;
+	public static final String replaceString(String string,
+			String toReplace, String replacement, boolean menuTimes) {
+		String str = string;
 		do {
-			int i;
-			if ((i = str.indexOf(paramString2)) == -1) {
+			int index = str.indexOf(toReplace);
+			if (index == -1) {
 				break;
 			}
-			str = str.substring(0, i) + paramString3
-					+ str.substring(i + paramString2.length());
-		} while (paramBoolean);
+			str = str.substring(0, index) + replacement
+					+ str.substring(index + toReplace.length());
+		} while (menuTimes);
 		return str;
 	}
 
-	public static final void sub_ef4() {
-		var_7db = var_7d3 >> 1;
-		var_7e3 = var_7db >> 1;
-		var_7cb = new short[var_7d3];
-		int j = var_7d3 * 10000 / 2 / 31415;
+	public static final void initSin1024() {
+		//
+		maxDegreesDiv2 = maxDegrees >> 1;
+		maxDegreesDiv4 = maxDegreesDiv2 >> 1;
+		sin1024Table = new short[maxDegrees];
+		int j = maxDegrees * 10000 / 2 / 31415;
 		int k = 1024 * j;
 		int m = 0;
-		for (int i1 = 0; i1 < var_7d3; i1++) {
+		for (int degree = 0; degree < maxDegrees; degree++) {
 			int n = m / j;
-			var_7cb[i1] = ((short) n);
+			sin1024Table[degree] = ((short) n);
 			k -= n;
 			m += k / j;
 		}
-		var_7cb[(int) 'Â'] = 0; // 'Â´'
-		var_7cb[270] = -1024;
+		//sin1024Table[(int) 'Â'] = 0; // 'Â´'
+		//sin1024Table[270] = -1024;
 	}
 
-	public static final short sub_f9b(int paramInt) {
-		paramInt %= 360;
-		return var_7cb[paramInt];
+	public static final short getSin1024(int degree) {
+		degree %= 360;
+		return sin1024Table[degree];
 	}
 
-	public static final short sub_fc1(int paramInt) {
-		paramInt = (paramInt + var_7e3) % 360;
-		return var_7cb[paramInt];
+	public static final short getCos2014(int angle) {
+		angle = (angle + maxDegreesDiv4) % 360;
+		return sin1024Table[angle];
 	}
 }
 

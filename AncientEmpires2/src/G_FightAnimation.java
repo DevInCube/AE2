@@ -200,7 +200,7 @@ public final class G_FightAnimation {
 				this.unitCharsSprites[m].var_874 = true;
 				this.unitsRotationAngles[m] = E_MainCanvas.getRandomMax(360);
 				this.unitCharsSprites[m].var_80c = (-6 + 4
-						* A_MenuBase.sub_f9b(this.unitsRotationAngles[m]) >> 10);
+						* A_MenuBase.getSin1024(this.unitsRotationAngles[m]) >> 10);
 			} else if (this.unitType == 4) { //wisp
 				this.unitCharsSprites[m].var_874 = true;
 				this.unitCharsSprites[m].var_80c = (-5 - E_MainCanvas.getRandomMax(10));
@@ -770,9 +770,9 @@ public final class G_FightAnimation {
 			this.unitCharsSprites[j]
 					.setSpritePosition(
 							this.var_c2d[j][0]
-									+ (k * A_MenuBase.sub_fc1(this.unitsRotationAngles[j]) >> 10),
+									+ (k * A_MenuBase.getCos2014(this.unitsRotationAngles[j]) >> 10),
 							this.var_c2d[j][1]
-									+ (k * A_MenuBase.sub_f9b(this.unitsRotationAngles[j])
+									+ (k * A_MenuBase.getSin1024(this.unitsRotationAngles[j])
 											/ 3 >> 10));
 			this.unitsRotationAngles[j] = ((this.unitsRotationAngles[j] + this.var_c45) % 360);
 		}
@@ -987,7 +987,7 @@ public final class G_FightAnimation {
 			for (i = 0; i < this.unitCharsSprites.length; i++) {
 				if (this.unitCharsSprites[i].var_874) {
 					this.unitCharsSprites[i].var_80c = (-6 + 4
-							* A_MenuBase.sub_f9b(this.unitsRotationAngles[i]) >> 10);
+							* A_MenuBase.getSin1024(this.unitsRotationAngles[i]) >> 10);
 					this.unitsRotationAngles[i] = ((this.unitsRotationAngles[i] + 10) % 360);
 				}
 			}

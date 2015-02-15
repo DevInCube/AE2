@@ -61,7 +61,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					{ 95, 5, 120 } },
 			{ { 171, 237, 90 }, { 99, 190, 37 }, { 0, 153, 55 }, { 0, 85, 82 } },
 			{ { 0, 118, 150 }, { 0, 65, 114 }, { 0, 43, 75 }, { 0, 22, 48 } } };
-	public static final int[] var_33bb = { 10526880, 26054, 15204434, 39473,
+	public static final int[] playerColors = { 10526880, 26054, 15204434, 39473,
 			16754 };
 	public static final int[] var_33c3 = { -1, 2, 3, 2, 3 };
 	public static final int[] var_33cb = { -1, 4, 5, 4, 5 };
@@ -126,7 +126,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public int[] var_35a3 = new int[4];
 	public byte[][] var_35ab = new byte[4][2];
 	public byte[] var_35b3 = new byte[4];
-	public D_Menu var_35bb;
+	public D_Menu someGameMenu;
 	public Vector var_35c3 = new Vector();
 	public Vector var_35cb = new Vector();
 	public C_Unit var_35d3;
@@ -145,7 +145,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public H_ImageExt glowImage;
 	public int gameModeMb;
 	public boolean var_364b = false;
-	public int var_3653;
+	public int waveImageAmplitudeMb;
 	public int var_365b;
 	public int var_3663;
 	public int var_366b;
@@ -160,7 +160,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public int var_36b3;
 	public H_ImageExt[] var_36bb;
 	public boolean isBlackLoading = false;
-	public boolean var_36cb;
+	public boolean showPressAnyKey;
 	public static int[] var_36d3 = { 83, 83, 83, 83, 83, 83, 83, 83, 175, 84,
 			84, 84, 175, 147, 159, 151, 155, 167, 171 };
 	public int var_36db = -1;
@@ -183,19 +183,19 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public F_Sprite hudIcons2Sprite;
 	public int var_376b;
 	public int var_3773;
-	public int var_377b;
+	public int glowImagePosX;
 	public boolean var_3783 = true;
 	public int var_378b;
 	public boolean var_3793;
 	public F_Sprite miniIconsSprite;
 	public F_Sprite[] var_37a3;
 	public F_Sprite bigSmokeSprite;
-	public D_Menu var_37b3;
-	public D_Menu var_37bb;
-	public D_Menu var_37c3;
-	public D_Menu var_37cb;
-	public D_Menu[] var_37d3;
-	public D_Menu[] var_37db;
+	public D_Menu skirmishSetupMenu;
+	public D_Menu playerOptionsMenu;
+	public D_Menu chooseMoneyItemsMenu;
+	public D_Menu chooseUnitCapItemsMenu;
+	public D_Menu[] choosePlayerMenuList;
+	public D_Menu[] chooseTeamMenuList;
 	public D_Menu var_37e3;
 	public D_Menu[] var_37eb;
 	public F_Sprite alphaMapSprite;
@@ -209,7 +209,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public F_Sprite[] kingHeadsSprites;
 	public D_Menu var_383b;
 	public D_Menu var_3843;
-	public D_Menu var_384b;
+	public D_Menu castleBuyMenu;
 	public D_Menu var_3853;
 	public F_Sprite arrowIconsSprite;
 	public F_Sprite var_3863;
@@ -221,15 +221,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public String[] slotsDescriptions;
 	public byte[] slotsCurrentPlayerIds;
 	public int[] slotsMapIndexes;
-	public D_Menu var_38ab;
+	public D_Menu someLoadSlotMenu;
 	public D_Menu var_38b3;
 	public D_Menu var_38bb;
 	public D_Menu var_38c3;
-	public D_Menu var_38cb;
+	public D_Menu mainMenuMb;
 	public D_Menu var_38d3;
-	public D_Menu var_38db;
-	public byte var_38e3;
-	public byte[] var_38eb;
+	public D_Menu warningDialog;
+	public byte mapTeamsCount;
+	public byte[] somePlayerIds;
 	public int var_38f3;
 	public String[] var_38fb;
 	public int[] var_3903;
@@ -341,8 +341,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public String appPropPortalCode = "Macrospace";
 	public String appPropGameCode = "msaeii";
 	public String appPropUrl = "http://msaeii.scores.macrospace.com/connectx/in";
-	private ByteArrayOutputStream var_3c5b;
-	private DataOutputStream var_3c63;
+	private ByteArrayOutputStream m_baos;
+	private DataOutputStream m_dos;
 	public int var_3c6b;
 	public boolean var_3c73;
 	public A_MenuBase var_3c7b;
@@ -369,7 +369,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		setLoadingProgress(28);
 		D_Menu.gameVar = this;
 		setLoadingProgress(29);
-		A_MenuBase.sub_ef4();
+		A_MenuBase.initSin1024();
 		setLoadingProgress(30);
 		E_MainCanvas.loadCharsSprites();
 		setLoadingProgress(32);
@@ -793,8 +793,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if ((this.var_34db == 6) && (this.var_3b5b > 32)) {
 			this.startupMessageBox = createDialog(A_MenuBase.getLangString(121 + this.var_34db),
 					A_MenuBase.getLangString(138), this.var_32d3, -1);
-			this.startupMessageBox.sub_1301((byte) 0, true);
-			this.startupMessageBox.sub_1323(null);
+			this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
+			this.startupMessageBox.setParentMenu(null);
 		}
 		moveCursorToPos(this.var_35ab[this.var_357b][0],
 				this.var_35ab[this.var_357b][1]);
@@ -803,16 +803,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		E_MainCanvas.sub_2439(var_33c3[this.var_356b[this.var_357b]], 0);
 	}
 
-	public final void sub_53b1(int paramInt, A_MenuBase parentMenu) {
+	public final void saveToSlotMenuShow(int paramInt, A_MenuBase parentMenu) {
 		try {
 			E_MainCanvas.saveRecordStoreData("save", paramInt, saveMapDataBytes());
 			this.slotsDescriptions[paramInt] = getSlotDescription(this.mapModeCampIf0, this.var_34db,
 					this.var_3583);
 			this.slotsCurrentPlayerIds[paramInt] = this.var_356b[this.var_357b];
 			this.slotsMapIndexes[paramInt] = this.var_34db;
-			this.var_38c3.sub_1ceb(null, this.slotsDescriptions[paramInt],
+			this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[paramInt],
 					this.var_32cb, -1);
-			this.var_38c3.var_1175 = var_33bb[this.slotsCurrentPlayerIds[paramInt]];
+			this.var_38c3.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[paramInt]];
 			this.var_38c3.onLoad();
 			D_Menu dialog = createDialog(null, A_MenuBase.getLangString(77),
 					this.var_32d3, 1000); // GAME SAVED
@@ -878,7 +878,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if ((E_MainCanvas.settings[3] != false)
 					&& (unit2.charsData.length > 0)) {
 				this.var_364b = true;
-				this.var_3653 = 0;
+				this.waveImageAmplitudeMb = 0;
 				E_MainCanvas.sub_2459();
 			} else {
 				this.var_34c3 = 13;
@@ -957,34 +957,33 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.cursorSprite.setFrameSequence(var_3393[2]);
 	}
 
-	public final void sub_593d(byte[] paramArrayOfByte, int paramInt1,
-			int paramInt2, A_MenuBase paramClass_a_000) {
-		D_Menu localClass_d_023 = new D_Menu((byte) 0, 0);
-		this.var_376b = paramInt1;
-		this.var_3773 = paramInt2;
-		int i = paramArrayOfByte.length;
-		Vector localVector1 = new Vector(i);
-		Vector localVector2 = new Vector(i);
-		for (int j = 0; j < i; j++) {
-			int k = paramArrayOfByte[j];
+	public final void sub_593d(byte[] data, int cX, int cY, A_MenuBase menu) {
+		D_Menu wheelMenu = new D_Menu((byte) 0, 0);
+		this.var_376b = cX;
+		this.var_3773 = cY;
+		int length = data.length;
+		Vector itemsNames = new Vector(length);
+		Vector itemsImages = new Vector(length);
+		for (int j = 0; j < length; j++) {
+			int k = data[j];
 			if ((this.appPropHightscoreUpload) || (k != 6)) {
-				localVector1.addElement(this.mainMenuItemsNames[k]);
-				localVector2.addElement(this.menuIconsFrames[k]);
+				itemsNames.addElement(this.mainMenuItemsNames[k]);
+				itemsImages.addElement(this.menuIconsFrames[k]);
 			}
 		}
-		String[] arrayOfString = new String[localVector1.size()];
-		H_ImageExt[] arrayOfClass_h_017 = new H_ImageExt[localVector2.size()];
-		localVector1.copyInto(arrayOfString);
-		localVector2.copyInto(arrayOfClass_h_017);
-		localClass_d_023.sub_22eb(arrayOfString, arrayOfClass_h_017,
-				this.var_7b3, this.var_376b, this.var_3773, 3, (byte) 1);
-		localClass_d_023.sub_1323(paramClass_a_000);
-		A_MenuBase.mainCanvas.showMenu(localClass_d_023);
+		String[] menuItemNames = new String[itemsNames.size()];
+		H_ImageExt[] menuItemImages = new H_ImageExt[itemsImages.size()];
+		itemsNames.copyInto(menuItemNames);
+		itemsImages.copyInto(menuItemImages);
+		wheelMenu.sub_22eb(menuItemNames, menuItemImages,
+				this.someCanWidthDiv2, this.var_376b, this.var_3773, 3, (byte) 1);
+		wheelMenu.setParentMenu(menu);
+		A_MenuBase.mainCanvas.showMenu(wheelMenu);
 	}
 
 	public final void sub_5a85(byte[] paramArrayOfByte,
 			C_Unit paramClass_c_032) {
-		this.var_35bb = new D_Menu((byte) 0, 0);
+		this.someGameMenu = new D_Menu((byte) 0, 0);
 		int i;
 		String[] arrayOfString = new String[i = paramArrayOfByte.length];
 		H_ImageExt[] arrayOfClass_h_017 = new H_ImageExt[i];
@@ -993,14 +992,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			arrayOfClass_h_017[j] = this.actionIconsFrames[paramArrayOfByte[j]];
 		}
 		if (this.var_34b3 * 24 <= this.var_32d3 / 2 - 24) {
-			this.var_35bb.sub_1e97(arrayOfString, arrayOfClass_h_017, 0,
+			this.someGameMenu.sub_1e97(arrayOfString, arrayOfClass_h_017, 0,
 					this.var_32d3 - this.buttonsSprite.frameHeight, 36);
 		} else {
-			this.var_35bb.sub_1e97(arrayOfString, arrayOfClass_h_017,
+			this.someGameMenu.sub_1e97(arrayOfString, arrayOfClass_h_017,
 					this.var_32cb, 0, 8);
 		}
-		this.var_35bb.sub_1323(this);
-		A_MenuBase.mainCanvas.showMenu(this.var_35bb);
+		this.someGameMenu.setParentMenu(this);
+		A_MenuBase.mainCanvas.showMenu(this.someGameMenu);
 	}
 
 	public final D_Menu sub_5ba0(String paramString,
@@ -1010,25 +1009,25 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			arrayOfString[i] = ("SLOT " + (i + 1) + "/" + 3);
 		}
 		this.var_38bb = new D_Menu((byte) 14, 0);
-		this.var_38bb.sub_1fcf(arrayOfString, this.var_32cb, -1);
+		this.var_38bb.setMenuItemsNames(arrayOfString, this.var_32cb, -1);
 		this.var_38c3 = new D_Menu((byte) 10, 0);
-		this.var_38c3.sub_1ceb(null, this.slotsDescriptions[0], this.var_32cb, -1);
+		this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[0], this.var_32cb, -1);
 		if (this.slotsCurrentPlayerIds[0] != -1) {
-			this.var_38c3.var_1175 = var_33bb[this.slotsCurrentPlayerIds[0]];
+			this.var_38c3.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[0]];
 		}
 		D_Menu localClass_d_0231 = new D_Menu((byte) 15, 15);
-		int j = (this.var_32d3 - this.var_38bb.var_1015 - this.var_38c3.var_1015) / 2;
+		int j = (this.var_32d3 - this.var_38bb.menuHeightMb - this.var_38c3.menuHeightMb) / 2;
 		D_Menu localClass_d_0232;
-		(localClass_d_0232 = new D_Menu((byte) 10, 0)).sub_1ceb(null,
+		(localClass_d_0232 = new D_Menu((byte) 10, 0)).createDescDialogMb(null,
 				paramString, this.var_32cb, -1);
-		localClass_d_0232.var_1185 = paramClass_h_017;
-		localClass_d_0231.sub_169b(localClass_d_0232, 0, 0, 0);
-		j += localClass_d_0232.var_1015 / 2;
-		localClass_d_0231.sub_169b(this.var_38bb, 0, j, 0);
-		j += this.var_38bb.var_1015;
-		localClass_d_0231.sub_169b(this.var_38c3, 0, j, 20);
+		localClass_d_0232.menuTitleIcon = paramClass_h_017;
+		localClass_d_0231.addChildMenu(localClass_d_0232, 0, 0, 0);
+		j += localClass_d_0232.menuHeightMb / 2;
+		localClass_d_0231.addChildMenu(this.var_38bb, 0, j, 0);
+		j += this.var_38bb.menuHeightMb;
+		localClass_d_0231.addChildMenu(this.var_38c3, 0, j, 20);
 		localClass_d_0231.var_112d = true;
-		localClass_d_0231.sub_1301((byte) 0, true);
+		localClass_d_0231.setMenuActionEnabled((byte) 0, true);
 		return localClass_d_0231;
 	}
 
@@ -1053,15 +1052,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		this.var_3943 = new D_Menu((byte) 15, 15);
 		D_Menu localClass_d_023;
-		(localClass_d_023 = new D_Menu((byte) 10, 0)).sub_1ceb(null,
+		(localClass_d_023 = new D_Menu((byte) 10, 0)).createDescDialogMb(null,
 				A_MenuBase.getLangString(48), this.var_32cb, -1);
 		D_Menu localObject;
 		if (j == 0) {
 			localObject = new D_Menu((byte) 10, 0);
-			localObject.sub_1ceb(null, A_MenuBase.getLangString(52), this.var_32cb,
+			localObject.createDescDialogMb(null, A_MenuBase.getLangString(52), this.var_32cb,
 					this.viewportHeight);
-			this.var_3943.sub_169b((D_Menu) localObject, 0,
-					(this.var_32d3 + localClass_d_023.var_1015) / 2, 6);
+			this.var_3943.addChildMenu((D_Menu) localObject, 0,
+					(this.var_32d3 + localClass_d_023.menuHeightMb) / 2, 6);
 		} else {
 			String[] localObject1;
 			localObject1 = new String[j];
@@ -1070,28 +1069,28 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			System.arraycopy(arrayOfInt1, 0, arrayOfInt2, 0, j);
 			this.var_3953 = new D_Menu((byte) 10, 0);
 			String str = sub_6218(this.downloadStoreAvailableSize);
-			this.var_3953.sub_1ceb(
+			this.var_3953.createDescDialogMb(
 					null,
-					A_MenuBase.sub_e44(54,
+					A_MenuBase.replaceStringFirst(54,
 							sub_6218(this.var_3c3b[arrayOfInt2[0]]))
 							+ "\n"
-							+ A_MenuBase.sub_e44(53, str), this.var_32cb, -1);
+							+ A_MenuBase.replaceStringFirst(53, str), this.var_32cb, -1);
 			this.var_394b = new D_Menu((byte) 11, 0);
 			this.var_394b.sub_212d((String[]) localObject1, this.viewportWidth,
 					this.viewportHeight, this.var_32cb, this.var_32d3
-							- localClass_d_023.var_1015
-							- this.var_3953.var_1015, 3, 4);
+							- localClass_d_023.menuHeightMb
+							- this.var_3953.menuHeightMb, 3, 4);
 			this.var_394b.var_1195 = arrayOfInt2;
-			int i1 = (this.var_32d3 - this.var_3953.var_1015
-					- this.var_394b.var_1015 + localClass_d_023.var_1015) / 2;
-			this.var_3943.sub_169b(this.var_394b, 0, i1, 20);
-			i1 += this.var_394b.var_1015;
-			this.var_3943.sub_169b(this.var_3953, 0, i1, 20);
+			int i1 = (this.var_32d3 - this.var_3953.menuHeightMb
+					- this.var_394b.menuHeightMb + localClass_d_023.menuHeightMb) / 2;
+			this.var_3943.addChildMenu(this.var_394b, 0, i1, 20);
+			i1 += this.var_394b.menuHeightMb;
+			this.var_3943.addChildMenu(this.var_3953, 0, i1, 20);
 			this.var_3943.var_112d = true;
-			this.var_3943.sub_1301((byte) 0, true);
+			this.var_3943.setMenuActionEnabled((byte) 0, true);
 		}
-		this.var_3943.sub_169b(localClass_d_023, 0, 0, 20);
-		this.var_3943.sub_1323(paramClass_a_000);
+		this.var_3943.addChildMenu(localClass_d_023, 0, 0, 20);
+		this.var_3943.setParentMenu(paramClass_a_000);
 	}
 
 	public final D_Menu sub_5fed(A_MenuBase paramClass_a_000) {
@@ -1099,23 +1098,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.var_38fb.length == 0) {
 			D_Menu localClass_d_0232;
 			(localClass_d_0232 = (localClass_d_0231 = new D_Menu(
-					(byte) 10, 0)).sub_165e(A_MenuBase.getLangString(49))).var_1185 = this.menuIconsFrames[6];
-			localClass_d_0231.sub_1ceb(null, A_MenuBase.getLangString(52),
+					(byte) 10, 0)).sub_165e(A_MenuBase.getLangString(49))).menuTitleIcon = this.menuIconsFrames[6];
+			localClass_d_0231.createDescDialogMb(null, A_MenuBase.getLangString(52),
 					this.someCanWidth, -1);
 			localClass_d_0231.sub_193f(0,
-					(this.var_32d3 + localClass_d_0232.var_1015) / 2, 6);
-			localClass_d_0231.sub_1323(paramClass_a_000);
+					(this.var_32d3 + localClass_d_0232.menuHeightMb) / 2, 6);
+			localClass_d_0231.setParentMenu(paramClass_a_000);
 			this.var_3933 = null;
 			return localClass_d_0231;
 		}
 		this.var_3933 = new D_Menu((byte) 11, 0);
-		(localClass_d_0231 = this.var_3933.sub_165e(A_MenuBase.getLangString(49))).var_1185 = this.menuIconsFrames[6];
+		(localClass_d_0231 = this.var_3933.sub_165e(A_MenuBase.getLangString(49))).menuTitleIcon = this.menuIconsFrames[6];
 		this.var_3933
 				.sub_212d(this.var_38fb, this.someCanWidth / 2,
-						(this.var_32d3 + localClass_d_0231.var_1015) / 2,
+						(this.var_32d3 + localClass_d_0231.menuHeightMb) / 2,
 						this.var_32cb, this.var_32d3
-								- localClass_d_0231.var_1015, 3, 4);
-		this.var_3933.sub_1323(paramClass_a_000);
+								- localClass_d_0231.menuHeightMb, 3, 4);
+		this.var_3933.setParentMenu(paramClass_a_000);
 		return this.var_3933;
 	}
 
@@ -1156,10 +1155,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return j + "." + k;
 	}
 
-	public final void sub_6260(D_Menu paramClass_d_023, int paramInt,
-			String paramString, byte paramByte) throws Exception {
+	public final void sub_6260(D_Menu menu, int itemNumber,
+			String itemName, byte paramByte) throws Exception {
 		this.var_3c73 = true;
-		if ((paramClass_d_023 == this.var_35bb) && (paramByte == 1)) {
+		if ((menu == this.someGameMenu) && (paramByte == 1)) {
 			if (this.var_34c3 == 3) {
 				this.var_34fb.sub_128b(this.var_3503, this.var_350b);
 				this.var_34fb.sub_1d3c(this.var_3513);
@@ -1168,50 +1167,47 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			return;
 		}
-		if (paramClass_d_023 == this.var_38cb) {
+		if (menu == this.mainMenuMb) {
 			if (paramByte == 0) {
-				A_MenuBase.mainCanvas.stopGame();
+				A_MenuBase.mainCanvas.stopGame(); //exit
 				return;
 			}
-			this.var_38cb = null;
+			this.mainMenuMb = null;
 			return;
 		}
-		if (paramClass_d_023 == this.var_38d3) {
+		if (menu == this.var_38d3) {
 			if (paramByte == 0) {
 				sub_593d(this.var_338b, this.var_376b, this.var_3773,
-						paramClass_d_023.parentMenu);
+						menu.parentMenu); //move back
 			}
 			this.var_38d3 = null;
 			return;
 		}
-		if (paramClass_d_023 == this.var_38db) {
+		if (menu == this.warningDialog) {
 			if (paramByte == 0) {
-				int i = this.var_38bb.var_102d;
-				sub_53b1(i, this.var_38b3);
+				int pos = this.var_38bb.activeItemPositionMb;
+				saveToSlotMenuShow(pos, this.var_38b3);
 			}
-			this.var_38db = null;
+			this.warningDialog = null;
 			return;
 		}
-		if (paramClass_d_023 == this.var_384b) {
+		if (menu == this.castleBuyMenu) {
 			if ((paramByte == 2) || (paramByte == 3)) {
-				this.var_3853
-						.sub_1ceb(
-								null,
-								A_MenuBase
-										.getLangString(184 + this.var_384b.var_107d[paramInt].unitTypeId),
-								this.var_32cb, this.var_32d3
-										- this.var_3843.var_1015
-										- this.var_384b.var_1015);
-				this.var_3843.var_10dd = this.var_384b.var_107d[paramInt];
+				String unitDesc = A_MenuBase.getLangString(184 + this.castleBuyMenu.buyUnits[itemNumber].unitTypeId);
+				this.var_3853.createDescDialogMb(
+								null, unitDesc, this.var_32cb, this.var_32d3
+										- this.var_3843.menuHeightMb
+										- this.castleBuyMenu.menuHeightMb);
+				this.var_3843.menuUnit = this.castleBuyMenu.buyUnits[itemNumber];
 				this.var_3853.onLoad();
 				this.var_3843.onLoad();
 			}
 			return;
 		}
 		Object localObject1;
-		if (paramClass_d_023 == this.var_383b) {
+		if (menu == this.var_383b) {
 			if (paramByte == 0) {
-				localObject1 = this.var_384b.var_107d[this.var_384b.var_102d];
+				localObject1 = this.castleBuyMenu.buyUnits[this.castleBuyMenu.activeItemPositionMb];
 				if (sub_e9d0((C_Unit) localObject1, this.var_34ab,
 						this.var_34b3)) {
 					this.var_34fb = sub_8722((C_Unit) localObject1,
@@ -1224,130 +1220,127 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 			this.var_383b = null;
-			this.var_384b = null;
+			this.castleBuyMenu = null;
 			this.var_3853 = null;
 			this.var_3843 = null;
 			return;
 		}
-		if (paramClass_d_023 == this.var_36eb) {
+		if (menu == this.var_36eb) {
 			if ((paramByte == 2) || (paramByte == 3)) {
-				if (paramInt == 0) {
+				if (itemNumber == 0) {
 					localObject1 = A_MenuBase.getLangString(15);
 				} else {
 					localObject1 = A_MenuBase
-							.sub_cb9(196 + paramInt - 1, true);
+							.getSomeHelpString(196 + itemNumber - 1, true);
 				}
-				this.var_36f3.sub_1ceb(null, (String) localObject1,
-						this.var_32cb, this.var_36f3.var_1015);
+				this.var_36f3.createDescDialogMb(null, (String) localObject1,
+						this.var_32cb, this.var_36f3.menuHeightMb);
 				this.var_36f3.onLoad();
 			}
 			return;
 		}
-		if (paramClass_d_023 == this.var_36e3) {
+		if (menu == this.var_36e3) {
 			this.var_36e3 = null;
 			this.var_36eb = null;
 			this.var_36f3 = null;
 			return;
 		}
-		if (paramClass_d_023 == this.startupMessageBox) {
+		if (menu == this.startupMessageBox) {
 			if (paramByte == 0) {
 				A_MenuBase.mainCanvas.showMenu(this);
 			}
 			return;
 		}
-		D_Menu localObject6;
-		String[] localObject7;
-		int i15;
-		if (paramClass_d_023 == this.var_37b3) {
+		if (menu == this.skirmishSetupMenu) {
 			if (paramByte == 0) {
-				this.var_37bb = new D_Menu((byte) 15, 15);
-				D_Menu localObject11;
-				(localObject11 = new D_Menu((byte) 10, 0)).var_1185 = this.menuIconsFrames[4];
-				((D_Menu) localObject11).sub_1ceb(null,
-						A_MenuBase.getLangString(34), this.var_32cb, -1);
-				this.var_37bb.sub_169b((D_Menu) localObject11, 0, 0, 20);
-				String[] arrayOfString1 = new String[this.var_38e3];
-				for (int i3 = 0; i3 < this.var_38e3; i3++) {
-					arrayOfString1[i3] = A_MenuBase.sub_e44(38, "" + (i3 + 1));
+				this.playerOptionsMenu = new D_Menu((byte) 15, 15);
+				D_Menu titleMenu = new D_Menu((byte) 10, 0);
+				titleMenu.menuTitleIcon = this.menuIconsFrames[4];
+				titleMenu.createDescDialogMb(null,
+						A_MenuBase.getLangString(34), this.var_32cb, -1); //SKIRMISH SETUP
+				this.playerOptionsMenu.addChildMenu(titleMenu, 0, 0, 20);
+				String[] teamOptionsStrings = new String[this.mapTeamsCount];
+				for (int teamIndex = 0; teamIndex < this.mapTeamsCount; teamIndex++) {
+					teamOptionsStrings[teamIndex] = A_MenuBase.replaceStringFirst(38, "" + (teamIndex + 1));
 				}
-				int i3 = ((D_Menu) localObject11).var_1015;
-				D_Menu[] arrayOfClass_d_023 = new D_Menu[this.var_38e3];
-				this.var_37d3 = new D_Menu[this.var_38e3];
-				this.var_37db = new D_Menu[this.var_38e3];
-				for (int i9 = 0; i9 < this.var_38e3; i9++) {
-					this.var_37d3[i9] = new D_Menu((byte) 14, 6);
-					this.var_37d3[i9].sub_1fcf(this.playerSkirmishChoicesNames, this.var_7b3, -1);
-					this.var_37db[i9] = new D_Menu((byte) 14, 5);
-					this.var_37db[i9]
-							.sub_1fcf(arrayOfString1, this.var_7b3, -1);
-					this.var_37db[i9].var_102d = i9;
-					int i11 = Math.max(this.var_37d3[i9].var_100d,
-							this.var_37db[i9].var_100d);
-					int i12 = this.someCanWidth - i11;
-					this.var_37d3[i9].var_100d = i11;
-					this.var_37db[i9].var_100d = i11;
-					this.var_37bb.sub_169b(this.var_37d3[i9], i12, i3, 20);
-					i3 += this.var_37d3[i9].var_1015;
-					this.var_37bb.sub_169b(this.var_37db[i9], i12, i3, 20);
-					i3 += this.var_37db[i9].var_1015;
-					arrayOfClass_d_023[i9] = new D_Menu((byte) 10, 8);
-					arrayOfClass_d_023[i9].sub_1ceb(null,
-							A_MenuBase.getLangString(this.var_38eb[i9] - 1 + 89),
-							i12, this.var_37d3[i9].var_1015
-									+ this.var_37db[i9].var_1015);
-					arrayOfClass_d_023[i9].var_1175 = var_33bb[this.var_38eb[i9]];
-					this.var_37bb.sub_169b(arrayOfClass_d_023[i9], 0, i3, 36);
+				int titleMenuHeight = titleMenu.menuHeightMb;
+				D_Menu[] menuList = new D_Menu[this.mapTeamsCount];
+				this.choosePlayerMenuList = new D_Menu[this.mapTeamsCount];
+				this.chooseTeamMenuList = new D_Menu[this.mapTeamsCount];
+				for (int playerIndex = 0; playerIndex < this.mapTeamsCount; playerIndex++) {
+					this.choosePlayerMenuList[playerIndex] = new D_Menu((byte) 14, 6);
+					this.choosePlayerMenuList[playerIndex].setMenuItemsNames(this.playerSkirmishChoicesNames, this.someCanWidthDiv2, -1);
+					this.chooseTeamMenuList[playerIndex] = new D_Menu((byte) 14, 5);
+					this.chooseTeamMenuList[playerIndex]
+							.setMenuItemsNames(teamOptionsStrings, this.someCanWidthDiv2, -1);
+					this.chooseTeamMenuList[playerIndex].activeItemPositionMb = playerIndex;
+					int someMaxWidth = Math.max(this.choosePlayerMenuList[playerIndex].someMenuWidth,
+							this.chooseTeamMenuList[playerIndex].someMenuWidth);
+					int someWidth = this.someCanWidth - someMaxWidth;
+					this.choosePlayerMenuList[playerIndex].someMenuWidth = someMaxWidth;
+					this.chooseTeamMenuList[playerIndex].someMenuWidth = someMaxWidth;
+					this.playerOptionsMenu.addChildMenu(this.choosePlayerMenuList[playerIndex], someWidth, titleMenuHeight, 20);
+					titleMenuHeight += this.choosePlayerMenuList[playerIndex].menuHeightMb;
+					this.playerOptionsMenu.addChildMenu(this.chooseTeamMenuList[playerIndex], someWidth, titleMenuHeight, 20);
+					titleMenuHeight += this.chooseTeamMenuList[playerIndex].menuHeightMb;
+					menuList[playerIndex] = new D_Menu((byte) 10, 8);
+					menuList[playerIndex].createDescDialogMb(null,
+							A_MenuBase.getLangString(this.somePlayerIds[playerIndex] - 1 + 89),
+							someWidth, this.choosePlayerMenuList[playerIndex].menuHeightMb
+									+ this.chooseTeamMenuList[playerIndex].menuHeightMb); //player name color
+					menuList[playerIndex].titleGradientColor = playerColors[this.somePlayerIds[playerIndex]];
+					this.playerOptionsMenu.addChildMenu(menuList[playerIndex], 0, titleMenuHeight, 36);
 				}
-				this.var_37bb.var_111d = 1;
-				(localObject6 = new D_Menu((byte) 10, 8)).sub_1ceb(null,
-						A_MenuBase.getLangString(40), this.viewportWidth, -1);
-				this.var_37bb.sub_169b((D_Menu) localObject6, 0, i3, 20);
-				this.var_37c3 = new D_Menu((byte) 14, 4);
-				localObject7 = new String[skirmishStartMoneyEnum.length];
-				for (int i12 = 0; i12 < localObject7.length; i12++) {
-					localObject7[i12] = ("" + skirmishStartMoneyEnum[i12]);
+				this.playerOptionsMenu.var_111d = 1;
+				D_Menu chooseMoneyMenu = new D_Menu((byte) 10, 8);
+				chooseMoneyMenu.createDescDialogMb(null,
+						A_MenuBase.getLangString(40), this.viewportWidth, -1);//Money
+				this.playerOptionsMenu.addChildMenu(chooseMoneyMenu, 0, titleMenuHeight, 20);
+				this.chooseMoneyItemsMenu = new D_Menu((byte) 14, 4);
+				String[] skirmishStartMoneyValues = new String[skirmishStartMoneyEnum.length];;
+				for (int moneyIndex = 0; moneyIndex < skirmishStartMoneyValues.length; moneyIndex++) {
+					skirmishStartMoneyValues[moneyIndex] = ("" + skirmishStartMoneyEnum[moneyIndex]);
 				}
-				this.var_37c3.sub_1fcf((String[]) localObject7, this.viewportWidth,
-						((D_Menu) localObject6).var_1015);
-				this.var_37bb.sub_169b(this.var_37c3, this.var_7b3, i3, 20);
-				i3 += ((D_Menu) localObject6).var_1015;
-				D_Menu localClass_d_0235;
-				(localClass_d_0235 = new D_Menu((byte) 10, 8)).sub_1ceb(
-						null, A_MenuBase.getLangString(41), this.viewportWidth, -1);
-				this.var_37bb.sub_169b(localClass_d_0235, 0, i3, 20);
-				this.var_37cb = new D_Menu((byte) 14, 4);
-				String[] arrayOfString3 = new String[skirmishStartUnitsEnum.length];
-				for (i15 = 0; i15 < arrayOfString3.length; i15++) {
-					arrayOfString3[i15] = ("" + skirmishStartUnitsEnum[i15]);
+				this.chooseMoneyItemsMenu.setMenuItemsNames(skirmishStartMoneyValues, this.viewportWidth,
+						chooseMoneyMenu.menuHeightMb);
+				this.playerOptionsMenu.addChildMenu(this.chooseMoneyItemsMenu, this.someCanWidthDiv2, titleMenuHeight, 20);
+				titleMenuHeight += chooseMoneyMenu.menuHeightMb;
+				D_Menu chooseUnitCapMenu = new D_Menu((byte) 10, 8);
+				chooseUnitCapMenu.createDescDialogMb(
+						null, A_MenuBase.getLangString(41), this.viewportWidth, -1);//Unit cap
+				this.playerOptionsMenu.addChildMenu(chooseUnitCapMenu, 0, titleMenuHeight, 20);
+				this.chooseUnitCapItemsMenu = new D_Menu((byte) 14, 4);
+				String[] skirmishUnitsCapValues = new String[skirmishStartUnitsEnum.length];
+				for (int capIndex = 0; capIndex < skirmishUnitsCapValues.length; capIndex++) {
+					skirmishUnitsCapValues[capIndex] = ("" + skirmishStartUnitsEnum[capIndex]);
 				}
-				this.var_37cb.sub_1fcf(arrayOfString3, this.viewportWidth,
-						localClass_d_0235.var_1015);
-				this.var_37bb.sub_169b(this.var_37cb, this.var_7b3, i3, 20);
-				this.var_37bb.sub_1323(paramClass_d_023);
-				this.var_37bb.sub_1301((byte) 0, true);
-				A_MenuBase.mainCanvas.showMenu(this.var_37bb);
+				this.chooseUnitCapItemsMenu.setMenuItemsNames(skirmishUnitsCapValues, this.viewportWidth,
+						chooseUnitCapMenu.menuHeightMb);
+				this.playerOptionsMenu.addChildMenu(this.chooseUnitCapItemsMenu, this.someCanWidthDiv2, titleMenuHeight, 20);
+				this.playerOptionsMenu.setParentMenu(menu);
+				this.playerOptionsMenu.setMenuActionEnabled((byte) 0, true); 
+				A_MenuBase.mainCanvas.showMenu(this.playerOptionsMenu);
 				return;
 			}
-			this.var_37b3 = null;
+			this.skirmishSetupMenu = null;
 			return;
 		}
-		int j;
-		if (paramClass_d_023 == this.var_37bb) {
+		if (menu == this.playerOptionsMenu) {
 			if (paramByte == 0) {
-				j = 0;
+				int j = 0;
 				int n = 0;
-				boolean[] arrayOfBoolean = new boolean[this.var_38e3];
-				for (int i6 = 0; i6 < this.var_38e3; i6++) {
-					if (this.var_37d3[i6].var_102d == 2) {
+				boolean[] arrayOfBoolean = new boolean[this.mapTeamsCount];
+				for (int i6 = 0; i6 < this.mapTeamsCount; i6++) {
+					if (this.choosePlayerMenuList[i6].activeItemPositionMb == 2) {
 						this.var_35b3[i6] = 2;
 					} else {
 						j++;
-						if (this.var_37d3[i6].var_102d == 0) {
+						if (this.choosePlayerMenuList[i6].activeItemPositionMb == 0) {
 							this.var_35b3[i6] = 1;
-						} else if (this.var_37d3[i6].var_102d == 1) {
+						} else if (this.choosePlayerMenuList[i6].activeItemPositionMb == 1) {
 							this.var_35b3[i6] = 0;
 						}
-						this.var_3573[i6] = ((byte) this.var_37db[i6].var_102d);
+						this.var_3573[i6] = ((byte) this.chooseTeamMenuList[i6].activeItemPositionMb);
 						if (arrayOfBoolean[this.var_3573[i6]] == false) {
 							n++;
 							arrayOfBoolean[this.var_3573[i6]] = true;
@@ -1358,18 +1351,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					D_Menu localClass_d_0234;
 					(localClass_d_0234 = createDialog(null,
 							A_MenuBase.getLangString(39), this.var_32d3, 2000))
-							.sub_1323(this.var_37bb);
+							.setParentMenu(this.playerOptionsMenu);
 					A_MenuBase.mainCanvas.showMenu(localClass_d_0234);
 					return;
 				}
-				this.var_37bb = null;
-				this.var_37b3 = null;
+				this.playerOptionsMenu = null;
+				this.skirmishSetupMenu = null;
 				A_MenuBase.mainCanvas.showMenu(this);
-				this.var_331b = skirmishStartMoneyEnum[this.var_37c3.var_102d];
-				this.var_3323 = skirmishStartUnitsEnum[this.var_37cb.var_102d];
-				this.var_37d3 = null;
-				this.var_37c3 = null;
-				this.var_37cb = null;
+				this.var_331b = skirmishStartMoneyEnum[this.chooseMoneyItemsMenu.activeItemPositionMb];
+				this.var_3323 = skirmishStartUnitsEnum[this.chooseUnitCapItemsMenu.activeItemPositionMb];
+				this.choosePlayerMenuList = null;
+				this.chooseMoneyItemsMenu = null;
+				this.chooseUnitCapItemsMenu = null;
 				this.mapModeCampIf0 = 1;
 				this.var_3703 = 8;
 				this.isBlackLoading = true;
@@ -1384,8 +1377,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		int i4;
 		int i7;
-		if (paramClass_d_023 == this.var_3713) {
-			j = this.var_370b.var_102d;
+		if (menu == this.var_3713) {
+			int ii;
+			int j = this.var_370b.activeItemPositionMb;
 			if ((paramByte == 0)
 					&& ((j >= skirmishMapsNames.length) || (this.var_3303[j] == false))) {
 				this.var_34e3 = sub_60ce(j);
@@ -1393,58 +1387,58 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				i4 = (localDataInputStream = getSkirmishMapData(this.var_34e3)).readInt();
 				i7 = localDataInputStream.readInt();
 				byte[][] localObject61 = new byte[i4][i7];
-				this.var_38eb = new byte[4];
+				this.somePlayerIds = new byte[4];
 				byte[] localObject71 = new byte[5];
 				for (int i13 = 0; i13 < 5; i13++) {
 					localObject71[i13] = -1;
 				}
-				this.var_38e3 = 0;
+				this.mapTeamsCount = 0;
 				for (int i13 = 0; i13 < i4; i13++) {
 					for (int i14 = 0; i14 < i7; i14++) {
 						localObject61[i13][i14] = localDataInputStream
 								.readByte();
 						if ((this.tilesProps[localObject61[i13][i14]] == 9)
-								&& ((i15 = sub_e22b(i13, i14,
+								&& ((ii = sub_e22b(i13, i14,
 										(byte[][]) localObject61)) != 0)
-								&& (localObject71[i15] == -1)) {
-							this.var_38eb[this.var_38e3] = ((byte) i15);
-							localObject71[i15] = this.var_38e3;
-							this.var_38e3 = ((byte) (this.var_38e3 + 1));
+								&& (localObject71[ii] == -1)) {
+							this.somePlayerIds[this.mapTeamsCount] = ((byte) ii);
+							localObject71[ii] = this.mapTeamsCount;
+							this.mapTeamsCount = ((byte) (this.mapTeamsCount + 1));
 						}
 					}
 				}
 				localDataInputStream.close();
-				this.mapName = this.var_370b.var_fed[j];
-				this.var_37b3 = new D_Menu((byte) 15, 15);
+				this.mapName = this.var_370b.menuItemsNamesMb[j];
+				this.skirmishSetupMenu = new D_Menu((byte) 15, 15);
 				D_Menu localClass_d_0236;
-				(localClass_d_0236 = new D_Menu((byte) 10, 0)).var_1185 = this.menuIconsFrames[4];
-				localClass_d_0236.sub_1ceb(null, this.mapName, this.var_32cb,
+				(localClass_d_0236 = new D_Menu((byte) 10, 0)).menuTitleIcon = this.menuIconsFrames[4];
+				localClass_d_0236.createDescDialogMb(null, this.mapName, this.var_32cb,
 						-1);
 				D_Menu localClass_d_0237;
 				(localClass_d_0237 = new D_Menu((byte) 8, 0)).sub_17fa(
 						this.someCanWidth, this.var_32d3
-								- localClass_d_0236.var_1015
+								- localClass_d_0236.menuHeightMb
 								- this.buttonsSprite.frameHeight,
 						(byte[][]) localObject61, null);
-				this.var_37b3
-						.sub_169b(
+				this.skirmishSetupMenu
+						.addChildMenu(
 								localClass_d_0237,
 								this.viewportWidth,
 								this.viewportHeight
-										+ (localClass_d_0236.var_1015 - this.buttonsSprite.frameHeight)
+										+ (localClass_d_0236.menuHeightMb - this.buttonsSprite.frameHeight)
 										/ 2, 3);
-				this.var_37b3.sub_169b(localClass_d_0236, 0, 0, 0);
-				this.var_37b3.sub_1323(paramClass_d_023);
-				this.var_37b3.sub_1301((byte) 0, true);
-				this.var_37b3.var_112d = true;
-				A_MenuBase.mainCanvas.showMenu(this.var_37b3);
+				this.skirmishSetupMenu.addChildMenu(localClass_d_0236, 0, 0, 0);
+				this.skirmishSetupMenu.setParentMenu(menu);
+				this.skirmishSetupMenu.setMenuActionEnabled((byte) 0, true);
+				this.skirmishSetupMenu.var_112d = true;
+				A_MenuBase.mainCanvas.showMenu(this.skirmishSetupMenu);
 			}
-		} else if (paramClass_d_023 == this.var_37e3) {
+		} else if (menu == this.var_37e3) {
 			if (paramByte == 1) {
 				boolean j1 = E_MainCanvas.settings[0];
 				int i1 = 0;
 				for (i4 = 0; i4 < 4; i4++) {
-					boolean i71 = (this.var_37eb[i4].var_102d == 0) ? true
+					boolean i71 = (this.var_37eb[i4].activeItemPositionMb == 0) ? true
 							: false;
 					if ((i71) != E_MainCanvas.settings[i4]) {
 						E_MainCanvas.settings[i4] = i71;
@@ -1476,40 +1470,41 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		Object localObject2;
-		if (paramClass_d_023 == this.var_38b3) {
+		if (menu == this.var_38b3) {
 			if (paramByte == 0) {
-				j = this.var_38bb.var_102d;
-				if (this.slotsCurrentPlayerIds[j] == -1) {
-					sub_53b1(j, paramClass_d_023);
+				int slotIndex = this.var_38bb.activeItemPositionMb;
+				if (this.slotsCurrentPlayerIds[slotIndex] == -1) {
+					saveToSlotMenuShow(slotIndex, menu);
 				} else {
-					this.var_38db = createDialog(null, A_MenuBase.getLangString(88),
-							this.var_32d3, -1);
-					this.var_38db.sub_1301((byte) 0, true);
-					this.var_38db.sub_1323(paramClass_d_023);
-					A_MenuBase.mainCanvas.showMenu(this.var_38db);
+					this.warningDialog = createDialog(null, A_MenuBase.getLangString(88),
+							this.var_32d3, -1); //Overwriting the current saved game, are you sure?
+					this.warningDialog.setMenuActionEnabled((byte) 0, true);
+					this.warningDialog.setParentMenu(menu);
+					A_MenuBase.mainCanvas.showMenu(this.warningDialog);
 				}
 			} else {
 				this.var_38b3 = null;
 				this.var_38bb = null;
 				this.var_38c3 = null;
 			}
-		} else if (paramClass_d_023 == this.var_38ab) {
+		} else if (menu == this.someLoadSlotMenu) {
 			if (paramByte == 0) {
-				localObject2 = null;
+				byte[] saveData = null;
 				try {
-					localObject2 = E_MainCanvas.getRecordStoreData("save",
-							this.var_38bb.var_102d);
+					saveData = E_MainCanvas.getRecordStoreData("save",
+							this.var_38bb.activeItemPositionMb);
 				} catch (Exception localException) {
+					//
 				}
-				if (localObject2 != null) {
-					this.var_38ab = null;
+				if (saveData != null) {
+					this.someLoadSlotMenu = null;
 					this.var_38bb = null;
 					this.var_38c3 = null;
 					A_MenuBase.mainCanvas.showMenu(this);
 					this.isBlackLoading = true;
 					A_MenuBase.mainCanvas.repaintAll();
 					sub_47c9();
-					loadMapDataBytes((byte[]) localObject2);
+					loadMapDataBytes((byte[]) saveData);
 					if (this.mapModeCampIf0 == 0) {
 						this.var_3783 = true;
 					}
@@ -1517,95 +1512,95 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.var_34c3 = 0;
 				}
 			} else {
-				this.var_38ab = null;
+				this.someLoadSlotMenu = null;
 				this.var_38bb = null;
 				this.var_38c3 = null;
 			}
-		} else if (paramClass_d_023 == this.var_38bb) {
+		} else if (menu == this.var_38bb) {
 			if ((paramByte == 2) || (paramByte == 3)) {
-				this.var_38c3.sub_1ceb(null, this.slotsDescriptions[paramInt],
+				this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[itemNumber],
 						this.var_32cb, -1);
-				if (this.slotsCurrentPlayerIds[paramInt] == -1) {
-					this.var_38c3.var_1175 = 2370117;
+				if (this.slotsCurrentPlayerIds[itemNumber] == -1) {
+					this.var_38c3.titleGradientColor = 2370117; //#242A45 dark blue
 				} else {
-					this.var_38c3.var_1175 = var_33bb[this.slotsCurrentPlayerIds[paramInt]];
+					this.var_38c3.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[itemNumber]];
 				}
 				this.var_38c3.onLoad();
 			}
 			return;
 		}
-		if (paramClass_d_023 == this.var_391b) {
+		if (menu == this.var_391b) {
 			if (paramByte == 0) {
-				if (paramString.equals(this.onlineMenuItemsNames[0])) {
+				if (itemName.equals(this.onlineMenuItemsNames[0])) {
 					if (this.var_3c13 == null) {
 						sub_1500b(0, "news", A_MenuBase.getLangString(0),
-								paramClass_d_023);
+								menu);
 						return;
 					}
-					this.var_392b = sub_14c01(this.var_3c13, paramClass_d_023);
+					this.var_392b = sub_14c01(this.var_3c13, menu);
 					return;
 				}
-				if (paramString.equals(this.onlineMenuItemsNames[1])) {
+				if (itemName.equals(this.onlineMenuItemsNames[1])) {
 					this.var_3923 = new D_Menu((byte) 11, 0);
 					D_Menu localObject21;
-					(localObject21 = this.var_3923.sub_165e(paramString)).var_1185 = this.menuIconsFrames[6];
+					(localObject21 = this.var_3923.sub_165e(itemName)).menuTitleIcon = this.menuIconsFrames[6];
 					this.var_3923
 							.sub_212d(
 									this.downloadMenuItemsNames,
 									this.someCanWidth / 2,
-									(this.var_32d3 + ((D_Menu) localObject21).var_1015) / 2,
+									(this.var_32d3 + ((D_Menu) localObject21).menuHeightMb) / 2,
 									this.var_32cb,
 									this.var_32d3
-											- ((D_Menu) localObject21).var_1015,
+											- ((D_Menu) localObject21).menuHeightMb,
 									3, 0);
-					this.var_3923.sub_1323(paramClass_d_023);
+					this.var_3923.setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu(this.var_3923);
 				}
 			} else if (paramByte == 1) {
 				this.var_391b = null;
 			}
-		} else if (paramClass_d_023 == this.var_3923) {
+		} else if (menu == this.var_3923) {
 			if (paramByte == 0) {
-				if (paramString.equals(this.downloadMenuItemsNames[0])) {
+				if (itemName.equals(this.downloadMenuItemsNames[0])) {
 					if (this.var_3c2b == null) {
 						sub_1500b(2, "levels", A_MenuBase.getLangString(0),
-								paramClass_d_023);
+								menu);
 					} else {
-						sub_5d1a(paramClass_d_023);
+						sub_5d1a(menu);
 						A_MenuBase.mainCanvas.showMenu(this.var_3943);
 					}
-				} else if (paramString.equals(this.downloadMenuItemsNames[1])) {
-					A_MenuBase.mainCanvas.showMenu(sub_5fed(paramClass_d_023));
+				} else if (itemName.equals(this.downloadMenuItemsNames[1])) {
+					A_MenuBase.mainCanvas.showMenu(sub_5fed(menu));
 				}
 			} else if (paramByte == 1) {
 				this.var_3923 = null;
 			}
-		} else if (paramClass_d_023 == this.var_392b) {
+		} else if (menu == this.var_392b) {
 			if (paramByte == 0) {
-				if (this.var_3c23[paramInt] == null) {
-					this.var_3c03 = paramInt;
-					sub_1500b(1, this.var_3c1b[paramInt],
-							A_MenuBase.getLangString(0), paramClass_d_023);
+				if (this.var_3c23[itemNumber] == null) {
+					this.var_3c03 = itemNumber;
+					sub_1500b(1, this.var_3c1b[itemNumber],
+							A_MenuBase.getLangString(0), menu);
 				} else {
 					D_Menu localObject21;
-					(localObject21 = createDialog(this.var_3c13[paramInt],
-							this.var_3c23[paramInt], this.var_32d3,
-							this.var_32d3 / 2, -1)).sub_1323(paramClass_d_023);
+					(localObject21 = createDialog(this.var_3c13[itemNumber],
+							this.var_3c23[itemNumber], this.var_32d3,
+							this.var_32d3 / 2, -1)).setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu((A_MenuBase) localObject21);
 				}
 			} else if (paramByte == 1) {
 				this.var_392b = null;
 			}
-		} else if (paramClass_d_023 == this.var_3943) {
+		} else if (menu == this.var_3943) {
 			if (paramByte == 0) {
-				this.var_3c0b = this.var_394b.var_1195[this.var_394b.var_102d];
+				this.var_3c0b = this.var_394b.var_1195[this.var_394b.activeItemPositionMb];
 				if (this.downloadStoreAvailableSize >= this.var_3c3b[this.var_3c0b]) {
 					sub_1500b(3, this.var_3c33[this.var_3c0b],
-							A_MenuBase.getLangString(0), paramClass_d_023);
+							A_MenuBase.getLangString(0), menu);
 				} else {
 					D_Menu localObject21;
 					(localObject21 = createDialog(null, A_MenuBase.getLangString(55),
-							this.var_32d3, -1)).sub_1323(paramClass_d_023);
+							this.var_32d3, -1)).setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu((A_MenuBase) localObject21);
 				}
 			} else if (paramByte == 1) {
@@ -1613,80 +1608,80 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_394b = null;
 				this.var_3943 = null;
 			}
-		} else if (paramClass_d_023 == this.var_394b) {
+		} else if (menu == this.var_394b) {
 			if ((paramByte == 2) || (paramByte == 3)) {
 				localObject2 = sub_6218(this.downloadStoreAvailableSize);
 				this.var_3953
-						.sub_1ceb(
+						.createDescDialogMb(
 								null,
 								A_MenuBase
-										.sub_e44(
+										.replaceStringFirst(
 												54,
-												sub_6218(this.var_3c3b[this.var_394b.var_1195[paramInt]]))
+												sub_6218(this.var_3c3b[this.var_394b.var_1195[itemNumber]]))
 										+ "\n"
-										+ A_MenuBase.sub_e44(53,
+										+ A_MenuBase.replaceStringFirst(53,
 												(String) localObject2),
 								this.var_32cb, -1);
 				this.var_3953.onLoad();
 			}
-		} else if (paramClass_d_023 == this.var_3933) {
+		} else if (menu == this.var_3933) {
 			if (paramByte == 0) {
-				if (this.var_3903[paramInt] + skirmishMapsNames.length == this.var_34db) {
+				if (this.var_3903[itemNumber] + skirmishMapsNames.length == this.var_34db) {
 					D_Menu localObject21;
 					(localObject21 = createDialog(null, A_MenuBase.getLangString(56),
-							this.var_32d3, -1)).sub_1323(paramClass_d_023);
+							this.var_32d3, -1)).setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu((A_MenuBase) localObject21);
 				} else {
-					this.var_395b = paramInt;
-					this.var_3963 = paramString;
+					this.var_395b = itemNumber;
+					this.var_3963 = itemName;
 					this.var_393b = createDialog(null,
-							A_MenuBase.sub_e44(50, paramString),
+							A_MenuBase.replaceStringFirst(50, itemName),
 							this.var_32d3, this.viewportHeight, -1);
-					this.var_393b.sub_1323(paramClass_d_023);
-					this.var_393b.sub_1301((byte) 0, true);
+					this.var_393b.setParentMenu(menu);
+					this.var_393b.setMenuActionEnabled((byte) 0, true);
 					A_MenuBase.mainCanvas.showMenu(this.var_393b);
 				}
 			} else if (paramByte == 1) {
 				this.var_3933 = null;
 			}
-		} else if (paramClass_d_023 == this.var_393b) {
+		} else if (menu == this.var_393b) {
 			if (paramByte == 0) {
 				sub_15429(this.var_395b);
 				localObject2 = sub_5fed(this.var_3933.parentMenu);
 				D_Menu localObject31;
 				(localObject31 = createDialog(null,
-						A_MenuBase.sub_e44(51, this.var_3963), this.var_32d3,
-						-1)).sub_1323((A_MenuBase) localObject2);
+						A_MenuBase.replaceStringFirst(51, this.var_3963), this.var_32d3,
+						-1)).setParentMenu((A_MenuBase) localObject2);
 				A_MenuBase.mainCanvas.showMenu((A_MenuBase) localObject31);
 			}
 			this.var_393b = null;
 			this.var_3963 = null;
 		}
-		if (paramClass_d_023.var_105d == 7) {
+		if (menu.var_105d == 7) {
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
 		}
-		if ((paramString == null) || (paramByte != 0)) {
+		if ((itemName == null) || (paramByte != 0)) {
 			return;
 		}
-		if (paramString.equals(this.mainMenuItemsNames[0])) {
+		if (itemName.equals(this.mainMenuItemsNames[0])) {
 			if ((this.gameMode2Mb == 0) || (this.var_34c3 != 0)) {
 				sub_593d(this.var_338b, this.var_376b, this.var_3773,
-						paramClass_d_023);
+						menu);
 				return;
 			}
 			this.var_38d3 = createDialog(null, A_MenuBase.getLangString(87),
 					this.var_32d3, -1);
-			this.var_38d3.sub_1301((byte) 0, true);
-			this.var_38d3.sub_1323(paramClass_d_023);
+			this.var_38d3.setMenuActionEnabled((byte) 0, true);
+			this.var_38d3.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.var_38d3);
 			return;
 		}
-		if ((paramString.equals(this.mainMenuItemsNames[1]))
-				|| (paramClass_d_023 == this.var_371b)) {
+		if ((itemName.equals(this.mainMenuItemsNames[1]))
+				|| (menu == this.var_371b)) {
 			A_MenuBase.mainCanvas.showMenu(this);
-			if (paramClass_d_023 == this.var_371b) {
-				this.var_34db = paramInt;
+			if (menu == this.var_371b) {
+				this.var_34db = itemNumber;
 				this.var_371b = null;
 			} else {
 				this.var_34db = 0;
@@ -1703,7 +1698,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_34c3 = 0;
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(3))) {
+		if (itemName.equals(A_MenuBase.getLangString(3))) {
 			this.var_371b = new D_Menu((byte) 11, 0);
 			int k;
 			if ((k = this.var_32eb) > 7) {
@@ -1716,38 +1711,38 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						.getLangString(121 + i41)); // map name in menu
 			}
 			D_Menu localObject51;
-			(localObject51 = this.var_371b.sub_165e(paramString)).var_1185 = this.menuIconsFrames[3];
+			(localObject51 = this.var_371b.sub_165e(itemName)).menuTitleIcon = this.menuIconsFrames[3];
 			this.var_371b
 					.sub_212d(
 							(String[]) localObject31,
 							this.someCanWidth / 2,
-							(this.var_32d3 + ((D_Menu) localObject51).var_1015) / 2,
+							(this.var_32d3 + ((D_Menu) localObject51).menuHeightMb) / 2,
 							this.var_32cb, this.var_32d3
-									- ((D_Menu) localObject51).var_1015,
+									- ((D_Menu) localObject51).menuHeightMb,
 							3, 4);
-			this.var_371b.sub_1323(paramClass_d_023);
+			this.var_371b.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.var_371b);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(4))) {
-			this.var_38b3 = sub_5ba0(paramString, this.menuIconsFrames[10]);
-			this.var_38b3.sub_1323(paramClass_d_023);
+		if (itemName.equals(A_MenuBase.getLangString(4))) {
+			this.var_38b3 = sub_5ba0(itemName, this.menuIconsFrames[10]);
+			this.var_38b3.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.var_38b3);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(5))) {
-			this.var_38ab = sub_5ba0(paramString, this.menuIconsFrames[2]);
-			this.var_38ab.sub_1323(paramClass_d_023);
-			A_MenuBase.mainCanvas.showMenu(this.var_38ab);
+		if (itemName.equals(A_MenuBase.getLangString(5))) {
+			this.someLoadSlotMenu = sub_5ba0(itemName, this.menuIconsFrames[2]);
+			this.someLoadSlotMenu.setParentMenu(menu);
+			A_MenuBase.mainCanvas.showMenu(this.someLoadSlotMenu);
 			return;
 		}
 		D_Menu localClass_d_0231;
 		int i2;
-		if (paramString.equals(A_MenuBase.getLangString(6))) {
+		if (itemName.equals(A_MenuBase.getLangString(6))) {
 			this.var_3713 = new D_Menu((byte) 15, 15);
-			(localClass_d_0231 = new D_Menu((byte) 10, 0)).sub_1ceb(null,
-					paramString, this.var_32cb, -1);
-			localClass_d_0231.var_1185 = this.menuIconsFrames[4];
+			(localClass_d_0231 = new D_Menu((byte) 10, 0)).createDescDialogMb(null,
+					itemName, this.var_32cb, -1);
+			localClass_d_0231.menuTitleIcon = this.menuIconsFrames[4];
 			this.var_3303 = new boolean[12];
 			for (i2 = this.var_32eb; i2 <= 7; i2++) {
 				this.var_3303[var_32fb[i2]] = true;
@@ -1766,34 +1761,34 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.var_38f3);
 			this.var_370b = new D_Menu((byte) 0, 0);
 			this.var_370b.sub_212d(arrayOfString2, 0, 0, this.var_32cb,
-					this.var_32d3 - localClass_d_0231.var_1015
+					this.var_32d3 - localClass_d_0231.menuHeightMb
 							- this.buttonsSprite.frameHeight * 2, 3, 4);
-			this.var_3713.sub_169b(this.var_370b, this.viewportWidth,
-					(this.var_32d3 + localClass_d_0231.var_1015) / 2, 3);
-			this.var_3713.sub_169b(localClass_d_0231, 0, 0, 0);
+			this.var_3713.addChildMenu(this.var_370b, this.viewportWidth,
+					(this.var_32d3 + localClass_d_0231.menuHeightMb) / 2, 3);
+			this.var_3713.addChildMenu(localClass_d_0231, 0, 0, 0);
 			this.var_3713.var_112d = true;
-			this.var_3713.sub_1301((byte) 0, true);
-			this.var_3713.sub_1323(paramClass_d_023);
+			this.var_3713.setMenuActionEnabled((byte) 0, true);
+			this.var_3713.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.var_3713);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(7))) {
+		if (itemName.equals(A_MenuBase.getLangString(7))) {
 			this.var_391b = new D_Menu((byte) 11, 0);
-			(localClass_d_0231 = this.var_391b.sub_165e(paramString)).var_1185 = this.menuIconsFrames[6];
+			(localClass_d_0231 = this.var_391b.sub_165e(itemName)).menuTitleIcon = this.menuIconsFrames[6];
 			this.var_391b.sub_212d(this.onlineMenuItemsNames, this.someCanWidth / 2,
-					(this.var_32d3 + localClass_d_0231.var_1015) / 2,
-					this.var_32cb, this.var_32d3 - localClass_d_0231.var_1015,
+					(this.var_32d3 + localClass_d_0231.menuHeightMb) / 2,
+					this.var_32cb, this.var_32d3 - localClass_d_0231.menuHeightMb,
 					3, 0);
-			this.var_391b.sub_1323(paramClass_d_023);
+			this.var_391b.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.var_391b);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(8))) {
+		if (itemName.equals(A_MenuBase.getLangString(8))) {
 			this.var_37e3 = new D_Menu((byte) 15, 15);
-			(localClass_d_0231 = new D_Menu((byte) 10, 0)).var_1185 = this.menuIconsFrames[5];
-			localClass_d_0231.sub_1ceb(null, paramString, this.var_32cb, -1);
-			this.var_37e3.sub_169b(localClass_d_0231, 0, 0, 20);
-			i2 = localClass_d_0231.var_1015;
+			(localClass_d_0231 = new D_Menu((byte) 10, 0)).menuTitleIcon = this.menuIconsFrames[5];
+			localClass_d_0231.createDescDialogMb(null, itemName, this.var_32cb, -1);
+			this.var_37e3.addChildMenu(localClass_d_0231, 0, 0, 20);
+			i2 = localClass_d_0231.menuHeightMb;
 			D_Menu[] localObject51 = new D_Menu[4];
 			this.var_37eb = new D_Menu[4];
 			for (int i8 = 0; i8 < 4; i8++) {
@@ -1805,9 +1800,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					i10 |= 0x2;
 				}
 				localObject51[i8] = new D_Menu((byte) 10, i10);
-				localObject51[i8].sub_1ceb(null, E_MainCanvas.settingsNames[i8],
+				localObject51[i8].createDescDialogMb(null, E_MainCanvas.settingsNames[i8],
 						this.viewportWidth, -1);
-				this.var_37e3.sub_169b(localObject51[i8], 0, i2, 20);
+				this.var_37e3.addChildMenu(localObject51[i8], 0, i2, 20);
 				i10 = 4;
 				if (i8 != 0) {
 					i10 = 5;
@@ -1816,23 +1811,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					i10 |= 0x2;
 				}
 				this.var_37eb[i8] = new D_Menu((byte) 14, i10);
-				this.var_37eb[i8].sub_1fcf(this.onOffValuesNames, this.viewportWidth,
-						localObject51[i8].var_1015);
-				this.var_37eb[i8].var_102d = (E_MainCanvas.settings[i8] != false ? 0
+				this.var_37eb[i8].setMenuItemsNames(this.onOffValuesNames, this.viewportWidth,
+						localObject51[i8].menuHeightMb);
+				this.var_37eb[i8].activeItemPositionMb = (E_MainCanvas.settings[i8] != false ? 0
 						: 1);
-				this.var_37e3.sub_169b(this.var_37eb[i8], this.var_7b3, i2, 20);
-				i2 += localObject51[i8].var_1015;
+				this.var_37e3.addChildMenu(this.var_37eb[i8], this.someCanWidthDiv2, i2, 20);
+				i2 += localObject51[i8].menuHeightMb;
 			}
 			this.var_37e3.var_111d = 2;
-			this.var_37e3.sub_1323(paramClass_d_023);
+			this.var_37e3.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.var_37e3);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(9))) {
+		if (itemName.equals(A_MenuBase.getLangString(9))) {
 			this.var_36e3 = new D_Menu((byte) 15, 15);
-			(localClass_d_0231 = new D_Menu((byte) 10, 0)).sub_1ceb(null,
-					paramString, this.var_32cb, -1);
-			localClass_d_0231.var_1185 = this.menuIconsFrames[7];
+			(localClass_d_0231 = new D_Menu((byte) 10, 0)).createDescDialogMb(null,
+					itemName, this.var_32cb, -1);
+			localClass_d_0231.menuTitleIcon = this.menuIconsFrames[7];
 			String[] localObject41 = new String[20];
 			for (int i5 = 0; i5 <= 19; i5++) {
 				if (i5 > 0) {
@@ -1844,66 +1839,66 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 			this.var_36eb = new D_Menu((byte) 14, 2);
-			this.var_36eb.sub_1fcf(localObject41, this.var_32cb, -1);
+			this.var_36eb.setMenuItemsNames(localObject41, this.var_32cb, -1);
 			this.var_36f3 = new D_Menu((byte) 10, 1);
-			this.var_36f3.sub_1ceb(null, A_MenuBase.getLangString(15),
-					this.var_32cb, this.var_32d3 - localClass_d_0231.var_1015
-							- this.var_36eb.var_1015 - this.buttonsSprite.frameHeight
+			this.var_36f3.createDescDialogMb(null, A_MenuBase.getLangString(15),
+					this.var_32cb, this.var_32d3 - localClass_d_0231.menuHeightMb
+							- this.var_36eb.menuHeightMb - this.buttonsSprite.frameHeight
 							* 2);
-			int i5 = localClass_d_0231.var_1015 + this.buttonsSprite.frameHeight;
-			this.var_36e3.sub_169b(this.var_36eb, this.viewportWidth, i5, 17);
-			i5 += this.var_36eb.var_1015;
-			this.var_36e3.sub_169b(this.var_36f3, this.viewportWidth, i5, 17);
-			this.var_36e3.sub_169b(localClass_d_0231, 0, 0, 0);
-			this.var_36e3.sub_1323(paramClass_d_023);
+			int i5 = localClass_d_0231.menuHeightMb + this.buttonsSprite.frameHeight;
+			this.var_36e3.addChildMenu(this.var_36eb, this.viewportWidth, i5, 17);
+			i5 += this.var_36eb.menuHeightMb;
+			this.var_36e3.addChildMenu(this.var_36f3, this.viewportWidth, i5, 17);
+			this.var_36e3.addChildMenu(localClass_d_0231, 0, 0, 0);
+			this.var_36e3.setParentMenu(menu);
 			this.var_36e3.var_112d = true;
 			A_MenuBase.mainCanvas.showMenu(this.var_36e3);
 			return;
 		}
 		D_Menu localClass_d_0233;
-		if (paramString.equals(A_MenuBase.getLangString(10))) {
+		if (itemName.equals(A_MenuBase.getLangString(10))) {
 			localClass_d_0231 = new D_Menu((byte) 15, 15);
 			D_Menu localObject41;
-			(localObject41 = new D_Menu((byte) 10, 0)).sub_1ceb(null,
-					paramString, this.var_32cb, -1);
-			((D_Menu) localObject41).var_1185 = this.menuIconsFrames[8];
+			(localObject41 = new D_Menu((byte) 10, 0)).createDescDialogMb(null,
+					itemName, this.var_32cb, -1);
+			((D_Menu) localObject41).menuTitleIcon = this.menuIconsFrames[8];
 			localClass_d_0233 = new D_Menu((byte) 10, 0);
-			String str = A_MenuBase.sub_e44(16, this.appPropVersion);
-			localClass_d_0233.sub_1ceb(null, str, this.var_32cb, this.var_32d3
-					- ((D_Menu) localObject41).var_1015
+			String str = A_MenuBase.replaceStringFirst(16, this.appPropVersion);
+			localClass_d_0233.createDescDialogMb(null, str, this.var_32cb, this.var_32d3
+					- ((D_Menu) localObject41).menuHeightMb
 					- this.buttonsSprite.frameHeight * 2);
 			localClass_d_0231
-					.sub_169b(
+					.addChildMenu(
 							localClass_d_0233,
 							0,
-							(this.var_32d3 + ((D_Menu) localObject41).var_1015) / 2,
+							(this.var_32d3 + ((D_Menu) localObject41).menuHeightMb) / 2,
 							6);
-			localClass_d_0231.sub_169b((D_Menu) localObject41, 0, 0, 0);
-			localClass_d_0231.sub_1323(paramClass_d_023);
+			localClass_d_0231.addChildMenu((D_Menu) localObject41, 0, 0, 0);
+			localClass_d_0231.setParentMenu(menu);
 			localClass_d_0231.var_112d = true;
 			A_MenuBase.mainCanvas.showMenu(localClass_d_0231);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(11))) {
-			this.var_38cb = createDialog(null, A_MenuBase.getLangString(86),
+		if (itemName.equals(A_MenuBase.getLangString(11))) {
+			this.mainMenuMb = createDialog(null, A_MenuBase.getLangString(86),
 					this.var_32d3, -1);
-			this.var_38cb.sub_1301((byte) 0, true);
-			this.var_38cb.sub_1323(paramClass_d_023);
-			A_MenuBase.mainCanvas.showMenu(this.var_38cb);
+			this.mainMenuMb.setMenuActionEnabled((byte) 0, true);
+			this.mainMenuMb.setParentMenu(menu);
+			A_MenuBase.mainCanvas.showMenu(this.mainMenuMb);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(60))) {
+		if (itemName.equals(A_MenuBase.getLangString(60))) {
 			sub_593d(this.var_3383, this.viewportHeight, this.var_32d3,
-					paramClass_d_023);
+					menu);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(61))) {
+		if (itemName.equals(A_MenuBase.getLangString(61))) {
 			this.var_3723 = false;
 			sub_58af(this.var_34fb);
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(62))) {
+		if (itemName.equals(A_MenuBase.getLangString(62))) {
 			fillArrayWithValue(this.var_3513, 0);
 			this.var_34cb = this.var_34c3;
 			this.var_34c3 = 6;
@@ -1923,28 +1918,28 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(63))) {
+		if (itemName.equals(A_MenuBase.getLangString(63))) {
 			this.var_383b = new D_Menu((byte) 15, 15);
 			this.var_383b.var_11b5 = this.var_32d3;
 			this.var_3843 = new D_Menu((byte) 2, 2);
-			this.var_384b = new D_Menu((byte) 3, 1);
+			this.castleBuyMenu = new D_Menu((byte) 3, 1);
 			this.var_3853 = new D_Menu((byte) 10, 3);
 			this.var_3853.var_1125 = true;
-			this.var_3843.var_10dd = this.var_384b.var_107d[0];
-			this.var_3853.sub_1ceb(null, A_MenuBase
-					.getLangString(184 + this.var_384b.var_107d[0].unitTypeId),
-					this.var_32cb, this.var_32d3 - this.var_3843.var_1015
-							- this.var_384b.var_1015);
-			this.var_383b.sub_169b(this.var_3843, 0, 0, 0);
-			this.var_383b.sub_169b(this.var_3853, 0, this.var_3843.var_1015, 0);
-			this.var_383b.sub_169b(this.var_384b, 0, this.var_32d3, 32);
+			this.var_3843.menuUnit = this.castleBuyMenu.buyUnits[0];
+			this.var_3853.createDescDialogMb(null, A_MenuBase
+					.getLangString(184 + this.castleBuyMenu.buyUnits[0].unitTypeId),
+					this.var_32cb, this.var_32d3 - this.var_3843.menuHeightMb
+							- this.castleBuyMenu.menuHeightMb);
+			this.var_383b.addChildMenu(this.var_3843, 0, 0, 0);
+			this.var_383b.addChildMenu(this.var_3853, 0, this.var_3843.menuHeightMb, 0);
+			this.var_383b.addChildMenu(this.castleBuyMenu, 0, this.var_32d3, 32);
 			this.var_383b.var_112d = true;
-			this.var_383b.sub_1323(this);
-			this.var_383b.sub_1301((byte) 0, true);
+			this.var_383b.setParentMenu(this);
+			this.var_383b.setMenuActionEnabled((byte) 0, true);
 			A_MenuBase.mainCanvas.showMenu(this.var_383b);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(64))) {
+		if (itemName.equals(A_MenuBase.getLangString(64))) {
 			this.var_34fb.sub_2352();
 			sub_90fd();
 			this.var_3753 = sub_dc52(this.var_34ab, this.var_34b3, (byte) 0);
@@ -1952,12 +1947,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(66))) { //END TURN
+		if (itemName.equals(A_MenuBase.getLangString(66))) { //END TURN
 			sub_dd85();
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(68))) { //REPAIR
+		if (itemName.equals(A_MenuBase.getLangString(68))) { //REPAIR
 			sub_e185((byte) this.houseTileIdStartIndex, this.var_34fb.positionX,
 					this.var_34fb.positionY);
 			A_MenuBase.mainCanvas.showMenu(createDialog(null,
@@ -1967,7 +1962,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_34c3 = 0;
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(67))) { //OCCUPY
+		if (itemName.equals(A_MenuBase.getLangString(67))) { //OCCUPY
 			if (sub_e0c8(this.var_34fb.positionX, this.var_34fb.positionY,
 					this.var_34fb)) {
 				sub_e1a9(this.var_34fb.positionX, this.var_34fb.positionY,
@@ -1981,7 +1976,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_34fb.sub_2352();
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(69))) {
+		if (itemName.equals(A_MenuBase.getLangString(69))) {
 			this.var_34c3 = 7;
 			this.var_34f3 = this.var_34fb.sub_15b5(this.var_34fb.positionX,
 					this.var_34fb.positionY, (byte) 1);
@@ -1993,32 +1988,32 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(70))) {
+		if (itemName.equals(A_MenuBase.getLangString(70))) {
 			D_Menu localClass_d_0232 = new D_Menu((byte) 15, 15);
 			D_Menu localObject41;
-			(localObject41 = new D_Menu((byte) 10, 0)).sub_1ceb(null,
+			(localObject41 = new D_Menu((byte) 10, 0)).createDescDialogMb(null,
 					this.mapName, this.var_32cb, -1);
 			(localClass_d_0233 = new D_Menu((byte) 8, 0)).sub_17fa(
 					this.var_32cb, this.var_32d3
-							- ((D_Menu) localObject41).var_1015
+							- ((D_Menu) localObject41).menuHeightMb
 							- this.buttonsSprite.frameHeight, this.mapTilesIds,
 					this.mapSprites);
 			localClass_d_0232
-					.sub_169b(
+					.addChildMenu(
 							localClass_d_0233,
 							this.viewportWidth,
 							this.viewportHeight
-									+ (((D_Menu) localObject41).var_1015 - this.buttonsSprite.frameHeight)
+									+ (((D_Menu) localObject41).menuHeightMb - this.buttonsSprite.frameHeight)
 									/ 2, 3);
-			localClass_d_0232.sub_169b((D_Menu) localObject41, 0, 0, 0);
-			localClass_d_0232.sub_1323(paramClass_d_023);
+			localClass_d_0232.addChildMenu((D_Menu) localObject41, 0, 0, 0);
+			localClass_d_0232.setParentMenu(menu);
 			localClass_d_0232.var_112d = true;
 			A_MenuBase.mainCanvas.showMenu(localClass_d_0232);
 			return;
 		}
-		if (paramString.equals(A_MenuBase.getLangString(71))) {
-			this.startupMessageBox.sub_1301((byte) 0, false);
-			this.startupMessageBox.sub_1323(paramClass_d_023);
+		if (itemName.equals(A_MenuBase.getLangString(71))) {
+			this.startupMessageBox.setMenuActionEnabled((byte) 0, false);
+			this.startupMessageBox.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
 		}
 	}
@@ -2306,72 +2301,72 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return localObject1;
 	}
 
-	public final void sub_940b() throws Exception {
+	public final void paintIntros() throws Exception {
 		switch (this.gameModeMb) {
 		case 0:
 			if (this.time >= 1200L) {
 				this.gameModeMb = 1;
 			}
-			this.var_3653 = 40;
+			this.waveImageAmplitudeMb = 40;
 			return;
 		case 1:
-			if (this.var_3653 <= 0) {
+			if (this.waveImageAmplitudeMb <= 0) {
 				this.msLogoImage = null;
-				this.var_3653 = 0;
+				this.waveImageAmplitudeMb = 0;
 				this.gameModeMb += 1;
-				sub_c019(0, 0, 3);
+				loadIntro(0, 0, 3);
 				return;
 			}
-			this.var_3653 -= 1;
+			this.waveImageAmplitudeMb -= 1;
 			return;
 		case 2:
-			sub_c019(1, 2, 3);
+			loadIntro(1, 2, 3);
 			this.logoImage = new H_ImageExt("logo");
 			this.gameModeMb += 1;
 			return;
 		case 3:
-			if (++this.var_3653 > 40) {
+			if (++this.waveImageAmplitudeMb > 40) {
 				try {
 					this.splashImage = new H_ImageExt("splash");
 					this.glowImage = new H_ImageExt("glow");
 				} catch (Exception ex) {
 					//
 				}
-				this.var_3653 = 11;
+				this.waveImageAmplitudeMb = 11;
 				this.gameModeMb += 1;
-				A_MenuBase.mainCanvas.sub_1f57();
+				A_MenuBase.mainCanvas.clearActions();
 				return;
 			}
 			break;
 		case 4:
-			if (this.var_3653 < 16) {
-				this.var_3653 += 1;
+			if (this.waveImageAmplitudeMb < 16) {
+				this.waveImageAmplitudeMb += 1;
 				this.var_3663 += 1;
 				if (this.glowImage != null) {
-					this.var_377b = (-this.glowImage.imageWidth);
+					this.glowImagePosX = (-this.glowImage.imageWidth);
 				}
 			} else {
-				if (this.var_377b >= this.someCanWidth * 4) {
+				if (this.glowImagePosX >= this.someCanWidth * 4) {
 					if (this.glowImage != null) {
-						this.var_377b = (-this.glowImage.imageWidth);
+						this.glowImagePosX = (-this.glowImage.imageWidth);
 					}
 				} else {
-					this.var_377b += this.logoImage.imageWidth / 6;
+					this.glowImagePosX += this.logoImage.imageWidth / 6;
 				}
 				if (this.time % 100L == 0L) {
-					this.var_36cb = (!this.var_36cb);
+					this.showPressAnyKey = (!this.showPressAnyKey);
 				}
-				if (((this.splashImage == null) || (A_MenuBase.mainCanvas.sub_1f21()))
+				if (((this.splashImage == null) || (A_MenuBase.mainCanvas.isActionPressed()))
 						&& (sub_4789())) {
-					if (this.glowImage != null) {
-						this.var_377b = (-this.glowImage.imageWidth);
+					if (this.glowImage != null) { // stop glow animation
+						this.glowImagePosX = (-this.glowImage.imageWidth);
 					}
-					this.var_36cb = false;
-					int i = this.logoImage.imageHeight + 1;
-					sub_593d(this.var_337b, (this.someCanHeight + i) / 2,
-							this.someCanHeight - i, this.splashImage == null ? null
+					this.showPressAnyKey = false;
+					int logoHeight = this.logoImage.imageHeight + 1;
+					sub_593d(this.var_337b, (this.someCanHeight + logoHeight) / 2,
+							this.someCanHeight - logoHeight, this.splashImage == null ? null
 									: this);
-					A_MenuBase.mainCanvas.sub_1f57();
+					A_MenuBase.mainCanvas.clearActions();
 				}
 			}
 			break;
@@ -2390,7 +2385,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.gameMode2Mb == 0) {
-			sub_940b();
+			paintIntros();
 			return;
 		}
 		sub_112a9();
@@ -2398,9 +2393,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (E_MainCanvas.settings[2] != false) {
 				D_Menu localClass_d_0231;
 				(localClass_d_0231 = sub_10bb9(
-						A_MenuBase.sub_cb9(196 + this.var_36db, true),
+						A_MenuBase.getSomeHelpString(196 + this.var_36db, true),
 						(byte) -1, (byte) 2)).var_117d = 7831691;
-				localClass_d_0231.var_1175 = 7831691;
+				localClass_d_0231.titleGradientColor = 7831691;
 				localClass_d_0231.var_fbd = 16250855;
 			}
 			this.var_36db = -1;
@@ -2432,8 +2427,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_3bc3 = false;
 		}
 		if (this.var_364b) {
-			this.var_3653 += 1;
-			if (this.var_3653 > 16) {
+			this.waveImageAmplitudeMb += 1;
+			if (this.waveImageAmplitudeMb > 16) {
 				if (this.var_34c3 == 10) {
 					this.var_3b93 = 1;
 				} else if (this.var_34c3 == 11) {
@@ -2539,10 +2534,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 						D_Menu localClass_d_0233 = createDialog(
 								A_MenuBase.getLangString(75),
-								A_MenuBase.sub_e44(76, (String) localObject1),
+								A_MenuBase.replaceStringFirst(76, (String) localObject1),
 								this.var_32d3, 1500);
 						A_MenuBase.mainCanvas.showMenu(localClass_d_0233);
-						localClass_d_0233.var_1175 = var_33bb[this.var_356b[this.var_357b]];
+						localClass_d_0233.titleGradientColor = playerColors[this.var_356b[this.var_357b]];
 						E_MainCanvas.sub_2439(
 								var_33c3[this.var_356b[this.var_357b]], 0);
 					}
@@ -2587,10 +2582,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						&& (this.var_372b == 0)
 						&& ((this.mapModeCampIf0 == 1)
 								|| (this.time - this.var_3553 >= 3000L) || (A_MenuBase.mainCanvas
-								.sub_1f21()))) {
+								.isActionPressed()))) {
 					this.var_32d3 = this.someCanHeight;
-					this.viewportHeight = this.var_7bb;
-					sub_593d(this.var_337b, this.var_7bb, this.someCanHeight, null);
+					this.viewportHeight = this.someCanHeightDiv2;
+					sub_593d(this.var_337b, this.someCanHeightDiv2, this.someCanHeight, null);
 					this.var_372b = 1;
 					this.var_380b = false;
 				}
@@ -2602,7 +2597,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_34db += 1;
 						if (this.var_34db > this.var_32eb) {
 							localObject1 = skirmishMapsNames[var_32fb[this.var_32eb]];
-							localObject3 = createDialog(null, A_MenuBase.sub_e44(
+							localObject3 = createDialog(null, A_MenuBase.replaceStringFirst(
 									82, (String) localObject1), this.someCanHeight,
 									3000);
 							A_MenuBase.mainCanvas
@@ -2618,12 +2613,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3b93 = 2;
 					} else if (this.var_3b93 == 0) {
 						this.var_364b = true;
-						this.var_3653 = 0;
+						this.waveImageAmplitudeMb = 0;
 					} else if (this.var_3b93 == 2) {
 						if (this.var_34c3 == 14) {
 							this.var_32d3 = this.someCanHeight;
-							this.viewportHeight = this.var_7bb;
-							sub_593d(this.var_337b, this.var_7bb, this.someCanHeight,
+							this.viewportHeight = this.someCanHeightDiv2;
+							sub_593d(this.var_337b, this.someCanHeightDiv2, this.someCanHeight,
 									null);
 							return;
 						}
@@ -2880,29 +2875,29 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							} else if (sub_4789()) {
 								if ((this.var_3613)
 										&& (A_MenuBase.mainCanvas
-												.sub_1fd5(var_3333))) {
-									A_MenuBase.mainCanvas.sub_2079(16);
-									A_MenuBase.mainCanvas.sub_20b4(var_3333);
+												.someActionCodeIsSet(var_3333))) {
+									A_MenuBase.mainCanvas.addActionCode(16);
+									A_MenuBase.mainCanvas.clearActionCode(var_3333);
 								}
 								if ((this.var_34c3 == 6)
 										|| (this.var_34c3 == 7)) {
-									if ((A_MenuBase.mainCanvas.sub_1f81(4))
-											|| (A_MenuBase.mainCanvas.sub_1f81(1))) {
+									if ((A_MenuBase.mainCanvas.invertActionCode(4))
+											|| (A_MenuBase.mainCanvas.invertActionCode(1))) {
 										this.var_34eb -= 1;
 										if (this.var_34eb < 0) {
 											this.var_34eb = (this.var_34f3.length - 1);
 										}
-										A_MenuBase.mainCanvas.sub_20b4(4);
-										A_MenuBase.mainCanvas.sub_20b4(1);
+										A_MenuBase.mainCanvas.clearActionCode(4);
+										A_MenuBase.mainCanvas.clearActionCode(1);
 										this.var_369b = true;
-									} else if ((A_MenuBase.mainCanvas.sub_1f81(8))
-											|| (A_MenuBase.mainCanvas.sub_1f81(2))) {
+									} else if ((A_MenuBase.mainCanvas.invertActionCode(8))
+											|| (A_MenuBase.mainCanvas.invertActionCode(2))) {
 										this.var_34eb += 1;
 										if (this.var_34eb >= this.var_34f3.length) {
 											this.var_34eb = 0;
 										}
-										A_MenuBase.mainCanvas.sub_20b4(8);
-										A_MenuBase.mainCanvas.sub_20b4(2);
+										A_MenuBase.mainCanvas.clearActionCode(8);
+										A_MenuBase.mainCanvas.clearActionCode(2);
 										this.var_369b = true;
 									}
 									moveCursorToPos(
@@ -2913,7 +2908,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												this.var_34b3, (byte) 0);
 										this.var_3983 = true;
 									}
-									if (A_MenuBase.mainCanvas.sub_1f81(16)) {
+									if (A_MenuBase.mainCanvas.invertActionCode(16)) {
 										if (this.var_34c3 == 6) {
 											sub_55bd(
 													this.var_34fb,
@@ -2925,7 +2920,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 											this.var_34fb.sub_2352();
 											this.var_34c3 = 0;
 										}
-										this.var_35bb = null;
+										this.someGameMenu = null;
 										this.var_351b = false;
 										this.var_3523 = false;
 										this.var_360b = false;
@@ -2936,36 +2931,36 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									if ((this.time - this.var_33ab >= 150L)
 											&& (this.cursorSprite.posX % 24 == 0)
 											&& (this.cursorSprite.posY % 24 == 0)) {
-										if ((A_MenuBase.mainCanvas.sub_1f81(4))
+										if ((A_MenuBase.mainCanvas.invertActionCode(4))
 												|| (A_MenuBase.mainCanvas
-														.sub_2032(4))) {
+														.isActionLongPressed(4))) {
 											if (this.var_34ab > 0) {
 												this.var_34ab -= 1;
 											}
 											this.var_369b = true;
 											this.var_33ab = this.time;
 										} else if ((A_MenuBase.mainCanvas
-												.sub_1f81(8))
+												.invertActionCode(8))
 												|| (A_MenuBase.mainCanvas
-														.sub_2032(8))) {
+														.isActionLongPressed(8))) {
 											if (this.var_34ab < this.mapWidth - 1) {
 												this.var_34ab += 1;
 											}
 											this.var_369b = true;
 											this.var_33ab = this.time;
 										}
-										if ((A_MenuBase.mainCanvas.sub_1f81(1))
+										if ((A_MenuBase.mainCanvas.invertActionCode(1))
 												|| (A_MenuBase.mainCanvas
-														.sub_2032(1))) {
+														.isActionLongPressed(1))) {
 											if (this.var_34b3 > 0) {
 												this.var_34b3 -= 1;
 											}
 											this.var_369b = true;
 											this.var_33ab = this.time;
 										} else if ((A_MenuBase.mainCanvas
-												.sub_1f81(2))
+												.invertActionCode(2))
 												|| (A_MenuBase.mainCanvas
-														.sub_2032(2))) {
+														.isActionLongPressed(2))) {
 											if (this.var_34b3 < this.mapHeight - 1) {
 												this.var_34b3 += 1;
 											}
@@ -2993,7 +2988,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									}
 									if (((this.var_34c3 == 1) || (this.var_34c3 == 0))
 											&& (A_MenuBase.mainCanvas
-													.sub_1f81(256))) {
+													.invertActionCode(256))) {
 										if ((localClass_c_032 = sub_dc52(
 												this.var_34ab, this.var_34b3,
 												(byte) 0)) != null) {
@@ -3031,32 +3026,32 @@ public final class I_Game extends A_MenuBase implements Runnable {
 														.toString() + str;
 											}
 											localClass_d_0235
-													.sub_1ceb(
+													.createDescDialogMb(
 															null,
 															str,
 															this.var_32cb,
 															this.var_32d3
-																	- localClass_d_0234.var_1015);
+																	- localClass_d_0234.menuHeightMb);
 											((D_Menu) localObject41)
-													.sub_169b(
+													.addChildMenu(
 															localClass_d_0234,
 															0, 0, 0);
 											((D_Menu) localObject41)
-													.sub_169b(
+													.addChildMenu(
 															localClass_d_0235,
 															0,
-															localClass_d_0234.var_1015,
+															localClass_d_0234.menuHeightMb,
 															0);
 											((D_Menu) localObject41).var_112d = true;
 											((D_Menu) localObject41)
-													.sub_1323(this);
+													.setParentMenu(this);
 											A_MenuBase.mainCanvas
 													.showMenu((A_MenuBase) localObject41);
 										}
-										A_MenuBase.mainCanvas.sub_20b4(256);
+										A_MenuBase.mainCanvas.clearActionCode(256);
 									}
 									if (this.var_34c3 == 1) {
-										if ((A_MenuBase.mainCanvas.sub_1f81(16))
+										if ((A_MenuBase.mainCanvas.invertActionCode(16))
 												&& (this.var_34fb != null)) {
 											localClass_c_032 = sub_dc52(
 													this.var_34ab,
@@ -3072,16 +3067,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												this.var_352b = false;
 												this.var_351b = false;
 												this.var_353b = null;
-												this.var_35bb = null;
+												this.someGameMenu = null;
 												this.var_360b = false;
 												this.var_3613 = false;
 												this.var_34c3 = 2;
 												E_MainCanvas.playMusicLooped(10, 1);
 											}
-											A_MenuBase.mainCanvas.sub_20b4(16);
+											A_MenuBase.mainCanvas.clearActionCode(16);
 										}
 									} else if (this.var_34c3 == 0) {
-										if (A_MenuBase.mainCanvas.sub_1f81(512)) {
+										if (A_MenuBase.mainCanvas.invertActionCode(512)) {
 											int i4 = 0;
 											C_Unit localObject4 = this.playersKings[this.var_357b];
 											if ((this.var_3753 != null)
@@ -3107,7 +3102,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 														((F_Sprite) localObject41).posY + 12);
 											}
 										} else if (A_MenuBase.mainCanvas
-												.sub_1f81(32)) {
+												.invertActionCode(32)) {
 											if (this.var_3523) {
 												fillArrayWithValue(this.var_3513, 0);
 												this.var_351b = false;
@@ -3125,11 +3120,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 													this.var_39d3 = 12;
 												}
 											}
-											A_MenuBase.mainCanvas.sub_20b4(32);
+											A_MenuBase.mainCanvas.clearActionCode(32);
 										} else if ((A_MenuBase.mainCanvas
-												.sub_1f81(16))
+												.invertActionCode(16))
 												|| (A_MenuBase.mainCanvas
-														.sub_1f81(var_3333))) {
+														.invertActionCode(var_3333))) {
 											this.var_34fb = sub_dc52(
 													this.var_34ab,
 													this.var_34b3, (byte) 0);
@@ -3158,18 +3153,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												E_MainCanvas.playMusicLooped(11, 1);
 											} else {
 												this.var_34fb = null;
-												this.var_35bb = new D_Menu(
+												this.someGameMenu = new D_Menu(
 														(byte) 11, 0);
-												this.var_35bb.sub_212d(
+												this.someGameMenu.sub_212d(
 														this.gameMenuItemsNames, 2, 2,
 														-1, this.var_32d3, 20,
 														0);
-												this.var_35bb.sub_1323(this);
+												this.someGameMenu.setParentMenu(this);
 												A_MenuBase.mainCanvas
-														.showMenu(this.var_35bb);
+														.showMenu(this.someGameMenu);
 												E_MainCanvas.playMusicLooped(11, 1);
 											}
-											A_MenuBase.mainCanvas.sub_1f57();
+											A_MenuBase.mainCanvas.clearActions();
 										}
 									}
 								}
@@ -3191,7 +3186,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_36a3 = this.time;
 		}
 		sub_b79b();
-		if ((this.var_360b) && (A_MenuBase.mainCanvas.sub_1fd5(var_333b))) {
+		if ((this.var_360b) && (A_MenuBase.mainCanvas.someActionCodeIsSet(var_333b))) {
 			if (this.var_34c3 == 1) {
 				this.var_34c3 = 0;
 				fillArrayWithValue(this.var_3513, 0);
@@ -3204,11 +3199,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				fillArrayWithValue(this.var_3513, 0);
 				this.cursorSprite.setFrameSequence(var_3393[0]);
 				moveCursorToPos(this.var_34fb.positionX, this.var_34fb.positionY);
-				A_MenuBase.mainCanvas.showMenu(this.var_35bb);
+				A_MenuBase.mainCanvas.showMenu(this.someGameMenu);
 			}
 			this.var_351b = false;
 			this.var_3523 = false;
-			A_MenuBase.mainCanvas.sub_20b4(var_333b);
+			A_MenuBase.mainCanvas.clearActionCode(var_333b);
 			this.var_360b = false;
 			this.var_3613 = false;
 		}
@@ -3454,7 +3449,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return i | j | k;
 	}
 
-	public final void sub_c019(int paramInt1, int paramInt2, int paramInt3)
+	public final void loadIntro(int introId, int paramInt2, int paramInt3)
 			throws Exception {
 		this.var_3a1b = paramInt2;
 		this.var_3a23 = paramInt3;
@@ -3466,34 +3461,34 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		this.var_3a13 = this.gameMode2Mb;
 		try {
-			this.introImage = new H_ImageExt("intro" + paramInt1);
+			this.introImage = new H_ImageExt("intro" + introId);
 		} catch (Exception ex) {
 			//
 		}
 		this.var_39db = E_MainCanvas.var_139c;
 		if (this.introImage != null) {
 			this.var_3a2b = this.introImage.imageHeight;
-			this.var_3653 = 0;
+			this.waveImageAmplitudeMb = 0;
 			this.var_39eb = ((this.someCanHeight - this.introImage.imageHeight) / this.var_39db);
 		} else {
 			this.var_3a2b = 0;
-			this.var_3653 = 16;
+			this.waveImageAmplitudeMb = 16;
 			this.var_39eb = (this.someCanHeight / this.var_39db);
 		}
 		this.introText = A_MenuBase.wrapText(
-				A_MenuBase.getLangString(215 + paramInt1), this.someCanWidth,
+				A_MenuBase.getLangString(215 + introId), this.someCanWidth,
 				E_MainCanvas.font0);
 		this.var_39e3 = (this.someCanHeight - this.var_39db);
 		this.var_39f3 = 0;
 		this.var_3a0b = false;
-		A_MenuBase.mainCanvas.sub_1f57();
+		A_MenuBase.mainCanvas.clearActions();
 		this.gameMode2Mb = 3;
 	}
 
 	public final void sub_c16e(String text) {
 		this.var_3a13 = this.gameMode2Mb;
 		this.introText = A_MenuBase.wrapText(text, this.someCanWidth, E_MainCanvas.font0);
-		this.var_3653 = 16;
+		this.waveImageAmplitudeMb = 16;
 		this.var_3a0b = false;
 		this.var_3a1b = 3;
 		this.var_3a23 = 3;
@@ -3502,23 +3497,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_39eb = (this.someCanHeight / this.var_39db);
 		this.var_39e3 = (this.someCanHeight - this.var_39db);
 		this.var_39f3 = 0;
-		A_MenuBase.mainCanvas.sub_1f57();
+		A_MenuBase.mainCanvas.clearActions();
 		this.gameMode2Mb = 3;
 	}
 
 	public final void sub_c1eb() {
 		if (this.var_3a0b) {
-			this.var_3653 -= 1;
-			if (this.var_3653 < 0) {
-				this.var_3653 = 0;
+			this.waveImageAmplitudeMb -= 1;
+			if (this.waveImageAmplitudeMb < 0) {
+				this.waveImageAmplitudeMb = 0;
 				this.gameMode2Mb = this.var_3a13;
 				this.introImage = null;
 				this.introText = null;
 			}
 		} else {
-			if (((this.var_3a1b == 2) && (this.var_3653 < 40))
-					|| ((this.var_3a1b != 2) && (this.var_3653 < 16))) {
-				this.var_3653 += 1;
+			if (((this.var_3a1b == 2) && (this.waveImageAmplitudeMb < 40))
+					|| ((this.var_3a1b != 2) && (this.waveImageAmplitudeMb < 16))) {
+				this.waveImageAmplitudeMb += 1;
 			} else {
 				this.var_39e3 -= 1;
 				if (this.var_39e3 < this.var_3a2b) {
@@ -3527,61 +3522,61 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 			if ((this.var_39f3 >= this.introText.length)
-					|| (A_MenuBase.mainCanvas.sub_1fd5(var_3333))) {
+					|| (A_MenuBase.mainCanvas.someActionCodeIsSet(var_3333))) {
 				this.var_3a0b = true;
 				if ((this.introImage != null)
 						|| (this.var_39f3 < this.introText.length)) {
 					if (this.var_3a23 == 2) {
-						this.var_3653 = 40;
+						this.waveImageAmplitudeMb = 40;
 						return;
 					}
-					this.var_3653 = 16;
+					this.waveImageAmplitudeMb = 16;
 					return;
 				}
-				this.var_3653 = 0;
+				this.waveImageAmplitudeMb = 0;
 			}
 		}
 	}
 
-	public final void sub_c348(Graphics paramGraphics) {
-		paramGraphics.setFont(E_MainCanvas.font0);
-		paramGraphics.setColor(0);
-		paramGraphics.fillRect(0, 0, this.someCanWidth, this.someCanHeight);
+	public final void playIntro(Graphics gr) {
+		gr.setFont(E_MainCanvas.font0);
+		gr.setColor(0); //black
+		gr.fillRect(0, 0, this.someCanWidth, this.someCanHeight);
 		if (this.introImage != null) {
 			if ((!this.var_3a0b)
-					&& (((this.var_3a1b == 2) && (this.var_3653 >= 40)) || ((this.var_3a1b != 2) && (this.var_3653 >= 16)))) {
-				this.introImage.drawImageExt(paramGraphics, 0, 0);
+					&& (((this.var_3a1b == 2) && (this.waveImageAmplitudeMb >= 40)) || ((this.var_3a1b != 2) && (this.waveImageAmplitudeMb >= 16)))) {
+				this.introImage.drawImageExt(gr, 0, 0);
 			} else if (((this.var_3a23 == 2) && (this.var_3a0b))
 					|| ((this.var_3a1b == 2) && (!this.var_3a0b))) {
-				waveImage(paramGraphics, this.var_3653, 40, 0, this.introImage, 0,
+				waveImage(gr, this.waveImageAmplitudeMb, 40, 0, this.introImage, 0,
 						0, 2);
 			} else if (((this.var_3a23 == 3) && (this.var_3a0b))
 					|| ((this.var_3a1b == 3) && (!this.var_3a0b))) {
-				this.introImage.drawImageExt(paramGraphics, 0, 0);
+				this.introImage.drawImageExt(gr, 0, 0);
 			} else {
-				this.introImage.drawImageExt(paramGraphics, 0, 0);
+				this.introImage.drawImageExt(gr, 0, 0);
 				if (this.var_3a0b) {
-					if ((this.var_3a23 == 1) && (this.var_3653 <= 16)) {
-						sub_e77a(paramGraphics, 0, 16 - this.var_3653, 16, 0,
+					if ((this.var_3a23 == 1) && (this.waveImageAmplitudeMb <= 16)) {
+						sub_e77a(gr, 0, 16 - this.waveImageAmplitudeMb, 16, 0,
 								this.introImage, 0, 0, this.someCanWidth, this.someCanHeight);
 					}
 				} else if (this.var_3a1b == 0) {
-					if (this.var_3653 <= 16) {
-						sub_e77a(paramGraphics, 16777215, this.var_3653, 16, 1,
+					if (this.waveImageAmplitudeMb <= 16) {
+						sub_e77a(gr, 16777215, this.waveImageAmplitudeMb, 16, 1,
 								null, 0, 0, this.someCanWidth, this.someCanHeight);
 					}
-				} else if ((this.var_3a1b == 1) && (this.var_3653 <= 16)) {
-					sub_e77a(paramGraphics, 0, this.var_3653, 16, 1, null, 0,
+				} else if ((this.var_3a1b == 1) && (this.waveImageAmplitudeMb <= 16)) {
+					sub_e77a(gr, 0, this.waveImageAmplitudeMb, 16, 1, null, 0,
 							0, this.someCanWidth, this.introImage.imageHeight);
 				}
 			}
 		}
-		paramGraphics.setClip(0, 0, this.someCanWidth, this.someCanHeight);
-		int i = this.var_3653;
+		gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
+		int waveAmp = this.waveImageAmplitudeMb;
 		if ((this.var_3a0b) && (this.var_3a23 == 2)) {
-			i -= 24;
-			if (i < 0) {
-				i = 0;
+			waveAmp -= 24;
+			if (waveAmp < 0) {
+				waveAmp = 0;
 			}
 		}
 		int j = this.var_39e3;
@@ -3601,49 +3596,49 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				n = 14672074;
 			}
 			if (this.var_3a0b) {
-				n = sub_bf33(0, n, i, 16);
+				n = sub_bf33(0, n, waveAmp, 16);
 			}
-			paramGraphics.setColor(n);
-			E_MainCanvas.drawString(paramGraphics, this.introText[k], this.var_7b3,
+			gr.setColor(n);
+			E_MainCanvas.drawString(gr, this.introText[k], this.someCanWidthDiv2,
 					j + 3, 17);
 			j += this.var_39db;
 		}
 		if (!this.var_3a0b) {
-			sub_dbd9(paramGraphics, var_3333, 2, this.someCanHeight);
+			sub_dbd9(gr, var_3333, 2, this.someCanHeight);
 		}
 	}
 
 	public final void paintStartLogos(Graphics gr) {
-		if (this.gameModeMb == 0) {
+		if (this.gameModeMb == 0) { // ms logo still image
 			gr.setColor(16777215); //white
 			gr.fillRect(0, 0, this.someCanWidth, this.someCanHeight);
-			waveImage(gr, this.var_3653, 40, 0, this.msLogoImage,
+			waveImage(gr, this.waveImageAmplitudeMb, 40, 0, this.msLogoImage,
 					(this.someCanWidth - this.msLogoImage.imageWidth) / 2,
 					(this.someCanHeight - this.msLogoImage.imageHeight) / 2, 4);
 			return;
 		}
-		if (this.gameModeMb == 1) {
-			gr.setColor(16777215);
+		if (this.gameModeMb == 1) { // ms logo waving image
+			gr.setColor(16777215); //white
 			gr.fillRect(0, 0, this.someCanWidth, this.someCanHeight);
-			waveImage(gr, this.var_3653, 40, 0, this.msLogoImage,
+			waveImage(gr, this.waveImageAmplitudeMb, 40, 0, this.msLogoImage,
 					(this.someCanWidth - this.msLogoImage.imageWidth) / 2,
 					(this.someCanHeight - this.msLogoImage.imageHeight) / 2, 4);
 			return;
 		}
-		if (this.gameModeMb == 3) {
-			gr.setColor(0);
+		if (this.gameModeMb == 3) { // ae logo
+			gr.setColor(0); // black
 			gr.fillRect(0, 0, this.someCanWidth, this.someCanHeight);
-			waveImage(gr, this.var_3653, 40, 0, this.logoImage, 0, 0,
+			waveImage(gr, this.waveImageAmplitudeMb, 40, 0, this.logoImage, 0, 0,
 					1);
 			gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
 			return;
 		}
 		if (this.gameModeMb == 4) {
-			if (this.var_3653 >= 16) {
+			if (this.waveImageAmplitudeMb >= 16) {
 				if (this.splashImage != null) {
 					this.logoImage.drawImageExt(gr, 0, 0);
-					if (this.var_377b != -1) {
-						this.glowImage.drawImageExt(gr, 4 + this.var_377b,
+					if (this.glowImagePosX != -1) {
+						this.glowImage.drawImageExt(gr, 4 + this.glowImagePosX,
 								6);
 					}
 					this.splashImage.drawImageExt(gr, 0, 0);
@@ -3652,12 +3647,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					gr.fillRect(0, 0, this.someCanWidth, this.someCanHeight);
 					this.logoImage.drawImageExt(gr, 0, 0);
 				}
-				if ((this.var_36cb) && (this.splashImage != null)) {
-					gr.setColor(16777215);
+				if ((this.showPressAnyKey) && (this.splashImage != null)) {
+					gr.setColor(16777215); // white
 					gr.setFont(E_MainCanvas.font8);
-					sub_c93d(gr, A_MenuBase.getLangString(59),
-							this.var_7b3, this.someCanHeight - this.buttonsSprite.frameHeight
-									- 1, 33, 16777215, 0);
+					drawHighlightedString(gr, A_MenuBase.getLangString(59),
+							this.someCanWidthDiv2, this.someCanHeight - this.buttonsSprite.frameHeight
+									- 1, 33, 16777215, 0); //PRESS ANY KEY
 				}
 			} else {
 				if (this.splashImage != null) {
@@ -3673,20 +3668,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public static final void sub_c93d(Graphics paramGraphics,
-			String paramString, int paramInt1, int paramInt2, int paramInt3,
-			int paramInt4, int paramInt5) {
-		paramGraphics.setColor(paramInt5);
-		paramGraphics.drawString(paramString, paramInt1 - 1, paramInt2 - 1,
+	public static final void drawHighlightedString(Graphics gr,
+			String string, int inX, int inY, int paramInt3,
+			int stringColor, int highlightColor) {
+		gr.setColor(highlightColor);
+		gr.drawString(string, inX - 1, inY - 1,
 				paramInt3);
-		paramGraphics.drawString(paramString, paramInt1 - 1, paramInt2 + 1,
+		gr.drawString(string, inX - 1, inY + 1,
 				paramInt3);
-		paramGraphics.drawString(paramString, paramInt1 + 1, paramInt2 + 1,
+		gr.drawString(string, inX + 1, inY + 1,
 				paramInt3);
-		paramGraphics.drawString(paramString, paramInt1 + 1, paramInt2 - 1,
+		gr.drawString(string, inX + 1, inY - 1,
 				paramInt3);
-		paramGraphics.setColor(paramInt4);
-		paramGraphics.drawString(paramString, paramInt1, paramInt2, paramInt3);
+		gr.setColor(stringColor);
+		gr.drawString(string, inX, inY, paramInt3);
 	}
 
 	public final void onPaint(Graphics gr) {
@@ -3714,8 +3709,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			sub_1480f(gr);
 			return;
 		}
-		if (this.gameMode2Mb == 3) {
-			sub_c348(gr);
+		if (this.gameMode2Mb == 3) { // intro play
+			playIntro(gr);
 			return;
 		}
 		if (this.isBlackLoading) {
@@ -3723,7 +3718,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.var_364b) {
-			if (this.var_3653 >= 16) {
+			if (this.waveImageAmplitudeMb >= 16) {
 				if ((this.var_34c3 != 11) && (this.var_34c3 != 10)) {
 					paintBlackScreenLoading(gr);
 					return;
@@ -3732,7 +3727,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				gr.fillRect(0, 0, this.someCanWidth, this.someCanHeight);
 				return;
 			}
-			sub_e77a(gr, 0, this.var_3653, 16, this.var_365b, null,
+			sub_e77a(gr, 0, this.waveImageAmplitudeMb, 16, this.var_365b, null,
 					0, 0, this.someCanWidth, this.someCanHeight);
 			return;
 		}
@@ -3753,13 +3748,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (this.mapModeCampIf0 == 0) {
 				gr.setColor(16777215);
 				if (this.gameOverImage != null) {
-					this.gameOverImage.drawImageExt(gr, this.var_7b3,
-							this.var_7bb, 3);
-					E_MainCanvas.drawString(gr, str1, this.var_7b3,
+					this.gameOverImage.drawImageExt(gr, this.someCanWidthDiv2,
+							this.someCanHeightDiv2, 3);
+					E_MainCanvas.drawString(gr, str1, this.someCanWidthDiv2,
 							this.someCanHeight - 2, 33);
 				} else {
-					m = this.var_7bb - E_MainCanvas.font8.getHeight() / 2;
-					E_MainCanvas.drawString(gr, str1, this.var_7b3, m,
+					m = this.someCanHeightDiv2 - E_MainCanvas.font8.getHeight() / 2;
+					E_MainCanvas.drawString(gr, str1, this.someCanWidthDiv2, m,
 							17);
 				}
 			}
@@ -3887,7 +3882,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (this.var_397b) {
 				this.var_397b = false;
 				D_Menu.sub_562e(gr, 0, k, i2 + 1, var_32c3, 0,
-						2370117, var_33bb[this.var_356b[this.var_357b]],
+						2370117, playerColors[this.var_356b[this.var_357b]],
 						this.var_378b, var_32c3);
 				i3 = this.someCanHeight - var_32c3 / 2 + this.var_378b;
 				if (this.mapModeCampIf0 == 1) {
@@ -4022,7 +4017,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				int i6 = k + 1;
 				if ((i4 == 0) || (this.someCanWidth > 132)) {
 					paramGraphics
-							.setColor(var_33bb[this.var_356b[localClass_c_0321.var_acb]]);
+							.setColor(playerColors[this.var_356b[localClass_c_0321.var_acb]]);
 					paramGraphics.fillRect(i6, m + 1, 3, i3 - 2);
 					i6 += 4;
 				}
@@ -4301,7 +4296,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return units;
 	}
 
-	public static final void waveImage(Graphics gr, int paramInt1,
+	public static final void waveImage(Graphics gr, int amplitude,
 			int paramInt2, int paramInt3, H_ImageExt image,
 			int paramInt4, int paramInt5, int paramInt6) {
 		int i;
@@ -4315,12 +4310,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		int k = i / 2;
 		int m = j / 1;
-		int n = i * paramInt1 / paramInt2;
-		int i1 = i * (paramInt2 - paramInt1) / (paramInt2 * 4);
-		int i3 = 360 * paramInt1 / paramInt2;
+		int n = i * amplitude / paramInt2;
+		int i1 = i * (paramInt2 - amplitude) / (paramInt2 * 4);
+		int i3 = 360 * amplitude / paramInt2;
 		int i4 = 360 * paramInt6 / m;
 		for (int i5 = 0; i5 < m; i5++) {
-			int i2 = i1 * A_MenuBase.sub_f9b(i3) >> 10;
+			int i2 = i1 * A_MenuBase.getSin1024(i3) >> 10;
 			if (paramInt3 == 0) {
 				gr.setClip(paramInt4 + k - n / 2 + i2, paramInt5
 						+ i5 * 1, n, 1);
@@ -4426,9 +4421,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final void sub_ebb9() throws Exception {
-		if (A_MenuBase.mainCanvas.sub_1f81(var_3333)) {
+		if (A_MenuBase.mainCanvas.invertActionCode(var_3333)) {
 			sub_593d(this.var_3383, this.viewportHeight, this.var_32d3, this);
-			A_MenuBase.mainCanvas.sub_1f57();
+			A_MenuBase.mainCanvas.clearActions();
 			return;
 		}
 		if (this.var_3b13) {
@@ -5153,9 +5148,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final D_Menu createDialog(String header,
 			String msg, int paramInt1, int paramInt2, int showTime) {
 		D_Menu localClass_d_023;
-		(localClass_d_023 = new D_Menu((byte) 10, 12)).sub_1ceb(
+		(localClass_d_023 = new D_Menu((byte) 10, 12)).createDescDialogMb(
 				header, msg, this.someCanWidth, paramInt2);
-		localClass_d_023.sub_193f(this.var_7b3, paramInt1 / 2, 3);
+		localClass_d_023.sub_193f(this.someCanWidthDiv2, paramInt1 / 2, 3);
 		localClass_d_023.parentMenu = this;
 		localClass_d_023.var_10c5 = showTime;
 		return localClass_d_023;
@@ -5168,7 +5163,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_3793 = true;
 			this.var_3783 = false;
 			this.var_3b23 = createDialog(null, this.mapName, this.someCanHeight, 2000);
-			this.var_3b23.sub_193f(this.var_7b3, this.var_7bb, 3);
+			this.var_3b23.sub_193f(this.someCanWidthDiv2, this.someCanHeightDiv2, 3);
 			this.var_3813 = true;
 			this.var_380b = true;
 			this.var_37fb = 0;
@@ -5181,7 +5176,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_39bb = 2;
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
-			sub_c019(2, 3, 3);
+			loadIntro(2, 3, 3);
 			E_MainCanvas.sub_2439(1, 1);
 			this.var_3813 = false;
 			this.var_352b = false;
@@ -5239,7 +5234,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(3, 3);
 			this.var_39b3 = this.playersKings[0];
-			sub_c019(3, 3, 3);
+			loadIntro(3, 3, 3);
 			E_MainCanvas.sub_2439(1, 1);
 			this.var_3813 = false;
 			this.var_352b = false;
@@ -5326,7 +5321,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			sub_b998(this.playersKings[0].posX + 12,
 					this.playersKings[0].posY + 12);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
-			sub_c019(4, 3, 3);
+			loadIntro(4, 3, 3);
 			E_MainCanvas.sub_2439(1, 1);
 			this.var_3813 = false;
 			this.var_352b = false;
@@ -5341,7 +5336,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.var_3b7b) {
 			if (this.var_3b5b == 0) {
 				this.var_364b = true;
-				this.var_3653 = 0;
+				this.waveImageAmplitudeMb = 0;
 				this.var_34c3 = 11;
 				this.var_3b5b = 1;
 			}
@@ -5354,8 +5349,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.mapModeCampIf0 == 1) {
 			if (this.var_3b5b == 100) {
 				E_MainCanvas.sub_2439(var_33c3[this.var_356b[this.var_357b]], 0);
-				this.startupMessageBox.sub_1301((byte) 0, true);
-				this.startupMessageBox.sub_1323(null);
+				this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
+				this.startupMessageBox.setParentMenu(null);
 				A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
 				this.var_3b5b += 1;
 				return;
@@ -5378,9 +5373,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if (n != 0) {
 					this.var_3783 = false;
 					this.var_352b = false;
-					localObject2 = A_MenuBase.sub_e44(38, ""
+					localObject2 = A_MenuBase.replaceStringFirst(38, ""
 							+ (this.var_3573[j] + 1));
-					localObject3 = A_MenuBase.sub_e44(81,
+					localObject3 = A_MenuBase.replaceStringFirst(81,
 							(String) localObject2) + "\n(";
 					for (int i2 = 0; i2 < this.var_355b; i2++) {
 						if ((this.var_35b3[i2] != 2)
@@ -5395,7 +5390,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					localObject3 = (String) localObject3 + ")";
 					D_Menu localClass_d_023;
 					(localClass_d_023 = createDialog(null, (String) localObject3,
-							this.var_32d3, this.viewportHeight, -1)).sub_1323(this);
+							this.var_32d3, this.viewportHeight, -1)).setParentMenu(this);
 					A_MenuBase.mainCanvas.showMenu(localClass_d_023);
 					if (this.var_35b3[j] == 1) {
 						E_MainCanvas.sub_2439(6, 1);
@@ -5407,7 +5402,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			} else if (this.var_3b5b == 102) {
 				this.var_364b = true;
-				this.var_3653 = 0;
+				this.waveImageAmplitudeMb = 0;
 				this.var_34c3 = 11;
 				this.var_3b5b += 1;
 			}
@@ -6597,8 +6592,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.startupMessageBox = createDialog(
 								A_MenuBase.getLangString(121 + this.var_34db),
 								A_MenuBase.getLangString(138), this.var_32d3, -1);
-						this.startupMessageBox.sub_1301((byte) 0, true);
-						this.startupMessageBox.sub_1323(null);
+						this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
+						this.startupMessageBox.setParentMenu(null);
 						A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
 						this.var_3b5b += 1;
 						break;
@@ -6831,7 +6826,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 						break;
 					case 34:
-						sub_c019(5, 2, 2);
+						loadIntro(5, 2, 2);
 						this.var_3b5b += 1;
 						break;
 					case 35:
@@ -6854,8 +6849,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3b23 = null;
 		this.var_39bb = 12;
 		C_Unit.var_a7b = C_Unit.var_a73;
-		this.startupMessageBox.sub_1301((byte) 0, true);
-		this.startupMessageBox.sub_1301((byte) 1, false);
+		this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
+		this.startupMessageBox.setMenuActionEnabled((byte) 1, false);
 		A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
 		this.var_352b = true;
 		this.var_3783 = true;
@@ -6894,7 +6889,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		System.gc();
 		this.var_3bfb = (this.var_32d3 - this.var_3a43);
 		this.var_3be3 = true;
-		this.var_3653 = 0;
+		this.waveImageAmplitudeMb = 0;
 		this.var_3bb3 = false;
 		this.var_367b = paramClass_c_0321;
 		this.var_3683 = paramClass_c_0322;
@@ -6945,8 +6940,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3b9b.sub_2ae8();
 		this.var_3ba3.sub_2ae8();
 		if (this.var_3be3) {
-			this.var_3653 += 1;
-			if (this.var_3653 >= 16) {
+			this.waveImageAmplitudeMb += 1;
+			if (this.waveImageAmplitudeMb >= 16) {
 				this.var_3be3 = false;
 				this.var_3b9b.sub_16bb();
 			}
@@ -6964,7 +6959,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.gameMode2Mb = 1;
 				E_MainCanvas.sub_2459();
 				E_MainCanvas.playMusicLooped(var_33c3[this.var_356b[this.var_357b]], 0);
-				A_MenuBase.mainCanvas.sub_1f57();
+				A_MenuBase.mainCanvas.clearActions();
 				this.var_397b = true;
 				this.var_3983 = true;
 			}
@@ -7057,7 +7052,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.var_3ba3.m_unit, 0);
 		}
 		if (this.var_3be3) {
-			sub_e77a(paramGraphics, 0, this.var_3653, 16, 1, null, 0, 0,
+			sub_e77a(paramGraphics, 0, this.waveImageAmplitudeMb, 16, 1, null, 0, 0,
 					this.someCanWidth, this.someCanHeight);
 		}
 	}
@@ -7074,18 +7069,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		D_Menu localClass_d_0232;
 		if (this.var_3c13.length > 0) {
 			(localClass_d_0232 = (localClass_d_0231 = new D_Menu(
-					(byte) 11, 0)).sub_165e(A_MenuBase.getLangString(46))).var_1185 = this.menuIconsFrames[6];
+					(byte) 11, 0)).sub_165e(A_MenuBase.getLangString(46))).menuTitleIcon = this.menuIconsFrames[6];
 			localClass_d_0231.sub_212d(this.var_3c13, this.var_32cb / 2,
-					(this.var_32d3 + localClass_d_0232.var_1015) / 2,
-					this.var_32cb, this.var_32d3 - localClass_d_0232.var_1015,
+					(this.var_32d3 + localClass_d_0232.menuHeightMb) / 2,
+					this.var_32cb, this.var_32d3 - localClass_d_0232.menuHeightMb,
 					3, 4);
 		} else {
 			(localClass_d_0232 = (localClass_d_0231 = new D_Menu(
-					(byte) 10, 0)).sub_165e(A_MenuBase.getLangString(46))).var_1185 = this.menuIconsFrames[6];
-			localClass_d_0231.sub_1ceb(null, A_MenuBase.getLangString(52),
+					(byte) 10, 0)).sub_165e(A_MenuBase.getLangString(46))).menuTitleIcon = this.menuIconsFrames[6];
+			localClass_d_0231.createDescDialogMb(null, A_MenuBase.getLangString(52),
 					this.var_32cb, -1);
 		}
-		localClass_d_0231.sub_1323(paramClass_a_000);
+		localClass_d_0231.setParentMenu(paramClass_a_000);
 		A_MenuBase.mainCanvas.showMenu(localClass_d_0231);
 		return localClass_d_0231;
 	}
@@ -7131,7 +7126,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					(localClass_d_0231 = createDialog(
 							this.var_3c13[this.var_3c03],
 							this.var_3c23[this.var_3c03], this.var_32d3,
-							this.var_32d3 / 2, -1)).sub_1323(this.var_3c7b);
+							this.var_32d3 / 2, -1)).setParentMenu(this.var_3c7b);
 					A_MenuBase.mainCanvas.showMenu(localClass_d_0231);
 				} else if (this.var_3c83 == 2) {
 					int m = ((DataInputStream) localObject1).readInt() / 3;
@@ -7157,8 +7152,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					sub_5d1a(this.var_3943.parentMenu);
 					D_Menu localClass_d_0232;
 					(localClass_d_0232 = createDialog(null,
-							A_MenuBase.sub_e44(45, str), this.var_32d3, 2000))
-							.sub_1323(this.var_3943);
+							A_MenuBase.replaceStringFirst(45, str), this.var_32d3, 2000))
+							.setParentMenu(this.var_3943);
 					A_MenuBase.mainCanvas.showMenu(localClass_d_0232);
 				}
 				this.var_3c7b = null;
@@ -7170,229 +7165,42 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		D_Menu localObject = createDialog(null, A_MenuBase.getLangString(44),
 				this.var_32d3, -1);
-		localObject.sub_1323(this.var_3c7b);
+		localObject.setParentMenu(this.var_3c7b);
 		this.var_3c7b = null;
 		A_MenuBase.mainCanvas.showMenu((A_MenuBase) localObject);
 	}
 
-	public final void sub_1500b(int paramInt, String paramString1,
-			String paramString2, A_MenuBase paramClass_a_000) throws Exception {
+	public final void sub_1500b(int paramInt, String resName,
+			String langCode, A_MenuBase inMenu) throws Exception {
 		this.var_3c83 = paramInt;
-		this.var_3c7b = paramClass_a_000;
+		this.var_3c7b = inMenu;
 		this.var_3c73 = false;
-		this.var_3c5b = new ByteArrayOutputStream();
-		this.var_3c63 = new DataOutputStream(this.var_3c5b);
-		this.var_3c63.writeInt(10001);
-		this.var_3c63.writeUTF(this.appPropPortalCode);
-		this.var_3c63.writeUTF(this.appPropGameCode);
-		this.var_3c6b = this.var_3c5b.size();
-		this.var_3c63.writeUTF("resourceName");
-		this.var_3c63.writeUTF(paramString1);
-		this.var_3c63.writeUTF("languageCode");
-		this.var_3c63.writeUTF(paramString2);
-		this.var_3c63.writeUTF("maxChunkSize");
-		this.var_3c63.writeUTF("1024");
-		this.var_3c63.writeUTF("chunk");
-		this.var_3c63.writeUTF("0");
-		this.var_3c63.writeUTF("requestId");
-		this.var_3c63.writeUTF("0");
-		D_Menu localClass_d_023;
-		(localClass_d_023 = createDialog(null, A_MenuBase.getLangString(43),
-				this.var_32d3, -1)).sub_1323(paramClass_a_000);
-		A_MenuBase.mainCanvas.showMenu(localClass_d_023);
+		this.m_baos = new ByteArrayOutputStream();
+		this.m_dos = new DataOutputStream(this.m_baos);
+		this.m_dos.writeInt(10001);
+		this.m_dos.writeUTF(this.appPropPortalCode);
+		this.m_dos.writeUTF(this.appPropGameCode);
+		this.var_3c6b = this.m_baos.size();
+		this.m_dos.writeUTF("resourceName");
+		this.m_dos.writeUTF(resName);
+		this.m_dos.writeUTF("languageCode");
+		this.m_dos.writeUTF(langCode);
+		this.m_dos.writeUTF("maxChunkSize");
+		this.m_dos.writeUTF("1024");
+		this.m_dos.writeUTF("chunk");
+		this.m_dos.writeUTF("0");
+		this.m_dos.writeUTF("requestId");
+		this.m_dos.writeUTF("0");
+		D_Menu retrievingMenu = createDialog(null, A_MenuBase.getLangString(43),
+				this.var_32d3, -1);
+		retrievingMenu.setParentMenu(inMenu); //Retrieving data...
+		A_MenuBase.mainCanvas.showMenu(retrievingMenu);
 		new Thread(this).start();
 	}
 
 	/* Error */
 	public final void run() {
-		// Byte code:
-		// 0: aconst_null
-		// 1: astore_1
-		// 2: aconst_null
-		// 3: astore_2
-		// 4: aload_0
-		// 5: getfield 138 Class_i_168:var_3c5b Ljava/io/ByteArrayOutputStream;
-		// 8: invokevirtual 704 java/io/ByteArrayOutputStream:toByteArray ()[B
-		// 11: astore_3
-		// 12: aload_0
-		// 13: getfield 138 Class_i_168:var_3c5b Ljava/io/ByteArrayOutputStream;
-		// 16: invokevirtual 625 java/io/ByteArrayOutputStream:close ()V
-		// 19: aload_0
-		// 20: getfield 139 Class_i_168:var_3c63 Ljava/io/DataOutputStream;
-		// 23: invokevirtual 624 java/io/DataOutputStream:close ()V
-		// 26: aload_0
-		// 27: getfield 267 Class_i_168:var_3c53 Ljava/lang/String;
-		// 30: invokestatic 679 javax/microedition/io/Connector:open
-		// (Ljava/lang/String;)Ljavax/microedition/io/Connection;
-		// 33: checkcast 34 javax/microedition/io/HttpConnection
-		// 36: astore_2
-		// 37: ldc_w 749
-		// 40: invokevirtual 673 java/lang/String:length ()I
-		// 43: ifle +47 -> 90
-		// 46: ldc_w 749
-		// 49: invokevirtual 664 java/lang/String:getBytes ()[B
-		// 52: astore 4
-		// 54: aload_0
-		// 55: getfield 151 Class_i_168:var_3c6b I
-		// 58: istore 5
-		// 60: iload 5
-		// 62: aload_3
-		// 63: arraylength
-		// 64: if_icmpge +26 -> 90
-		// 67: aload_3
-		// 68: iload 5
-		// 70: dup2
-		// 71: baload
-		// 72: aload 4
-		// 74: iload 5
-		// 76: aload 4
-		// 78: arraylength
-		// 79: irem
-		// 80: baload
-		// 81: ixor
-		// 82: i2b
-		// 83: bastore
-		// 84: iinc 5 1
-		// 87: goto -27 -> 60
-		// 90: aload_2
-		// 91: ldc_w 752
-		// 94: invokeinterface 723 2 0
-		// 99: aload_2
-		// 100: ldc_w 747
-		// 103: aload_3
-		// 104: arraylength
-		// 105: invokestatic 706 java/lang/Integer:toString
-		// (I)Ljava/lang/String;
-		// 108: invokeinterface 724 3 0
-		// 113: aload_2
-		// 114: ldc_w 746
-		// 117: ldc_w 766
-		// 120: invokeinterface 724 3 0
-		// 125: aload_2
-		// 126: invokeinterface 722 1 0
-		// 131: dup
-		// 132: astore 4
-		// 134: aload_3
-		// 135: invokevirtual 712 java/io/OutputStream:write ([B)V
-		// 138: aload 4
-		// 140: invokevirtual 660 java/io/OutputStream:flush ()V
-		// 143: aload 4
-		// 145: invokevirtual 626 java/io/OutputStream:close ()V
-		// 148: aload_2
-		// 149: invokeinterface 721 1 0
-		// 154: astore 5
-		// 156: aload_2
-		// 157: invokeinterface 720 1 0
-		// 162: dup
-		// 163: istore 6
-		// 165: sipush 200
-		// 168: if_icmpne +56 -> 224
-		// 171: new 19 java/io/ByteArrayOutputStream
-		// 174: dup
-		// 175: invokespecial 444 java/io/ByteArrayOutputStream:<init> ()V
-		// 178: astore 7
-		// 180: iconst_0
-		// 181: istore 8
-		// 183: aload 5
-		// 185: invokevirtual 685 java/io/DataInputStream:read ()I
-		// 188: dup
-		// 189: istore 8
-		// 191: iconst_m1
-		// 192: if_icmpeq +13 -> 205
-		// 195: aload 7
-		// 197: iload 8
-		// 199: invokevirtual 713 java/io/ByteArrayOutputStream:write (I)V
-		// 202: goto -19 -> 183
-		// 205: aload 7
-		// 207: invokevirtual 704 java/io/ByteArrayOutputStream:toByteArray ()[B
-		// 210: astore_1
-		// 211: aload 7
-		// 213: invokevirtual 625 java/io/ByteArrayOutputStream:close ()V
-		// 216: aload 5
-		// 218: invokevirtual 623 java/io/DataInputStream:close ()V
-		// 221: goto +32 -> 253
-		// 224: new 23 java/lang/Exception
-		// 227: dup
-		// 228: new 28 java/lang/StringBuffer
-		// 231: dup
-		// 232: invokespecial 436 java/lang/StringBuffer:<init> ()V
-		// 235: ldc_w 725
-		// 238: invokevirtual 575 java/lang/StringBuffer:append
-		// (Ljava/lang/String;)Ljava/lang/StringBuffer;
-		// 241: iload 6
-		// 243: invokevirtual 576 java/lang/StringBuffer:append
-		// (I)Ljava/lang/StringBuffer;
-		// 246: invokevirtual 705 java/lang/StringBuffer:toString
-		// ()Ljava/lang/String;
-		// 249: invokespecial 450 java/lang/Exception:<init>
-		// (Ljava/lang/String;)V
-		// 252: athrow
-		// 253: aload_2
-		// 254: ifnull +18 -> 272
-		// 257: aload_2
-		// 258: invokeinterface 719 1 0
-		// 263: goto +9 -> 272
-		// 266: dup
-		// 267: astore 11
-		// 269: invokevirtual 682 java/lang/Exception:printStackTrace ()V
-		// 272: goto +54 -> 326
-		// 275: dup
-		// 276: astore_3
-		// 277: invokevirtual 682 java/lang/Exception:printStackTrace ()V
-		// 280: aload_2
-		// 281: ifnull +18 -> 299
-		// 284: aload_2
-		// 285: invokeinterface 719 1 0
-		// 290: goto +9 -> 299
-		// 293: dup
-		// 294: astore 11
-		// 296: invokevirtual 682 java/lang/Exception:printStackTrace ()V
-		// 299: goto +27 -> 326
-		// 302: astore 9
-		// 304: aload_2
-		// 305: ifnull +18 -> 323
-		// 308: aload_2
-		// 309: invokeinterface 719 1 0
-		// 314: goto +9 -> 323
-		// 317: dup
-		// 318: astore 11
-		// 320: invokevirtual 682 java/lang/Exception:printStackTrace ()V
-		// 323: aload 9
-		// 325: athrow
-		// 326: aload_0
-		// 327: getfield 59 Class_i_168:var_3c73 Z
-		// 330: ifne +8 -> 338
-		// 333: aload_0
-		// 334: aload_1
-		// 335: invokevirtual 606 Class_i_168:sub_14cdb ([B)V
-		// 338: return
-		// Local variable table:
-		// start length slot name signature
-		// 0 339 0 this Class_i_168
-		// 1 334 1 arrayOfByte byte[]
-		// 3 306 2 localHttpConnection javax.microedition.io.HttpConnection
-		// 11 266 3 localObject1 Object
-		// 52 92 4 localObject2 Object
-		// 58 27 5 i int
-		// 154 63 5 localDataInputStream DataInputStream
-		// 163 79 6 j int
-		// 178 34 7 localByteArrayOutputStream ByteArrayOutputStream
-		// 181 17 8 k int
-		// 302 22 9 localObject3 Object
-		// 267 52 11 localException1 Exception
-		// 266 1 12 localException2 Exception
-		// 275 1 13 localException3 Exception
-		// 293 1 14 localException4 Exception
-		// 317 1 15 localException5 Exception
-		// Exception table:
-		// from to target type
-		// 257 263 266 java/lang/Exception
-		// 4 253 275 java/lang/Exception
-		// 284 290 293 java/lang/Exception
-		// 4 253 302 finally
-		// 275 280 302 finally
-		// 302 304 302 finally
-		// 308 314 317 java/lang/Exception
+		//@todo
 	}
 
 	public final void sub_15429(int paramInt) throws Exception {
@@ -7410,7 +7218,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3903 = arrayOfInt;
 		E_MainCanvas.sub_16d3("download", i);
 		this.downloadStoreAvailableSize = E_MainCanvas.getRecordStoreAvailableSize("download");
-		sub_155fb();
+		saveSettingsMb();
 		for (int j = 0; j < 3; j++) {
 			if (this.slotsMapIndexes[j] == i + skirmishMapsNames.length) {
 				this.slotsCurrentPlayerIds[j] = -1;
@@ -7421,7 +7229,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final void sub_15568(String paramString, byte[] paramArrayOfByte)
+	public final void sub_15568(String paramString, byte[] someData)
 			throws Exception {
 		String[] arrayOfString = new String[this.var_38f3 + 1];
 		int[] arrayOfInt = new int[this.var_38f3 + 1];
@@ -7429,26 +7237,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		System.arraycopy(this.var_3903, 0, arrayOfInt, 0, this.var_38f3);
 		this.var_38fb = arrayOfString;
 		this.var_3903 = arrayOfInt;
-		this.var_3903[this.var_38f3] = E_MainCanvas.sub_1698("download",
-				paramArrayOfByte);
+		this.var_3903[this.var_38f3] = E_MainCanvas.saveDataToStore("download", someData);
 		this.var_38fb[this.var_38f3] = paramString;
 		this.var_38f3 += 1;
 		this.downloadStoreAvailableSize = E_MainCanvas.getRecordStoreAvailableSize("download");
-		sub_155fb();
+		saveSettingsMb();
 	}
 
-	public final void sub_155fb() throws Exception {
-		ByteArrayOutputStream localByteArrayOutputStream = new ByteArrayOutputStream();
-		DataOutputStream localDataOutputStream;
-		(localDataOutputStream = new DataOutputStream(
-				localByteArrayOutputStream)).writeInt(this.var_38f3);
+	public final void saveSettingsMb() throws Exception {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		dos.writeInt(this.var_38f3);
 		for (int i = 0; i < this.var_38f3; i++) {
-			localDataOutputStream.writeInt(this.var_3903[i]);
-			localDataOutputStream.writeUTF(this.var_38fb[i]);
+			dos.writeInt(this.var_3903[i]);
+			dos.writeUTF(this.var_38fb[i]);
 		}
-		E_MainCanvas.saveRecordStoreData("settings", 2,
-				localByteArrayOutputStream.toByteArray());
-		localDataOutputStream.close();
+		E_MainCanvas.saveRecordStoreData("settings", 2, baos.toByteArray());
+		dos.close();
 	}
 }
 

@@ -36,10 +36,10 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public A_MenuBase mainDrawElement;
 	public static int canvasWidth;
 	public static int canvasHeight;
-	public int var_13ec = 0;
-	public int var_13f4;
-	public int var_13fc = 0;
-	public long var_1404;
+	public int someActionsSum = 0;
+	public int someActionSum2;
+	public int someActionCode = 0;
+	public long someStartTime11;
 	public static F_Sprite[] charsSprites = new F_Sprite[2];
 	public static Random random = new Random();
 	public static boolean[] settings = { true, true, true, true };
@@ -117,13 +117,12 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		localRecordStore.closeRecordStore();
 	}
 
-	public static final int sub_1698(String paramString, byte[] paramArrayOfByte)
+	public static final int saveDataToStore(String storeName, byte[] data)
 			throws Exception {
-		RecordStore localRecordStore;
-		int i = (localRecordStore = RecordStore.openRecordStore(paramString,
-				true)).addRecord(paramArrayOfByte, 0, paramArrayOfByte.length);
-		localRecordStore.closeRecordStore();
-		return i - 1;
+		RecordStore record = RecordStore.openRecordStore(storeName, true);
+		int recordSize = record.addRecord(data, 0, data.length);
+		record.closeRecordStore();
+		return recordSize - 1;
 	}
 
 	public static final void sub_16d3(String paramString, int paramInt)
@@ -162,14 +161,14 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public final void showNotify() {
 		this.var_142c = false;
 		var_1444 = false;
-		sub_1f57();
+		clearActions();
 		if (this.mainDrawElement != null) {
 			this.mainDrawElement.onLoad();
 		}
 	}
 
 	public final void hideNotify() {
-		sub_1f57();
+		clearActions();
 		if (this.mainDrawElement != null) {
 			if (!this.var_142c) {
 				var_1444 = true;
@@ -232,7 +231,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	}
 
 	public final void showMenu(A_MenuBase menu) {
-		sub_1f57();
+		clearActions();
 		menu.onLoad();
 		this.mainDrawElement = menu;
 	}
@@ -339,54 +338,54 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	}
 
 	public final void keyPressed(int paramInt) {
-		int i = getGameAction(paramInt);
-		sub_2079(i);
+		int actionCode = getGameAction(paramInt);
+		addActionCode(actionCode);
 		if (this.mainDrawElement != null) {
-			this.mainDrawElement.sub_865(paramInt, i);
+			this.mainDrawElement.sub_865(paramInt, actionCode);
 		}
 	}
 
-	public final boolean sub_1f21() {
-		return this.var_13ec != 0;
+	public final boolean isActionPressed() {
+		return this.someActionsSum != 0;
 	}
 
-	public final void sub_1f57() {
-		this.var_13fc = 0;
-		this.var_13ec = 0;
-		this.var_13f4 = 0;
+	public final void clearActions() {
+		this.someActionCode = 0;
+		this.someActionsSum = 0;
+		this.someActionSum2 = 0;
 	}
 
-	public final boolean sub_1f81(int paramInt) {
-		boolean bool = (this.var_13f4 & paramInt) != 0;
-		this.var_13f4 &= (paramInt ^ 0xFFFFFFFF);
+	public final boolean invertActionCode(int code) {
+		boolean bool = (this.someActionSum2 & code) != 0;
+		this.someActionSum2 &= (code ^ 0xFFFFFFFF);
 		return bool;
 	}
 
-	public final boolean sub_1fd5(int paramInt) {
-		return (this.var_13ec & paramInt) != 0;
+	public final boolean someActionCodeIsSet(int paramInt) {
+		return (this.someActionsSum & paramInt) != 0;
 	}
 
-	public final void keyReleased(int paramInt) {
-		sub_20b4(getGameAction(paramInt));
+	public final void keyReleased(int keyCode) {
+		int actionCode = getGameAction(keyCode);
+		clearActionCode(actionCode);
 	}
 
-	public final boolean sub_2032(int paramInt) {
-		return (this.var_13fc == paramInt)
-				&& (System.currentTimeMillis() - this.var_1404 >= 400L);
+	public final boolean isActionLongPressed(int paramInt) {
+		return (this.someActionCode == paramInt) && (System.currentTimeMillis() - this.someStartTime11 >= 400L);
 	}
 
-	public final void sub_2079(int paramInt) {
-		this.var_13fc = paramInt;
-		this.var_1404 = System.currentTimeMillis();
-		this.var_13ec |= paramInt;
-		this.var_13f4 |= paramInt;
+	public final void addActionCode(int code) {
+		this.someActionCode = code;
+		this.someStartTime11 = System.currentTimeMillis();
+		this.someActionsSum |= code;
+		this.someActionSum2 |= code;
 	}
 
-	public final void sub_20b4(int paramInt) {
-		if (paramInt == this.var_13fc) {
-			this.var_13fc = 0;
+	public final void clearActionCode(int paramInt) {
+		if (paramInt == this.someActionCode) {
+			this.someActionCode = 0;
 		}
-		this.var_13ec &= (paramInt ^ 0xFFFFFFFF);
+		this.someActionsSum &= (paramInt ^ 0xFFFFFFFF);
 	}
 
 	public final void showFatalError(String errorMsg) {
