@@ -9,7 +9,7 @@ public final class C_Unit extends F_Sprite {
 	public static byte var_a73 = 6;
 	public static byte var_a7b = var_a73;
 	public static I_Game sGame;
-	public String var_a8b;
+	public String unitName;
 	public short level;
 	public int experience;
 	public byte[][] charsData;
@@ -22,15 +22,15 @@ public final class C_Unit extends F_Sprite {
 	public short positionY;
 	public int var_ae3;
 	public int var_aeb;
-	public int var_af3;
-	public int var_afb;
-	public int var_b03;
+	public int unitAttackMin;
+	public int unitAttackMax;
+	public int unitDefence;
 	public int unitHealthMb;
 	public byte var_b13;
-	public byte var_b1b;
-	public short var_b23;
-	public short var_b2b;
-	public short var_b33;
+	public byte status;
+	public short movementStatusBonus;
+	public short defenceStatusBonus;
+	public short attackStatusBonus;
 	public boolean var_b3b;
 	public boolean var_b43 = true;
 	public int var_b4b;
@@ -41,7 +41,7 @@ public final class C_Unit extends F_Sprite {
 	public C_Unit var_b73;
 	public byte var_b7b = 0;
 	public int var_b83;
-	public int var_b8b;
+	public int cost;
 	public int var_b93;
 	public static byte[] var_b9b = new byte[12];
 	public static byte[][] var_ba3 = new byte[12][2];
@@ -60,24 +60,24 @@ public final class C_Unit extends F_Sprite {
 		this.positionX = ((short) posX);
 		this.positionY = ((short) posY);
 		setSpritePosition(posX * 24, posY * 24);
-		sub_c72((byte) 0);
+		setUnitLevel((byte) 0);
 		if (showUnit) {
 			sGame.mapSprites.addElement(this);
 		}
 	}
 
-	public final void sub_c72(byte paramByte) {
-		this.level = ((short) paramByte);
-		int i = paramByte * 2;
-		this.var_af3 = (var_ba3[this.unitTypeId][0] + i);
-		this.var_afb = (var_ba3[this.unitTypeId][1] + i);
-		this.var_b03 = (var_bab[this.unitTypeId] + i);
+	public final void setUnitLevel(byte lvl) {
+		this.level = ((short) lvl);
+		int lvlBonus = lvl * 2;
+		this.unitAttackMin = (var_ba3[this.unitTypeId][0] + lvlBonus);
+		this.unitAttackMax = (var_ba3[this.unitTypeId][1] + lvlBonus);
+		this.unitDefence = (var_bab[this.unitTypeId] + lvlBonus);
 		if (this.unitTypeId != 9) {
-			int j;
-			if ((j = this.level / 2) > 3) {
+			int j = this.level / 2;
+			if (j > 3) {
 				j = 3;
 			}
-			this.var_a8b = A_MenuBase.getLangString(139 + this.unitTypeId * 4 + j);
+			this.unitName = A_MenuBase.getLangString(139 + this.unitTypeId * 4 + j);
 		}
 	}
 
@@ -101,9 +101,9 @@ public final class C_Unit extends F_Sprite {
 		unit.var_acb = paramByte2;
 		unit.unitHealthMb = 100;
 		unit.charsData = var_bc3[paramByte1];
-		unit.var_b8b = var_bcb[paramByte1];
+		unit.cost = var_bcb[paramByte1];
 		if (paramByte1 == 9) {
-			unit.sub_e33(sGame.var_356b[paramByte2] - 1);
+			unit.setKingName(sGame.var_356b[paramByte2] - 1);
 			unit.var_b83 = sGame.var_359b[paramByte2];
 			sGame.var_3593[paramByte2][unit.var_b83] = unit;
 			sGame.var_359b[paramByte2] += 1;
@@ -115,9 +115,9 @@ public final class C_Unit extends F_Sprite {
 		sGame.mapSprites.removeElement(this);
 	}
 
-	public final void sub_e33(int paramInt) {
+	public final void setKingName(int paramInt) {
 		this.var_b7b = ((byte) paramInt);
-		this.var_a8b = A_MenuBase.getLangString(paramInt + 93);
+		this.unitName = A_MenuBase.getLangString(paramInt + 93);
 	}
 
 	public final int sub_e5f(C_Unit unit) {
@@ -126,7 +126,7 @@ public final class C_Unit extends F_Sprite {
 
 	public final int sub_e87(C_Unit unit, int paramInt1,
 			int paramInt2) {
-		int i = this.var_b2b;
+		int i = this.defenceStatusBonus;
 		if (unit != null) {
 			if ((hasProperty((short) 64))
 					&& (unit.hasProperty((short) 1))) {
@@ -153,7 +153,7 @@ public final class C_Unit extends F_Sprite {
 	public final int sub_f6b(C_Unit unit, int paramInt1,
 			int paramInt2) {
 		int i = sGame.getTileType(paramInt1, paramInt2);
-		int j = this.var_b33 + I_Game.var_33e3[i];
+		int j = this.attackStatusBonus + I_Game.var_33e3[i];
 		if ((hasProperty((short) 2)) && (i == 5)) {
 			j += 15;
 		}
@@ -164,9 +164,9 @@ public final class C_Unit extends F_Sprite {
 	}
 
 	public final int sub_fea(C_Unit paramClass_c_032) {
-		int i = E_MainCanvas.getRandomWithin(this.var_af3, this.var_afb)
+		int i = E_MainCanvas.getRandomWithin(this.unitAttackMin, this.unitAttackMax)
 				+ sub_e5f(paramClass_c_032);
-		int j = paramClass_c_032.var_b03 + paramClass_c_032.sub_f43(this);
+		int j = paramClass_c_032.unitDefence + paramClass_c_032.sub_f43(this);
 		int k;
 		if ((k = (i - j) * this.unitHealthMb / 100) < 0) {
 			k = 0;
@@ -179,7 +179,7 @@ public final class C_Unit extends F_Sprite {
 	}
 
 	public final int sub_108b() {
-		return this.var_af3 + this.var_afb + this.var_b03;
+		return this.unitAttackMin + this.unitAttackMax + this.unitDefence;
 	}
 
 	public final int getLevelExpMax() {
@@ -191,7 +191,7 @@ public final class C_Unit extends F_Sprite {
 			int exp = getLevelExpMax();
 			if (this.experience >= exp) {
 				this.experience -= exp;
-				sub_c72((byte) (this.level + 1));
+				setUnitLevel((byte) (this.level + 1));
 				return true;
 			}
 		}
@@ -207,37 +207,37 @@ public final class C_Unit extends F_Sprite {
 				&& (var_bbb[this.unitTypeId] == 1);
 	}
 
-	public final void sub_119a(byte paramByte) {
-		this.var_b1b = ((byte) (this.var_b1b | paramByte));
-		sub_1211();
+	public final void applyPoisonStatus(byte paramByte) {
+		this.status = ((byte) (this.status | paramByte));
+		calcStatusEffect();
 		if (paramByte == 1) {
-			this.var_b63 = sGame.var_357b;
+			this.var_b63 = sGame.playerId;
 		}
 	}
 
 	public final void sub_11e5(byte paramByte) {
-		this.var_b1b = ((byte) (this.var_b1b & (paramByte ^ 0xFFFFFFFF)));
-		sub_1211();
+		this.status = ((byte) (this.status & (paramByte ^ 0xFFFFFFFF)));
+		calcStatusEffect();
 	}
 
-	public final void sub_1211() {
-		this.var_b23 = 0;
-		this.var_b2b = 0;
-		this.var_b33 = 0;
-		if ((this.var_b1b & 0x1) != 0) {
-			this.var_b2b = ((short) (this.var_b2b - 10));
-			this.var_b33 = ((short) (this.var_b33 - 10));
+	public final void calcStatusEffect() {
+		this.movementStatusBonus = 0;
+		this.defenceStatusBonus = 0;
+		this.attackStatusBonus = 0;
+		if ((this.status & 0x1) != 0) { // poison
+			this.defenceStatusBonus = ((short) (this.defenceStatusBonus - 10));
+			this.attackStatusBonus = ((short) (this.attackStatusBonus - 10));
 		}
-		if ((this.var_b1b & 0x2) != 0) {
-			this.var_b2b = ((short) (this.var_b2b + 10));
+		if ((this.status & 0x2) != 0) { // wisp
+			this.defenceStatusBonus = ((short) (this.defenceStatusBonus + 10));
 		}
 	}
 
-	public final void sub_128b(int paramInt1, int paramInt2) {
-		this.positionX = ((short) paramInt1);
-		this.positionY = ((short) paramInt2);
-		this.posX = ((short) (paramInt1 * 24));
-		this.posY = ((short) (paramInt2 * 24));
+	public final void setUnitPosition(int pX, int pY) {
+		this.positionX = ((short) pX);
+		this.positionY = ((short) pY);
+		this.posXPixel = ((short) (pX * 24));
+		this.posYPixel = ((short) (pY * 24));
 	}
 
 	public final int getAliveCharactersCount() {
@@ -249,11 +249,10 @@ public final class C_Unit extends F_Sprite {
 		return j;
 	}
 
-	public final int sub_1318(int paramInt1, int paramInt2,
-			C_Unit paramClass_c_032) {
-		return (this.var_af3 + this.var_afb + this.var_b03
-				+ sub_e87(paramClass_c_032, paramInt1, paramInt2) + sub_f6b(
-				paramClass_c_032, paramInt1, paramInt2)) * this.unitHealthMb / 100;
+	public final int sub_1318(int inX, int inY, C_Unit unit) {
+		return (this.unitAttackMin + this.unitAttackMax + this.unitDefence
+				+ sub_e87(unit, inX, inY) + sub_f6b(
+				unit, inX, inY)) * this.unitHealthMb / 100;
 	}
 
 	public final void sub_1359(byte[][] paramArrayOfByte, int paramInt1,
@@ -292,7 +291,7 @@ public final class C_Unit extends F_Sprite {
 			sub_1359(paramArrayOfByte, this.positionX, this.positionY);
 			return;
 		}
-		sub_1d3c(paramArrayOfByte);
+		fillWhereUnitCanMove(paramArrayOfByte);
 		for (int i = 0; i < sGame.mapWidth; i++) {
 			for (int j = 0; j < sGame.mapHeight; j++) {
 				if ((paramArrayOfByte[i][j] > 0)
@@ -365,9 +364,9 @@ public final class C_Unit extends F_Sprite {
 				}
 			}
 		}
-		C_Unit[] arrayOfClass_c_032 = new C_Unit[localVector.size()];
-		localVector.copyInto(arrayOfClass_c_032);
-		return arrayOfClass_c_032;
+		C_Unit[] units = new C_Unit[localVector.size()];
+		localVector.copyInto(units);
+		return units;
 	}
 
 	public final void sub_18b7(int paramInt1, int paramInt2,
@@ -443,16 +442,16 @@ public final class C_Unit extends F_Sprite {
 		int m = 0;
 		int n = 0;
 		if (paramInt4 > 0) {
-			j = sGame.var_3513[paramInt3][(paramInt4 - 1)];
+			j = sGame.someMapData[paramInt3][(paramInt4 - 1)];
 		}
 		if (paramInt4 < sGame.mapHeight - 1) {
-			k = sGame.var_3513[paramInt3][(paramInt4 + 1)];
+			k = sGame.someMapData[paramInt3][(paramInt4 + 1)];
 		}
 		if (paramInt3 > 0) {
-			m = sGame.var_3513[(paramInt3 - 1)][paramInt4];
+			m = sGame.someMapData[(paramInt3 - 1)][paramInt4];
 		}
 		if (paramInt3 < sGame.mapWidth - 1) {
-			n = sGame.var_3513[(paramInt3 + 1)][paramInt4];
+			n = sGame.someMapData[(paramInt3 + 1)][paramInt4];
 		}
 		int i;
 		if ((i = Math.max(Math.max(j, k), Math.max(m, n))) == j) {
@@ -472,9 +471,9 @@ public final class C_Unit extends F_Sprite {
 		return localVector;
 	}
 
-	public final void sub_1d3c(byte[][] paramArrayOfByte) {
+	public final void fillWhereUnitCanMove(byte[][] paramArrayOfByte) {
 		sub_1d7b(paramArrayOfByte, this.positionX, this.positionY,
-				var_b9b[this.unitTypeId] + this.var_b23, -1, this.unitTypeId,
+				var_b9b[this.unitTypeId] + this.movementStatusBonus, -1, this.unitTypeId,
 				this.var_acb, false);
 	}
 
@@ -568,13 +567,13 @@ public final class C_Unit extends F_Sprite {
 		if (this.var_b13 == 1) {
 			if (this.var_ab3 >= this.var_aab.size()) {
 				this.var_b13 = 0;
-				this.positionX = ((short) (this.posX / 24));
-				this.positionY = ((short) (this.posY / 24));
+				this.positionX = ((short) (this.posXPixel / 24));
+				this.positionY = ((short) (this.posYPixel / 24));
 				this.var_aab = null;
 				this.var_ab3 = 0;
 			} else {
-				if ((this.var_b73 != null) && (this.posX % 24 == 0)
-						&& (this.posY % 24 == 0)) {
+				if ((this.var_b73 != null) && (this.posXPixel % 24 == 0)
+						&& (this.posYPixel % 24 == 0)) {
 					this.var_b73.sub_18b7(this.positionX, this.positionY, false);
 				}
 				short[] arrayOfShort;
@@ -584,53 +583,53 @@ public final class C_Unit extends F_Sprite {
 				F_Sprite localClass_f_045 = null;
 				if ((this.var_b73 == null)
 						&& (++this.var_b6b >= 24 / var_a7b / 2)) {
-					localClass_f_045 = sGame.sub_5873(sGame.bigSmokeSprite,
-							this.posX, this.posY, 0, 0, 1,
+					localClass_f_045 = sGame.showSpriteOnMap(sGame.bigSmokeSprite,
+							this.posXPixel, this.posYPixel, 0, 0, 1,
 							E_MainCanvas.getRandomWithin(1, 4) * 50);
 					this.var_b6b = 0;
 				}
-				if (i < this.posX) {
-					this.posX -= var_a7b;
+				if (i < this.posXPixel) {
+					this.posXPixel -= var_a7b;
 					if (localClass_f_045 != null) {
-						localClass_f_045.setSpritePosition(this.posX + this.frameWidth,
-								this.posY + this.frameHeight
+						localClass_f_045.setSpritePosition(this.posXPixel + this.frameWidth,
+								this.posYPixel + this.frameHeight
 										- localClass_f_045.frameHeight);
 					}
-				} else if (i > this.posX) {
-					this.posX += var_a7b;
+				} else if (i > this.posXPixel) {
+					this.posXPixel += var_a7b;
 					if (localClass_f_045 != null) {
-						localClass_f_045.setSpritePosition(this.posX
-								- localClass_f_045.frameWidth, this.posY
+						localClass_f_045.setSpritePosition(this.posXPixel
+								- localClass_f_045.frameWidth, this.posYPixel
 								+ this.frameHeight - localClass_f_045.frameHeight);
 					}
-				} else if (j < this.posY) {
-					this.posY -= var_a7b;
+				} else if (j < this.posYPixel) {
+					this.posYPixel -= var_a7b;
 					if (localClass_f_045 != null) {
 						localClass_f_045
 								.setSpritePosition(
-										this.posX
+										this.posXPixel
 												+ (this.frameWidth - localClass_f_045.frameWidth)
-												/ 2, this.posY
+												/ 2, this.posYPixel
 												+ this.frameHeight);
 					}
-				} else if (j > this.posY) {
-					this.posY += var_a7b;
+				} else if (j > this.posYPixel) {
+					this.posYPixel += var_a7b;
 					if (localClass_f_045 != null) {
 						localClass_f_045
 								.setSpritePosition(
-										this.posX
+										this.posXPixel
 												+ (this.frameWidth - localClass_f_045.frameWidth)
-												/ 2, this.posY
+												/ 2, this.posYPixel
 												- localClass_f_045.frameHeight);
 					}
 				}
-				if ((this.posX == i) && (this.posY == j)) {
+				if ((this.posXPixel == i) && (this.posYPixel == j)) {
 					this.positionX = arrayOfShort[0];
 					this.positionY = arrayOfShort[1];
 					this.var_ab3 = ((short) (this.var_ab3 + 1));
 				}
 			}
-			super.setSpritePosition(this.posX, this.posY);
+			super.setSpritePosition(this.posXPixel, this.posYPixel);
 			nextFrame();
 			return;
 		}
@@ -648,33 +647,31 @@ public final class C_Unit extends F_Sprite {
 		return sub_22f7(this.unitTypeId, paramShort);
 	}
 
-	public final void sub_2352() {
+	public final void endMove() {
 		this.var_b13 = 2;
-		C_Unit unit1;
-		if ((unit1 = sGame.sub_dc52(this.positionX, this.positionY,
-				(byte) 1)) != null) {
+		C_Unit unit1 = sGame.sub_dc52(this.positionX, this.positionY, (byte) 1);
+		if (unit1 != null) {
 			unit1.removeFromMap();
 		}
-		if (hasProperty((short) 256)) {
-			C_Unit[] unit2 = sub_15e7(this.positionX,
-					this.positionY, 1, 2, (byte) 2);
-			for (int i = 0; i < unit2.length; i++) {
-				unit2[i].sub_119a((byte) 2);
-				sGame.sub_5873(sGame.sparkSprite,
-						unit2[i].posX,
-						unit2[i].posY, 0, 0, 1, 50);
+		if (hasProperty((short) 256)) { //wisp aura
+			C_Unit[] unitsInRange = sub_15e7(this.positionX, this.positionY, 1, 2, (byte) 2);
+			for (int i = 0; i < unitsInRange.length; i++) {
+				unitsInRange[i].applyPoisonStatus((byte) 2);
+				sGame.showSpriteOnMap(sGame.sparkSprite,
+						unitsInRange[i].posXPixel,
+						unitsInRange[i].posYPixel, 0, 0, 1, 50);
 			}
 		}
-		sGame.var_3b53 = this;
+		sGame.unitEndTurnMb = this;
 	}
 
 	public static final C_Unit[] sub_240e(byte paramByte) {
 		C_Unit[] units = new C_Unit[sGame.var_359b[paramByte]];
 		int i = 0;
 		for (int j = 0; j < units.length; j++) {
-			if ((sGame.var_3593[sGame.var_357b][j] != null)
-					&& (sGame.var_3593[sGame.var_357b][j].var_b13 == 3)) {
-				units[(i++)] = sGame.var_3593[sGame.var_357b][j];
+			if ((sGame.var_3593[sGame.playerId][j] != null)
+					&& (sGame.var_3593[sGame.playerId][j].var_b13 == 3)) {
+				units[(i++)] = sGame.var_3593[sGame.playerId][j];
 			}
 		}
 		C_Unit[] units2 = new C_Unit[sGame.var_3703
@@ -710,13 +707,13 @@ public final class C_Unit extends F_Sprite {
 				super.draw(gr, paramInt1 + i, paramInt2 + j);
 			} else if ((paramBoolean) || (this.var_b13 == 2)) {
 				sGame.playersUnitsSprites[0][this.unitTypeId].draw(gr,
-						this.posX + paramInt1, this.posY + paramInt2);
+						this.posXPixel + paramInt1, this.posYPixel + paramInt2);
 			} else {
 				super.draw(gr, paramInt1, paramInt2);
 			}
 			if (this.unitTypeId == 9) {
-				i = this.posX + paramInt1;
-				j = this.posY + paramInt2;
+				i = this.posXPixel + paramInt1;
+				j = this.posYPixel + paramInt2;
 				if ((paramBoolean) || (this.var_b13 == 2)) {
 					sGame.kingHeadsSprites[1].drawFrameAt(gr, this.var_b7b
 							* 2 + this.currentFrameIndex, i, j, 0);
@@ -730,8 +727,8 @@ public final class C_Unit extends F_Sprite {
 
 	public final void sub_26ca(Graphics paramGraphics, int paramInt1,
 			int paramInt2) {
-		int i = this.posX + paramInt1;
-		int j = this.posY + paramInt2;
+		int i = this.posXPixel + paramInt1;
+		int j = this.posYPixel + paramInt2;
 		if ((this.var_b13 != 3) && (this.unitHealthMb < 100)) {
 			E_MainCanvas.drawCharedString(paramGraphics, "" + this.unitHealthMb, i, j
 					+ this.frameHeight - 7, 0);

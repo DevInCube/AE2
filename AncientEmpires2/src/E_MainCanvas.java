@@ -177,7 +177,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 					musicPlayerId = currentMusicId;
 					musicLoopCount = currentMusicLoopCount;
 				}
-				sub_2459();
+				stopMusic();
 			}
 			this.var_142c = false;
 		}
@@ -491,7 +491,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		playMusicLooped(paramInt1, paramInt2);
 	}
 
-	public static final void sub_2459() {
+	public static final void stopMusic() {
 		try {
 			if (currentMusicPlayer != null) {
 				currentMusicPlayer.stop();

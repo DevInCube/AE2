@@ -7,8 +7,8 @@ public class F_Sprite {
 	public H_ImageExt[] frameImages;
 	private byte[] frameSequence;
 	public int currentFrameIndex = 0;
-	public int posX = 0;
-	public int posY = 0;
+	public int posXPixel = 0;
+	public int posYPixel = 0;
 	public boolean var_7ec = true;
 	public int frameWidth;
 	public int frameHeight;
@@ -145,8 +145,8 @@ public class F_Sprite {
 		this.frameImages = sprite.frameImages;
 		this.frameSequence = sprite.frameSequence;
 		this.currentFrameIndex = sprite.currentFrameIndex;
-		this.posX = sprite.posX;
-		this.posY = sprite.posY;
+		this.posXPixel = sprite.posXPixel;
+		this.posYPixel = sprite.posYPixel;
 		this.var_80c = sprite.var_80c;
 		this.var_7ec = sprite.var_7ec;
 		this.frameWidth = sprite.frameWidth;
@@ -175,8 +175,8 @@ public class F_Sprite {
 	}
 
 	public final void setSpritePosition(int pX, int pY) {
-		this.posX = ((short) pX);
-		this.posY = ((short) pY);
+		this.posXPixel = ((short) pX);
+		this.posYPixel = ((short) pY);
 	}
 
 	public final void nextFrame() {
@@ -213,8 +213,8 @@ public class F_Sprite {
 			return;
 		}
 		if (this.var_7ec) {
-			int x = this.posX + inX;
-			int y = this.posY + inY;
+			int x = this.posXPixel + inX;
+			int y = this.posYPixel + inY;
 			this.frameImages[frameIndex].drawImageExt(gr, x, y, paramInt4);
 		}
 	}
@@ -236,8 +236,8 @@ public class F_Sprite {
 			int x;
 			int y;
 			if (this.var_8c4[k] != false) {
-				x = (this.var_8a4[k][0] >> 10) + inX + this.posX;
-				y = (this.var_8a4[k][1] >> 10) + inY + this.posY;
+				x = (this.var_8a4[k][0] >> 10) + inX + this.posXPixel;
+				y = (this.var_8a4[k][1] >> 10) + inY + this.posYPixel;
 				gr.fillRect(x, y, this.var_8bc[k], this.var_8bc[k]);
 			}
 			k++;
@@ -250,33 +250,33 @@ public class F_Sprite {
 					gr.setColor(16777215); // white
 				}
 				if (this.var_834 > 0) {
-					y = this.posX + 15;
-					gr.fillArc(this.posX, this.posY - 15, 30,
+					y = this.posXPixel + 15;
+					gr.fillArc(this.posXPixel, this.posYPixel - 15, 30,
 							30, 0, 360);
-					gr.fillRect(y, this.posY - 15,
+					gr.fillRect(y, this.posYPixel - 15,
 							E_MainCanvas.canvasWidth - y, 30);
 					return;
 				}
-				gr.fillArc(this.posX - 30, this.posY - 15, 30,
+				gr.fillArc(this.posXPixel - 30, this.posYPixel - 15, 30,
 						30, 0, 360);
-				gr.fillRect(0, this.posY - 15, this.posX - 15,
+				gr.fillRect(0, this.posYPixel - 15, this.posXPixel - 15,
 						30);
 				return;
 			}
 			if (this.var_814 == 3) {
 				gr.setColor(0); //black
 				if (this.var_834 > 0) {
-					gr.drawLine(this.posX, this.posY,
-							this.posX + 4, this.posY - 2);
+					gr.drawLine(this.posXPixel, this.posYPixel,
+							this.posXPixel + 4, this.posYPixel - 2);
 					return;
 				}
-				gr.drawLine(this.posX - 4, this.posY - 2,
-						this.posX, this.posY);
+				gr.drawLine(this.posXPixel - 4, this.posYPixel - 2,
+						this.posXPixel, this.posYPixel);
 				return;
 			}
 			if (this.var_7ec) {
-				x = this.posX + inX;
-				y = this.posY + inY;
+				x = this.posXPixel + inX;
+				y = this.posYPixel + inY;
 				if (this.spriteString != null) {
 					E_MainCanvas.drawCharedString(gr, this.spriteString, x, y,
 							this.charFontId, 33);
@@ -373,7 +373,7 @@ public class F_Sprite {
 				sub_19ce();
 				return;
 			case 3:
-				setSpritePosition(this.posX + this.var_834, this.posY
+				setSpritePosition(this.posXPixel + this.var_834, this.posYPixel
 						+ this.var_83c);
 				return;
 			case 6:
@@ -385,7 +385,7 @@ public class F_Sprite {
 				break;
 			case 5:
 				if (this.var_81c == -1) {
-					setSpritePosition(this.posX + this.var_834, this.posY);
+					setSpritePosition(this.posXPixel + this.var_834, this.posYPixel);
 					this.var_80c += this.var_844;
 					if (this.var_80c >= 0) {
 						this.var_80c = 0;
@@ -403,7 +403,7 @@ public class F_Sprite {
 				}
 				break;
 			default:
-				setSpritePosition(this.posX + this.var_834, this.posY
+				setSpritePosition(this.posXPixel + this.var_834, this.posYPixel
 						+ this.var_83c);
 				this.var_80c += this.var_844;
 				if ((this.var_81c != 0) && (this.frameTime >= this.mapFrameTime)) {

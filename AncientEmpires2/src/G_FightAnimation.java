@@ -289,11 +289,11 @@ public final class G_FightAnimation {
 											E_MainCanvas.getRandomMax(4) * 50,
 											(byte) 0))
 											.setSpritePosition(
-													this.unitCharsSprites[j].posX
+													this.unitCharsSprites[j].posXPixel
 															+ E_MainCanvas
 																	.getRandomMax(this.var_b8d.frameWidth
 																			- localClass_f_0456.frameWidth),
-													this.unitCharsSprites[j].posY
+													this.unitCharsSprites[j].posYPixel
 															+ this.var_b8d.frameHeight
 															- localClass_f_0456.frameHeight
 															+ 2);
@@ -304,8 +304,8 @@ public final class G_FightAnimation {
 										this.game.smokeSprite, -1, 0, -1, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
 										.setSpritePosition(
-												this.unitCharsSprites[j].posX,
-												this.unitCharsSprites[j].posY
+												this.unitCharsSprites[j].posXPixel,
+												this.unitCharsSprites[j].posYPixel
 														+ this.var_b8d.frameHeight
 														- localClass_f_0454.frameHeight
 														+ 2);
@@ -315,10 +315,10 @@ public final class G_FightAnimation {
 										this.game.smokeSprite, 1, 0, -1, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
 										.setSpritePosition(
-												this.unitCharsSprites[j].posX
+												this.unitCharsSprites[j].posXPixel
 														+ this.var_b8d.frameWidth
 														- localClass_f_0454.frameWidth,
-												this.unitCharsSprites[j].posY
+												this.unitCharsSprites[j].posYPixel
 														+ this.var_b8d.frameHeight
 														- localClass_f_0454.frameHeight
 														+ 2);
@@ -375,11 +375,11 @@ public final class G_FightAnimation {
 								this.kingWaveSprite, 0, 0, 0, 1, 50, (byte) 0);
 						this.var_c75[this.var_c85]
 								.setSpritePosition(
-										this.unitCharsSprites[this.var_c85].posX
+										this.unitCharsSprites[this.var_c85].posXPixel
 												+ sub_1673(
 														this.var_c75[this.var_c85],
 														this.unitCharsSprites[this.var_c85].frameWidth),
-										this.unitCharsSprites[this.var_c85].posY);
+										this.unitCharsSprites[this.var_c85].posYPixel);
 						this.game.addSpriteTo(this.var_c75[this.var_c85]);
 					} else if (this.unitType == 1) {
 						F_Sprite localClass_f_0451;
@@ -388,11 +388,11 @@ public final class G_FightAnimation {
 								this.var_b75);
 						localClass_f_0451
 								.setSpritePosition(
-										this.unitCharsSprites[this.var_c85].posX
+										this.unitCharsSprites[this.var_c85].posXPixel
 												+ sub_1673(
 														localClass_f_0451,
 														this.unitCharsSprites[this.var_c85].frameWidth),
-										this.unitCharsSprites[this.var_c85].posY);
+										this.unitCharsSprites[this.var_c85].posYPixel);
 						this.game.addSpriteTo(localClass_f_0451);
 					} else {
 						if (this.unitType == 7) {
@@ -403,10 +403,10 @@ public final class G_FightAnimation {
 										E_MainCanvas.getRandomWithin(-1, 2), 0, 0, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
 										.setSpritePosition(
-												this.unitCharsSprites[this.var_c85].posX
+												this.unitCharsSprites[this.var_c85].posXPixel
 														+ this.var_b8d.frameWidth
 														/ 2,
-												this.unitCharsSprites[this.var_c85].posY);
+												this.unitCharsSprites[this.var_c85].posYPixel);
 								localClass_f_0454.var_85c = true;
 								this.game.addSpriteTo(localClass_f_0454);
 							}
@@ -415,19 +415,19 @@ public final class G_FightAnimation {
 							F_Sprite localClass_f_0452;
 							(localClass_f_0452 = F_Sprite.sub_1616(
 									this.slashSprite, 0, 0, 0, 1, 200, (byte) 0))
-									.setSpritePosition(this.unitCharsSprites[0].posX,
-											this.unitCharsSprites[0].posY
+									.setSpritePosition(this.unitCharsSprites[0].posXPixel,
+											this.unitCharsSprites[0].posYPixel
 													+ this.var_b8d.frameHeight);
 							localClass_f_0452.var_80c = (-this.var_b8d.frameHeight);
 							this.game.addSpriteTo(localClass_f_0452);
 							this.var_c75[0] = F_Sprite.sub_1616(
 									this.kingWaveSprite, var_b85[this.var_b6d] * 3,
 									-2, 0, -1, 100, (byte) 0);
-							int i1 = this.unitCharsSprites[this.var_c85].posX
+							int i1 = this.unitCharsSprites[this.var_c85].posXPixel
 									+ sub_1673(
 											this.var_c75[this.var_c85],
 											this.unitCharsSprites[this.var_c85].frameWidth / 2);
-							i3 = this.unitCharsSprites[this.var_c85].posY
+							i3 = this.unitCharsSprites[this.var_c85].posYPixel
 									+ this.var_b8d.frameHeight
 									- this.var_c75[this.var_c85].frameHeight + 2;
 							this.var_c75[0].setSpritePosition(i1, i3);
@@ -445,11 +445,11 @@ public final class G_FightAnimation {
 									2000, (byte) 6);
 							this.var_c75[this.var_c85]
 									.setSpritePosition(
-											this.unitCharsSprites[this.var_c85].posX
+											this.unitCharsSprites[this.var_c85].posXPixel
 													+ sub_1673(
 															this.var_c75[this.var_c85],
 															this.unitCharsSprites[this.var_c85].frameWidth + 2),
-											this.unitCharsSprites[this.var_c85].posY + 30);
+											this.unitCharsSprites[this.var_c85].posYPixel + 30);
 							this.var_c75[this.var_c85].var_85c = true;
 							E_MainCanvas.sub_233e(200);
 							this.game.sub_14bd3(1200);
@@ -489,10 +489,10 @@ public final class G_FightAnimation {
 								E_MainCanvas.getRandomWithin(-2, 3), 0, 1,
 								50 * E_MainCanvas.getRandomMax(4), (byte) 0))
 								.setSpritePosition(
-										this.unitCharsSprites[m].posX
+										this.unitCharsSprites[m].posXPixel
 												+ sub_1673(localClass_f_0455,
 														this.var_b8d.frameWidth),
-										this.var_c75[m].posY
+										this.var_c75[m].posYPixel
 												+ E_MainCanvas
 														.getRandomMax(30 - this.var_c75[m].frameHeight)
 												- 15);
@@ -523,9 +523,9 @@ public final class G_FightAnimation {
 					(localClass_f_0455 = F_Sprite.sub_1616(
 							this.game.bigSmokeSprite, E_MainCanvas.getRandomWithin(-2, 1),
 							0, -1, 1, 100, (byte) 0)).setSpritePosition(
-							this.var_c75[m].posX
+							this.var_c75[m].posXPixel
 									+ sub_1673(this.var_c75[m], 0),
-							this.var_c75[m].posY + this.var_c75[m].frameHeight
+							this.var_c75[m].posYPixel + this.var_c75[m].frameHeight
 									- localClass_f_0455.frameHeight);
 					if (this.var_c75[m].var_87c == 1) {
 						localClass_f_0455.var_86c = this.otherFightAnim.var_b6d;
@@ -536,11 +536,11 @@ public final class G_FightAnimation {
 				}
 				if (this.unitType == 9) {
 					if (this.var_b6d == 0) {
-						if (this.var_c75[m].posX >= this.game.var_32cb) {
+						if (this.var_c75[m].posXPixel >= this.game.var_32cb) {
 							if (this.var_c75[m].var_87c == 0) {
 								this.var_c75[m].setSpritePosition(this.game.viewportWidth
 										- this.var_c75[m].frameWidth,
-										this.var_c75[m].posY);
+										this.var_c75[m].posYPixel);
 								this.var_c75[m].var_86c = this.otherFightAnim.var_b6d;
 								this.var_c75[m].var_87c = 1;
 								i = 0;
@@ -552,10 +552,10 @@ public final class G_FightAnimation {
 							i = 0;
 						}
 					} else if (this.var_b6d == 1) {
-						if (this.var_c75[m].posX + this.var_c75[m].frameWidth < 0) {
+						if (this.var_c75[m].posXPixel + this.var_c75[m].frameWidth < 0) {
 							if (this.var_c75[m].var_87c == 0) {
 								this.var_c75[m].setSpritePosition(this.game.viewportWidth,
-										this.var_c75[m].posY);
+										this.var_c75[m].posYPixel);
 								this.var_c75[m].var_86c = this.otherFightAnim.var_b6d;
 								this.var_c75[m].var_87c = 1;
 								i = 0;
@@ -701,11 +701,11 @@ public final class G_FightAnimation {
 									E_MainCanvas.getRandomWithin(-1, 2), 0, 0, 1, 100,
 									(byte) 0))
 									.setSpritePosition(
-											this.unitCharsSprites[i].posX
+											this.unitCharsSprites[i].posXPixel
 													+ E_MainCanvas
 															.getRandomMax(this.var_b8d.frameWidth
 																	- localClass_f_0451.frameWidth),
-											this.unitCharsSprites[i].posY
+											this.unitCharsSprites[i].posYPixel
 													+ this.var_b8d.frameHeight
 													- localClass_f_0451.frameHeight
 													+ 1);
@@ -726,11 +726,11 @@ public final class G_FightAnimation {
 								.sub_1616(this.game.redsparkSprite, 0, 0, 0, 1,
 										50, (byte) 0))
 								.setSpritePosition(
-										this.otherFightAnim.unitCharsSprites[i].posX
+										this.otherFightAnim.unitCharsSprites[i].posXPixel
 												+ E_MainCanvas
 														.getRandomMax(this.otherFightAnim.unitCharsSprites[i].frameWidth
 																- localClass_f_0451.frameWidth),
-										this.otherFightAnim.unitCharsSprites[i].posY
+										this.otherFightAnim.unitCharsSprites[i].posYPixel
 												+ E_MainCanvas
 														.getRandomMax(this.otherFightAnim.unitCharsSprites[i].frameHeight
 																- localClass_f_0451.frameHeight));
@@ -759,9 +759,9 @@ public final class G_FightAnimation {
 				F_Sprite localClass_f_0452;
 				(localClass_f_0452 = F_Sprite.sub_1616(null, 0, 0, 0, 1,
 						500, (byte) 4))
-						.setSpritePosition(this.unitCharsSprites[j].posX
+						.setSpritePosition(this.unitCharsSprites[j].posXPixel
 								+ (this.unitCharsSprites[j].frameWidth >> 1),
-								this.unitCharsSprites[j].posY
+								this.unitCharsSprites[j].posYPixel
 										+ (this.unitCharsSprites[j].frameHeight >> 1)
 										+ this.var_bb5);
 				this.game.addSpriteTo(localClass_f_0452);
@@ -832,11 +832,11 @@ public final class G_FightAnimation {
 									E_MainCanvas.getRandomWithin(-1, 2), 0, -1, 1, 100,
 									(byte) 0))
 									.setSpritePosition(
-											this.unitCharsSprites[this.var_c4d].posX
+											this.unitCharsSprites[this.var_c4d].posXPixel
 													+ E_MainCanvas
 															.getRandomMax(this.var_b8d.frameWidth
 																	- localClass_f_045.frameWidth),
-											this.unitCharsSprites[this.var_c4d].posY
+											this.unitCharsSprites[this.var_c4d].posYPixel
 													+ this.var_b8d.frameHeight
 													- localClass_f_045.frameHeight
 													+ 1);
@@ -858,21 +858,21 @@ public final class G_FightAnimation {
 								this.unitCharsSprites[k].var_87c = -1;
 								(localClass_f_045 = F_Sprite.sub_1616(null,
 										0, 0, 0, 1, 800, (byte) 2)).setSpritePosition(
-										this.unitCharsSprites[k].posX
+										this.unitCharsSprites[k].posXPixel
 												+ sub_1673(localClass_f_045,
 														this.var_b8d.frameWidth),
-										this.unitCharsSprites[k].posY
+										this.unitCharsSprites[k].posYPixel
 												+ this.var_b8d.frameHeight);
 								this.game.addSpriteTo(localClass_f_045);
 								(localClass_f_045 = F_Sprite
 										.sub_1616(this.slashSprite, 0, 0, 0, 1,
 												150, (byte) 0))
 										.setSpritePosition(
-												this.unitCharsSprites[k].posX
+												this.unitCharsSprites[k].posXPixel
 														+ sub_1673(
 																localClass_f_045,
 																24),
-												this.unitCharsSprites[k].posY + 3);
+												this.unitCharsSprites[k].posYPixel + 3);
 								this.game.addSpriteTo(localClass_f_045);
 							} else {
 								j = 0;
@@ -892,11 +892,11 @@ public final class G_FightAnimation {
 										.sub_1616(this.slashSprite, 0, 0, 0, 1,
 												150, (byte) 0))
 										.setSpritePosition(
-												this.unitCharsSprites[k].posX
+												this.unitCharsSprites[k].posXPixel
 														+ sub_1673(
 																localClass_f_045,
 																14),
-												this.unitCharsSprites[k].posY
+												this.unitCharsSprites[k].posYPixel
 														+ this.unitCharsSprites[k].frameHeight);
 								localClass_f_045.var_80c = (4 - this.unitCharsSprites[k].frameHeight);
 								this.game.addSpriteTo(localClass_f_045);
@@ -905,11 +905,11 @@ public final class G_FightAnimation {
 										this.game.redsparkSprite, 0, 0, 0, 1, 50,
 										(byte) 0))
 										.setSpritePosition(
-												this.unitCharsSprites[k].posX
+												this.unitCharsSprites[k].posXPixel
 														+ sub_1673(
 																localClass_f_045,
 																this.var_b8d.frameWidth * 3 / 4),
-												this.unitCharsSprites[k].posY
+												this.unitCharsSprites[k].posYPixel
 														+ this.unitCharsSprites[k].frameHeight);
 								localClass_f_045.var_80c = (-localClass_f_045.frameHeight);
 								this.game.addSpriteTo(localClass_f_045);
@@ -1004,10 +1004,10 @@ public final class G_FightAnimation {
 			F_Sprite redSparksSprite = F_Sprite.sub_1616(this.game.redsparkSprite, 0,
 					0, 0, 1, 0, (byte) 0);
 			redSparksSprite.setSpritePosition(
-							this.unitCharsSprites[i].posX
+							this.unitCharsSprites[i].posXPixel
 									+ (this.unitCharsSprites[i].frameWidth - redSparksSprite.frameWidth)
 									/ 2, this.game.someCanHeight);
-			redSparksSprite.var_80c = (this.unitCharsSprites[i].posY
+			redSparksSprite.var_80c = (this.unitCharsSprites[i].posYPixel
 					+ (this.unitCharsSprites[i].frameHeight - redSparksSprite.frameHeight) / 2 - this.game.someCanHeight);
 			this.game.addSpriteTo(redSparksSprite);
 			F_Sprite sprite1;
@@ -1017,9 +1017,9 @@ public final class G_FightAnimation {
 						E_MainCanvas.getRandomWithin(-4, -1), 1,
 						E_MainCanvas.getRandomMax(4) * 50, (byte) 0);
 				sprite1.setSpritePosition(
-								this.unitCharsSprites[i].posX
+								this.unitCharsSprites[i].posXPixel
 										+ (this.unitCharsSprites[i].frameWidth - sprite1.frameWidth)
-										/ 2, this.unitCharsSprites[i].posY
+										/ 2, this.unitCharsSprites[i].posYPixel
 										+ this.unitCharsSprites[i].frameHeight
 										- sprite1.frameHeight + 3);
 				this.game.addSpriteTo(sprite1);
@@ -1027,9 +1027,9 @@ public final class G_FightAnimation {
 			sprite1 = F_Sprite.sub_1616(this.game.smokeSprite, 0,
 					0, -1, 1, 200, (byte) 0);
 			sprite1.setSpritePosition(
-							this.unitCharsSprites[i].posX
+							this.unitCharsSprites[i].posXPixel
 									+ (this.unitCharsSprites[i].frameWidth - sprite1.frameWidth)
-									/ 2, this.unitCharsSprites[i].posY
+									/ 2, this.unitCharsSprites[i].posYPixel
 									+ this.unitCharsSprites[i].frameHeight
 									- sprite1.frameHeight + 3);
 			this.game.addSpriteTo(sprite1);
@@ -1042,8 +1042,8 @@ public final class G_FightAnimation {
 				+ (this.var_b4d - this.unitStartHealth), 0, -4, (byte) 1);
 		int j;
 		if (this.var_b5d == 1) {
-			j = this.unitCharsSprites[0].posX + this.unitCharsSprites[0].frameWidth / 2;
-			k = this.unitCharsSprites[0].posY + this.unitCharsSprites[0].frameHeight + 1;
+			j = this.unitCharsSprites[0].posXPixel + this.unitCharsSprites[0].frameWidth / 2;
+			k = this.unitCharsSprites[0].posYPixel + this.unitCharsSprites[0].frameHeight + 1;
 		} else {
 			j = this.game.viewportWidth / 2;
 			if (this.var_b6d == 1) {
@@ -1099,8 +1099,8 @@ public final class G_FightAnimation {
 			F_Sprite sprite = this.unitCharsSprites[i];
 			if ((this.unitType == 0) || (this.unitType == 4)
 					|| (this.unitType == 5) || (this.unitType == 6)) {
-				gr.fillArc(sprite.posX,
-						sprite.posY + sprite.frameHeight * 4
+				gr.fillArc(sprite.posXPixel,
+						sprite.posYPixel + sprite.frameHeight * 4
 								/ 5, sprite.frameWidth,
 						sprite.frameHeight / 4, 0, 360);
 			}
