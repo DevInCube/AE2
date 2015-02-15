@@ -272,7 +272,7 @@ public final class D_Menu extends A_MenuBase {
 		}
 		int i = paramInt1 - this.var_10ad - 16;
 		this.var_fed = A_MenuBase
-				.sub_8c0(paramString, i, E_MainCanvas.font8);
+				.wrapText(paramString, i, E_MainCanvas.font8);
 		sub_1a9a(null, this.var_fed, paramInt1, paramInt2);
 		this.var_110d = false;
 		this.var_105d = 7;
@@ -290,7 +290,7 @@ public final class D_Menu extends A_MenuBase {
 		this.var_110d = false;
 		int i = paramInt1 - this.var_10ad - 16;
 		if (paramString != null) {
-			this.var_10bd = A_MenuBase.sub_8c0(paramString, i,
+			this.var_10bd = A_MenuBase.wrapText(paramString, i,
 					E_MainCanvas.font8);
 		}
 		this.var_fed = paramArrayOfString;
@@ -345,12 +345,12 @@ public final class D_Menu extends A_MenuBase {
 		if ((this.var_1065 & 0x8) == 0) {
 			i -= 8;
 		}
-		this.var_fed = A_MenuBase.sub_8c0(paramString2, i,
+		this.var_fed = A_MenuBase.wrapText(paramString2, i,
 				E_MainCanvas.font8);
 		sub_1a9a(paramString1, this.var_fed, paramInt1, paramInt2);
 		if (this.var_110d) {
 			i -= gameVar.arrowSprite.frameWidth;
-			this.var_fed = A_MenuBase.sub_8c0(paramString2, i,
+			this.var_fed = A_MenuBase.wrapText(paramString2, i,
 					E_MainCanvas.font8);
 			sub_1a9a(paramString1, this.var_fed, paramInt1, paramInt2);
 		}
@@ -368,9 +368,9 @@ public final class D_Menu extends A_MenuBase {
 		for (int i = 0; i < this.var_10fd.length; i++) {
 			this.var_10fd[i].var_7ec = true;
 			this.var_10fd[i].setSpritePosition(
-					E_MainCanvas.sub_1544(this.var_1225.frameWidth),
-					E_MainCanvas.sub_1544(this.var_1225.frameHeight));
-			this.var_10fd[i].setCurrentFrameIndex(E_MainCanvas.sub_1544(this.var_10fd[i]
+					E_MainCanvas.getRandomMax(this.var_1225.frameWidth),
+					E_MainCanvas.getRandomMax(this.var_1225.frameHeight));
+			this.var_10fd[i].setCurrentFrameIndex(E_MainCanvas.getRandomMax(this.var_10fd[i]
 					.getFramesCount()));
 		}
 	}
@@ -577,9 +577,9 @@ public final class D_Menu extends A_MenuBase {
 					if (this.var_10fd[j].currentFrameIndex == this.var_10fd[j].getFramesCount() - 1) {
 						if (this.var_1205 == 0) {
 							this.var_10fd[j].setSpritePosition(
-									E_MainCanvas.sub_1544(this.var_1225.frameWidth
+									E_MainCanvas.getRandomMax(this.var_1225.frameWidth
 											- this.var_10fd[j].frameWidth),
-									E_MainCanvas.sub_1544(this.var_1225.frameHeight
+									E_MainCanvas.getRandomMax(this.var_1225.frameHeight
 											- this.var_10fd[j].frameHeight));
 						} else {
 							this.var_10fd[j].var_7ec = false;
@@ -1226,7 +1226,7 @@ public final class D_Menu extends A_MenuBase {
 				gameVar.hudIcons2Sprite.drawFrameAt(paramGraphics, 1, k - i6
 						- E_MainCanvas.getCharedStringWidth((byte) 1, str), i2, 10);
 			} else {
-				str = "" + this.var_10dd.var_b0b;
+				str = "" + this.var_10dd.unitHealthMb;
 			}
 			E_MainCanvas.drawCharedString(paramGraphics, str, k - i6, i2, 1, 10);
 			this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
@@ -1323,8 +1323,8 @@ public final class D_Menu extends A_MenuBase {
 				n = 4;
 				for (i20 = this.var_1135; i20 < i18; i20++) {
 					i21 = gameVar.tilesProps[this.var_1155[i20][i19]];
-					if (this.var_1155[i20][i19] >= gameVar.tilesCount) {
-						i22 = (this.var_1155[i20][i19] - gameVar.tilesCount) / 2;
+					if (this.var_1155[i20][i19] >= gameVar.houseTileIdStartIndex) {
+						i22 = (this.var_1155[i20][i19] - gameVar.houseTileIdStartIndex) / 2;
 						i21 = 2 * i22 + 8 + i21 - 8;
 					}
 					gameVar.smallTilesImages[i21].drawImageExt(paramGraphics, n, i1);

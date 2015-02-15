@@ -12,7 +12,7 @@ public final class C_Unit extends F_Sprite {
 	public String var_a8b;
 	public short level;
 	public int experience;
-	public byte[][] var_aa3;
+	public byte[][] charsData;
 	public Vector var_aab;
 	public short var_ab3;
 	public long var_abb;
@@ -25,7 +25,7 @@ public final class C_Unit extends F_Sprite {
 	public int var_af3;
 	public int var_afb;
 	public int var_b03;
-	public int var_b0b;
+	public int unitHealthMb;
 	public byte var_b13;
 	public byte var_b1b;
 	public short var_b23;
@@ -99,8 +99,8 @@ public final class C_Unit extends F_Sprite {
 				paramBoolean);
 		unit.unitTypeId = paramByte1;
 		unit.var_acb = paramByte2;
-		unit.var_b0b = 100;
-		unit.var_aa3 = var_bc3[paramByte1];
+		unit.unitHealthMb = 100;
+		unit.charsData = var_bc3[paramByte1];
 		unit.var_b8b = var_bcb[paramByte1];
 		if (paramByte1 == 9) {
 			unit.sub_e33(sGame.var_356b[paramByte2] - 1);
@@ -128,19 +128,19 @@ public final class C_Unit extends F_Sprite {
 			int paramInt2) {
 		int i = this.var_b2b;
 		if (unit != null) {
-			if ((sub_232f((short) 64))
-					&& (unit.sub_232f((short) 1))) {
+			if ((hasProperty((short) 64))
+					&& (unit.hasProperty((short) 1))) {
 				i += 15;
 			}
 			if ((this.unitTypeId == 4) && (unit.unitTypeId == 10)) {
 				i += 15;
 			}
 		}
-		if ((sub_232f((short) 2))
-				&& (sGame.sub_dd5d(paramInt1, paramInt2) == 5)) {
+		if ((hasProperty((short) 2))
+				&& (sGame.getTileType(paramInt1, paramInt2) == 5)) {
 			i += 10;
 		}
-		if (sGame.var_34bb[paramInt1][paramInt2] == 34) {
+		if (sGame.mapTilesIds[paramInt1][paramInt2] == 34) {
 			i += 25;
 		}
 		return i;
@@ -152,28 +152,28 @@ public final class C_Unit extends F_Sprite {
 
 	public final int sub_f6b(C_Unit unit, int paramInt1,
 			int paramInt2) {
-		int i = sGame.sub_dd5d(paramInt1, paramInt2);
+		int i = sGame.getTileType(paramInt1, paramInt2);
 		int j = this.var_b33 + I_Game.var_33e3[i];
-		if ((sub_232f((short) 2)) && (i == 5)) {
+		if ((hasProperty((short) 2)) && (i == 5)) {
 			j += 15;
 		}
-		if (sGame.var_34bb[paramInt1][paramInt2] == 34) {
+		if (sGame.mapTilesIds[paramInt1][paramInt2] == 34) {
 			j += 15;
 		}
 		return j;
 	}
 
 	public final int sub_fea(C_Unit paramClass_c_032) {
-		int i = E_MainCanvas.sub_1564(this.var_af3, this.var_afb)
+		int i = E_MainCanvas.getRandomWithin(this.var_af3, this.var_afb)
 				+ sub_e5f(paramClass_c_032);
 		int j = paramClass_c_032.var_b03 + paramClass_c_032.sub_f43(this);
 		int k;
-		if ((k = (i - j) * this.var_b0b / 100) < 0) {
+		if ((k = (i - j) * this.unitHealthMb / 100) < 0) {
 			k = 0;
-		} else if (k > paramClass_c_032.var_b0b) {
-			k = paramClass_c_032.var_b0b;
+		} else if (k > paramClass_c_032.unitHealthMb) {
+			k = paramClass_c_032.unitHealthMb;
 		}
-		paramClass_c_032.var_b0b -= k;
+		paramClass_c_032.unitHealthMb -= k;
 		this.experience += paramClass_c_032.sub_108b() * k;
 		return k;
 	}
@@ -201,7 +201,7 @@ public final class C_Unit extends F_Sprite {
 	public final boolean sub_1134(C_Unit unit, int paramInt1,
 			int paramInt2) {
 		return (this.var_b13 != 4)
-				&& (this.var_b0b > 0)
+				&& (this.unitHealthMb > 0)
 				&& (Math.abs(this.positionX - paramInt1)
 						+ Math.abs(this.positionY - paramInt2) == 1)
 				&& (var_bbb[this.unitTypeId] == 1);
@@ -240,10 +240,10 @@ public final class C_Unit extends F_Sprite {
 		this.posY = ((short) (paramInt2 * 24));
 	}
 
-	public final int sub_12c4() {
-		int i = 100 / this.var_aa3.length;
-		int j = this.var_b0b / i;
-		if ((this.var_b0b != 100) && (this.var_b0b % i > 0)) {
+	public final int getAliveCharactersCount() {
+		int i = 100 / this.charsData.length;
+		int j = this.unitHealthMb / i;
+		if ((this.unitHealthMb != 100) && (this.unitHealthMb % i > 0)) {
 			j++;
 		}
 		return j;
@@ -253,7 +253,7 @@ public final class C_Unit extends F_Sprite {
 			C_Unit paramClass_c_032) {
 		return (this.var_af3 + this.var_afb + this.var_b03
 				+ sub_e87(paramClass_c_032, paramInt1, paramInt2) + sub_f6b(
-				paramClass_c_032, paramInt1, paramInt2)) * this.var_b0b / 100;
+				paramClass_c_032, paramInt1, paramInt2)) * this.unitHealthMb / 100;
 	}
 
 	public final void sub_1359(byte[][] paramArrayOfByte, int paramInt1,
@@ -269,12 +269,12 @@ public final class C_Unit extends F_Sprite {
 			m = 0;
 		}
 		int n;
-		if ((n = paramInt1 + j) >= sGame.var_342b) {
-			n = sGame.var_342b - 1;
+		if ((n = paramInt1 + j) >= sGame.mapWidth) {
+			n = sGame.mapWidth - 1;
 		}
 		int i1;
-		if ((i1 = paramInt2 + j) >= sGame.var_3433) {
-			i1 = sGame.var_3433 - 1;
+		if ((i1 = paramInt2 + j) >= sGame.mapHeight) {
+			i1 = sGame.mapHeight - 1;
 		}
 		for (int i2 = k; i2 <= n; i2++) {
 			for (int i3 = m; i3 <= i1; i3++) {
@@ -288,13 +288,13 @@ public final class C_Unit extends F_Sprite {
 	}
 
 	public final void sub_14e8(byte[][] paramArrayOfByte) {
-		if (sub_232f((short) 512)) {
+		if (hasProperty((short) 512)) {
 			sub_1359(paramArrayOfByte, this.positionX, this.positionY);
 			return;
 		}
 		sub_1d3c(paramArrayOfByte);
-		for (int i = 0; i < sGame.var_342b; i++) {
-			for (int j = 0; j < sGame.var_3433; j++) {
+		for (int i = 0; i < sGame.mapWidth; i++) {
+			for (int j = 0; j < sGame.mapHeight; j++) {
 				if ((paramArrayOfByte[i][j] > 0)
 						&& (paramArrayOfByte[i][j] != 127)) {
 					sub_1359(paramArrayOfByte, i, j);
@@ -321,12 +321,12 @@ public final class C_Unit extends F_Sprite {
 			j = 0;
 		}
 		int k;
-		if ((k = paramInt1 + paramInt4) >= sGame.var_342b) {
-			k = sGame.var_342b - 1;
+		if ((k = paramInt1 + paramInt4) >= sGame.mapWidth) {
+			k = sGame.mapWidth - 1;
 		}
 		int m;
-		if ((m = paramInt2 + paramInt4) >= sGame.var_3433) {
-			m = sGame.var_3433 - 1;
+		if ((m = paramInt2 + paramInt4) >= sGame.mapHeight) {
+			m = sGame.mapHeight - 1;
 		}
 		for (int n = i; n <= k; n++) {
 			for (int i1 = j; i1 <= m; i1++) {
@@ -341,8 +341,8 @@ public final class C_Unit extends F_Sprite {
 								localVector.addElement(aUnit);
 							}
 						} else if ((this.unitTypeId == 7)
-								&& (sGame.sub_dd5d(n, i1) == 8)
-								&& (sGame.var_34bb[n][i1] >= sGame.tilesCount)
+								&& (sGame.getTileType(n, i1) == 8)
+								&& (sGame.mapTilesIds[n][i1] >= sGame.houseTileIdStartIndex)
 								&& (!sGame.sub_e2b4(n, i1,
 										sGame.var_3573[this.var_acb]))) {
 							C_Unit localClass_c_0322;
@@ -445,13 +445,13 @@ public final class C_Unit extends F_Sprite {
 		if (paramInt4 > 0) {
 			j = sGame.var_3513[paramInt3][(paramInt4 - 1)];
 		}
-		if (paramInt4 < sGame.var_3433 - 1) {
+		if (paramInt4 < sGame.mapHeight - 1) {
 			k = sGame.var_3513[paramInt3][(paramInt4 + 1)];
 		}
 		if (paramInt3 > 0) {
 			m = sGame.var_3513[(paramInt3 - 1)][paramInt4];
 		}
-		if (paramInt3 < sGame.var_342b - 1) {
+		if (paramInt3 < sGame.mapWidth - 1) {
 			n = sGame.var_3513[(paramInt3 + 1)][paramInt4];
 		}
 		int i;
@@ -530,15 +530,15 @@ public final class C_Unit extends F_Sprite {
 	public static final int sub_1ef6(int paramInt1, int paramInt2,
 			byte paramByte1, byte paramByte2) {
 		if ((paramInt1 >= 0) && (paramInt2 >= 0)
-				&& (paramInt1 < sGame.var_342b)
-				&& (paramInt2 < sGame.var_3433)) {
+				&& (paramInt1 < sGame.mapWidth)
+				&& (paramInt2 < sGame.mapHeight)) {
 			C_Unit localClass_c_032;
 			if (((localClass_c_032 = sGame.sub_dc52(paramInt1, paramInt2,
 					(byte) 0)) != null)
 					&& (sGame.var_3573[localClass_c_032.var_acb] != sGame.var_3573[paramByte2])) {
 				return 1000;
 			}
-			int i = sGame.sub_dd5d(paramInt1, paramInt2);
+			int i = sGame.getTileType(paramInt1, paramInt2);
 			if (paramByte1 == 11) {
 				if (i == 4) {
 					return 1000;
@@ -586,7 +586,7 @@ public final class C_Unit extends F_Sprite {
 						&& (++this.var_b6b >= 24 / var_a7b / 2)) {
 					localClass_f_045 = sGame.sub_5873(sGame.bigSmokeSprite,
 							this.posX, this.posY, 0, 0, 1,
-							E_MainCanvas.sub_1564(1, 4) * 50);
+							E_MainCanvas.getRandomWithin(1, 4) * 50);
 					this.var_b6b = 0;
 				}
 				if (i < this.posX) {
@@ -644,7 +644,7 @@ public final class C_Unit extends F_Sprite {
 		return (var_bd3[paramByte] & paramShort) != 0;
 	}
 
-	public final boolean sub_232f(short paramShort) {
+	public final boolean hasProperty(short paramShort) {
 		return sub_22f7(this.unitTypeId, paramShort);
 	}
 
@@ -655,7 +655,7 @@ public final class C_Unit extends F_Sprite {
 				(byte) 1)) != null) {
 			unit1.removeFromMap();
 		}
-		if (sub_232f((short) 256)) {
+		if (hasProperty((short) 256)) {
 			C_Unit[] unit2 = sub_15e7(this.positionX,
 					this.positionY, 1, 2, (byte) 2);
 			for (int i = 0; i < unit2.length; i++) {
@@ -706,7 +706,7 @@ public final class C_Unit extends F_Sprite {
 				} else {
 					i = 2;
 				}
-				j = E_MainCanvas.sub_158e() % 1;
+				j = E_MainCanvas.getRandom() % 1;
 				super.draw(gr, paramInt1 + i, paramInt2 + j);
 			} else if ((paramBoolean) || (this.var_b13 == 2)) {
 				sGame.playersUnitsSprites[0][this.unitTypeId].draw(gr,
@@ -732,8 +732,8 @@ public final class C_Unit extends F_Sprite {
 			int paramInt2) {
 		int i = this.posX + paramInt1;
 		int j = this.posY + paramInt2;
-		if ((this.var_b13 != 3) && (this.var_b0b < 100)) {
-			E_MainCanvas.drawCharedString(paramGraphics, "" + this.var_b0b, i, j
+		if ((this.var_b13 != 3) && (this.unitHealthMb < 100)) {
+			E_MainCanvas.drawCharedString(paramGraphics, "" + this.unitHealthMb, i, j
 					+ this.frameHeight - 7, 0);
 		}
 	}

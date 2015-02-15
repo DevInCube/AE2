@@ -34,30 +34,29 @@ public class A_MenuBase {
 		//@todo override
 	}
 
-	public static final String[] sub_8c0(String paramString, int paramInt,
-			Font paramFont) {
+	public static final String[] wrapText(String string, int maxWidth, Font aFont) {
 		Vector localVector = new Vector();
 		int i = 0;
-		int k = paramString.length();
+		int k = string.length();
 		Object localObject1 = null;
 		int m;
 		do {
 			m = i;
-			int n = paramString.indexOf('\n', m);
+			int n = string.indexOf('\n', m);
 			do {
 				int i1 = m;
 				Object localObject2 = localObject1;
-				m = sub_ab5(paramString, m);
+				m = sub_ab5(string, m);
 				if ((n > -1) && (n < m)) {
 					m = n;
 				}
-				localObject1 = paramString.substring(i, m).trim();
-				if (paramFont.stringWidth((String) localObject1) > paramInt) {
+				localObject1 = string.substring(i, m).trim();
+				if (aFont.stringWidth((String) localObject1) > maxWidth) {
 					if (i1 == i) {
 						for (int i2 = ((String) localObject1).length() - 1; i2 > 0; i2--) {
 							String str = ((String) localObject1).substring(0,
 									i2);
-							if (paramFont.stringWidth(str) <= paramInt) {
+							if (aFont.stringWidth(str) <= maxWidth) {
 								m = i1 + i2;
 								localObject1 = str;
 								break;

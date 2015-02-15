@@ -14,12 +14,12 @@ public final class H_ImageExt {
 	public int var_4fb = 0;
 
 	public H_ImageExt(H_ImageExt image, int paramInt1,
-			int paramInt2, int paramInt3, int paramInt4) {
+			int paramInt2, int imWidth, int imHeight) {
 		this.image = image.image;
-		this.imageWidth = paramInt3;
-		this.imageHeight = paramInt4;
-		this.var_4cb = (paramInt1 * paramInt3 + image.var_4cb);
-		this.var_4d3 = (paramInt2 * paramInt4 + image.var_4d3);
+		this.imageWidth = imWidth;
+		this.imageHeight = imHeight;
+		this.var_4cb = (paramInt1 * imWidth + image.var_4cb);
+		this.var_4d3 = (paramInt2 * imHeight + image.var_4d3);
 		this.var_4c3 = true;
 	}
 
@@ -53,24 +53,23 @@ public final class H_ImageExt {
 		}
 	}
 
-	public H_ImageExt(String paramString) throws Exception {
-		byte[] imgData = E_MainCanvas.getResourceData(paramString + ".png");
+	public H_ImageExt(String imgId) throws Exception {
+		byte[] imgData = E_MainCanvas.getResourceData(imgId + ".png");
 		this.image = Image.createImage(imgData, 0, imgData.length);
 		this.imageWidth = ((short) this.image.getWidth());
 		this.imageHeight = ((short) this.image.getHeight());
 		this.var_4c3 = false;
 	}
 	
-	public H_ImageExt(String paramString, int paramInt) {
-		byte[] imgData = E_MainCanvas.getResourceData(paramString + ".png");
+	public H_ImageExt(String imgId, int paramInt) {
+		byte[] imgData = E_MainCanvas.getResourceData(imgId + ".png");
 		if (paramInt != 1) {
 			byte[] data = new byte[imgData.length];
 			System.arraycopy(imgData, 0, data, 0, imgData.length);
 			sub_99f(data, paramInt);
 			imgData = data;
 		}
-		this.image = Image.createImage((byte[]) imgData, 0,
-				imgData.length);
+		this.image = Image.createImage((byte[]) imgData, 0, imgData.length);
 		this.imageWidth = ((short) this.image.getWidth());
 		this.imageHeight = ((short) this.image.getHeight());
 	}
@@ -121,8 +120,7 @@ public final class H_ImageExt {
 	public final void drawImageExt(Graphics gr, int inX,
 			int inY, int paramInt3) {
 		if ((this.var_4c3) || (this.var_4fb != 0)) {
-			gr
-					.drawRegion(this.image, this.var_4cb, this.var_4d3,
+			gr.drawRegion(this.image, this.var_4cb, this.var_4d3,
 							this.imageWidth, this.imageHeight, this.var_4fb, inX
 									+ this.locationX, inY + this.locationY,
 							paramInt3);

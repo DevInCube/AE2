@@ -76,16 +76,16 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final int sub_1544(int paramInt) {
-		return sub_1564(0, paramInt);
+	public static final int getRandomMax(int paramInt) {
+		return getRandomWithin(0, paramInt);
 	}
 
-	public static final int sub_1564(int paramInt1, int paramInt2) {
-		return paramInt1 + Math.abs(random.nextInt())
-				% (paramInt2 - paramInt1);
+	public static final int getRandomWithin(int min, int max) {
+		return min + Math.abs(random.nextInt())
+				% (max - min);
 	}
 
-	public static final int sub_158e() {
+	public static final int getRandom() {
 		return random.nextInt();
 	}
 
@@ -534,18 +534,19 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final void sub_2573(int paramInt) {
+	public static final void stopMusicPlayer(int index) {
 		try {
-			if (musicPlayersLoaded[paramInt] == false) {
+			if (musicPlayersLoaded[index] == false) {
 				return;
 			}
-			if (currentMusicPlayer == musicPlayers[paramInt]) {
+			if (currentMusicPlayer == musicPlayers[index]) {
 				currentMusicPlayer.stop();
 				currentMusicPlayer = null;
 				currentMusicId = -1;
 			}
 			return;
-		} catch (Exception localException) {
+		} catch (Exception ex) {
+			//
 		}
 	}
 

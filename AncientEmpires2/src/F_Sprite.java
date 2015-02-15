@@ -30,8 +30,8 @@ public class F_Sprite {
 	public int var_87c;
 	public String spriteString;
 	public int charFontId;
-	public F_Sprite var_894;
-	public F_Sprite var_89c;
+	public F_Sprite kingHeadSprite;
+	public F_Sprite kingBackSprite;
 	public int[][] var_8a4;
 	public short[][] var_8ac;
 	public int someColor = 16769024; //#FFE000 yellow
@@ -219,9 +219,9 @@ public class F_Sprite {
 		}
 	}
 
-	public final void drawCurrentFrame(Graphics paramGraphics, int inX,
+	public final void drawCurrentFrame(Graphics gr, int inX,
 			int inY, int paramInt3) {
-		drawFrameAt(paramGraphics, this.frameSequence[this.currentFrameIndex], inX,
+		drawFrameAt(gr, this.frameSequence[this.currentFrameIndex], inX,
 				inY, paramInt3);
 	}
 
@@ -233,28 +233,28 @@ public class F_Sprite {
 			k = 0;
 		}
 		while (k < 5) {
-			int i;
-			int j;
+			int x;
+			int y;
 			if (this.var_8c4[k] != false) {
-				i = (this.var_8a4[k][0] >> 10) + inX + this.posX;
-				j = (this.var_8a4[k][1] >> 10) + inY + this.posY;
-				gr.fillRect(i, j, this.var_8bc[k], this.var_8bc[k]);
+				x = (this.var_8a4[k][0] >> 10) + inX + this.posX;
+				y = (this.var_8a4[k][1] >> 10) + inY + this.posY;
+				gr.fillRect(x, y, this.var_8bc[k], this.var_8bc[k]);
 			}
 			k++;
-			// continue; @todo
+			//continue; //@todo
 			if (this.var_814 == 6) {
-				i = 0;
+				x = 0;
 				if (this.currentFrameIndex == 0) {
 					gr.setColor(15718144); // #EFD700 sand yellow
 				} else {
 					gr.setColor(16777215); // white
 				}
 				if (this.var_834 > 0) {
-					j = this.posX + 15;
+					y = this.posX + 15;
 					gr.fillArc(this.posX, this.posY - 15, 30,
 							30, 0, 360);
-					gr.fillRect(j, this.posY - 15,
-							E_MainCanvas.canvasWidth - j, 30);
+					gr.fillRect(y, this.posY - 15,
+							E_MainCanvas.canvasWidth - y, 30);
 					return;
 				}
 				gr.fillArc(this.posX - 30, this.posY - 15, 30,
@@ -264,7 +264,7 @@ public class F_Sprite {
 				return;
 			}
 			if (this.var_814 == 3) {
-				gr.setColor(0);
+				gr.setColor(0); //black
 				if (this.var_834 > 0) {
 					gr.drawLine(this.posX, this.posY,
 							this.posX + 4, this.posY - 2);
@@ -275,29 +275,29 @@ public class F_Sprite {
 				return;
 			}
 			if (this.var_7ec) {
-				i = this.posX + inX;
-				j = this.posY + inY;
+				x = this.posX + inX;
+				y = this.posY + inY;
 				if (this.spriteString != null) {
-					E_MainCanvas.drawCharedString(gr, this.spriteString, i, j,
+					E_MainCanvas.drawCharedString(gr, this.spriteString, x, y,
 							this.charFontId, 33);
 					return;
 				}
 				if (this.var_864 > 0) {
-					i += E_MainCanvas.sub_1564(-4, 5);
-					j += E_MainCanvas.sub_1564(-1, 2);
+					x += E_MainCanvas.getRandomWithin(-4, 5);
+					y += E_MainCanvas.getRandomWithin(-1, 2);
 				}
 				k = this.frameSequence[this.currentFrameIndex];
-				this.frameImages[k].drawImageExt(gr, i, j);
-				if (this.var_894 != null) {
+				this.frameImages[k].drawImageExt(gr, x, y);
+				if (this.kingHeadSprite != null) {
 					int m = k % (getFramesCount() / 2);
 					F_Sprite sprite;
 					if (m == 2) {
-						sprite = this.var_89c;
+						sprite = this.kingBackSprite;
 					} else {
-						sprite = this.var_894;
+						sprite = this.kingHeadSprite;
 						sprite.setCurrentFrameIndex(m);
 					}
-					sprite.draw(gr, i, j);
+					sprite.draw(gr, x, y);
 				}
 			}
 		}
