@@ -280,7 +280,7 @@ public final class G_FightAnimation {
 								this.unitCharsSprites[j].var_80c = 0;
 								this.unitCharsSprites[j].var_87c = 1;
 								E_MainCanvas.vibrate(200);
-								this.game.sub_14bd3(1200);
+								this.game.startShakingScreen(1200);
 								E_MainCanvas.playMusicLooped(14, 1);
 								for (int n = 0; n < 2; n++) {
 									F_Sprite localClass_f_0456;
@@ -452,7 +452,7 @@ public final class G_FightAnimation {
 											this.unitCharsSprites[this.var_c85].posYPixel + 30);
 							this.var_c75[this.var_c85].var_85c = true;
 							E_MainCanvas.vibrate(200);
-							this.game.sub_14bd3(1200);
+							this.game.startShakingScreen(1200);
 							E_MainCanvas.playMusicLooped(14, 1);
 							this.game.addSpriteTo(this.var_c75[this.var_c85]);
 						}
@@ -581,7 +581,7 @@ public final class G_FightAnimation {
 				if (this.game.time - this.var_bc5 >= this.var_c55) {
 					this.otherFightAnim.sub_3363();
 					if (this.unitType != 1) {
-						this.game.sub_14bd3(200);
+						this.game.startShakingScreen(200);
 					}
 					E_MainCanvas.vibrate(200);
 					E_MainCanvas.playMusicLooped(14, 1);
@@ -921,7 +921,7 @@ public final class G_FightAnimation {
 					this.var_c4d = 0;
 					this.var_b7d = 6;
 					this.otherFightAnim.sub_3363();
-					this.game.sub_14bd3(200);
+					this.game.startShakingScreen(200);
 					E_MainCanvas.vibrate(200);
 					E_MainCanvas.playMusicLooped(14, 1);
 					this.var_bc5 = this.game.time;
