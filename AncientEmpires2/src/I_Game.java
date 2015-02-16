@@ -5116,7 +5116,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final D_Menu showUnitDialogMsg(String msg, byte paramByte1, byte paramByte2) {
 		D_Menu dialog = new D_Menu((byte) 7, 12);
-		int i = E_MainCanvas.var_138c * 3;
+		int i = E_MainCanvas.someMenuShiftHeight * 3;
 		dialog.sub_1a04(msg, this.someCanWidth, i, paramByte1, paramByte2);
 		dialog.sub_193f(0, this.someCanHeight - i, 0);
 		A_MenuBase.mainCanvas.showMenu(dialog);

@@ -22,7 +22,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public static final Font font0 = Font.getFont(0, 1, 0);
 	public static final Font font8 = Font.getFont(0, 1, 8);
 	public static final int font8BaselinePos = font8.getBaselinePosition();
-	public static final int var_138c = font8BaselinePos + 6;
+	public static final int someMenuShiftHeight = font8BaselinePos + 6;
 	public static final int font0BaselinePos = font0.getBaselinePosition();
 	public static final int var_139c = font0BaselinePos + 8;
 	public static final short[] var_13a4 = { 45, 43 };
