@@ -205,7 +205,7 @@ public final class D_Menu extends A_MenuBase {
 				}
 			}
 		}
-		childMenu.sub_193f(locX, locY, paramInt3);
+		childMenu.setMenuLoc(locX, locY, paramInt3);
 		int i = childMenu.menuLocY;
 		for (int j = 0; j < 5; j++) {
 			if (i < this.var_11ad[j]) {
@@ -258,7 +258,7 @@ public final class D_Menu extends A_MenuBase {
 		this.menuType = 8;
 	}
 
-	public final void sub_193f(int inX, int inY, int paramInt3) {
+	public final void setMenuLoc(int inX, int inY, int paramInt3) {
 		this.menuLocX = inX;
 		this.menuLocY = inY;
 		if ((paramInt3 & 0x1) != 0) {
@@ -276,7 +276,7 @@ public final class D_Menu extends A_MenuBase {
 	}
 
 	public final void sub_1a04(String msg, int inW,
-			int inH, byte portraintIndex, byte paramByte2) {
+			int inH, byte portraintIndex, byte unused) {
 		this.portraitSpriteIndex = portraintIndex;
 		if (portraintIndex == -1) {
 			this.someBorderMb = 14;
@@ -414,7 +414,7 @@ public final class D_Menu extends A_MenuBase {
 			this.menuWidth = this.someCanWidth;
 		}
 		this.menuHeight = this.menuItemFrameWidthMb;
-		sub_193f(paramInt1, paramInt2, paramInt3);
+		setMenuLoc(paramInt1, paramInt2, paramInt3);
 		this.menuType = 13;
 		this.var_fd5 = 2;
 	}
@@ -488,7 +488,7 @@ public final class D_Menu extends A_MenuBase {
 			this.menuWidth += gameVar.arrowSprite.frameWidth;
 		}
 		this.menuType = 11;
-		sub_193f(paramInt1, paramInt2, paramInt5);
+		setMenuLoc(paramInt1, paramInt2, paramInt5);
 	}
 
 	public final void initWheelMenu(String[] itemString,
@@ -543,7 +543,7 @@ public final class D_Menu extends A_MenuBase {
 		this.menuWidth = (this.wheelMenuRadius * 2);
 		this.menuHeight = inY;
 		this.var_fd5 = 0;
-		sub_193f(paramInt1, inX, paramInt4);
+		setMenuLoc(paramInt1, inX, paramInt4);
 	}
 
 	public final int sub_254b(int step) {

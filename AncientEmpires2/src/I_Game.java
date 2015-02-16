@@ -127,7 +127,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public byte[][] kingsPositions = new byte[4][2];
 	public byte[] var_35b3 = new byte[4];
 	public D_Menu someGameMenu;
-	public Vector var_35c3 = new Vector();
+	public Vector someGameSpritesList = new Vector();
 	public Vector var_35cb = new Vector();
 	public C_Unit dyingUnit;
 	public C_Unit var_35db;
@@ -211,11 +211,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public D_Menu castleBuyAllUnitsMenu;
 	public D_Menu castleBuyDescMenu;
 	public F_Sprite arrowIconsSprite;
-	public F_Sprite var_3863;
-	public C_Unit var_386b;
+	public F_Sprite heavensFuryMissle;
+	public C_Unit furyTargetUnit;
 	public int var_3873 = 0;
-	public boolean var_387b = true;
-	public boolean var_3883;
+	public boolean showFuryAfterEffect = true;
+	public boolean isSaethDead;
 	public String mapName;
 	public String[] slotsDescriptions;
 	public byte[] slotsCurrentPlayerIds;
@@ -255,8 +255,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public int loadingProgress;
 	public static final String[] var_39a3 = { "14281428", "18241824" };
 	public StringBuffer m_strBuf = new StringBuffer();
-	public C_Unit var_39b3;
-	public int var_39bb = 12;
+	public C_Unit m_tempUnit;
+	public int someCameraVelocityMb = 12;
 	public int var_39c3 = 1;
 	public boolean var_39cb;
 	public int alphaWindowWTF;
@@ -351,7 +351,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.actionIconsFrames = new H_ImageExt[this.unitActionsNames.length];
 		this.menuIconsFrames = new H_ImageExt[this.mainMenuItemsNames.length];
 		this.houseSmokeSprites = new F_Sprite[0];
-		this.var_39b3 = null;
+		this.m_tempUnit = null;
 		this.crystal3Unit = null;
 		this.unitEndTurnMb = null;
 	}
@@ -636,7 +636,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if (str.equals(var_39a3[j])) {
 					if (j == 0) {
 						if (this.scenarioMapIndex == 7) {
-							this.var_3883 = true;
+							this.isSaethDead = true;
 						} else {
 							missionComplete();
 						}
@@ -853,10 +853,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final void sub_558c(C_Unit unit) {
+	public final void targetUnit(C_Unit unit) {
 		this.var_3873 = 0;
 		moveCursorToPos(unit.positionX, unit.positionY);
-		this.var_386b = unit;
+		this.furyTargetUnit = unit;
 	}
 
 	public final void sub_55bd(C_Unit unit1, C_Unit unit2) {
@@ -907,7 +907,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						+ (this.attackedUnitMb.frameWidth - poisonSprite.frameWidth)
 						/ 2, this.attackedUnitMb.posYPixel - poisonSprite.frameHeight);
 				poisonSprite.setFrameSequence(var_339b);
-				this.var_35c3.addElement(poisonSprite);
+				this.someGameSpritesList.addElement(poisonSprite);
 				this.attackedUnitMb.applyPoisonStatus((byte) 1);
 			}
 			if (this.attackedUnitMb.gotNewLevel()) {
@@ -1095,7 +1095,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			delMenu.menuTitleIcon = this.menuIconsFrames[6]; 
 			localClass_d_0231.createDescDialogMb(null, A_MenuBase.getLangString(52),
 					this.someCanWidth, -1); //EMPTY
-			localClass_d_0231.sub_193f(0,
+			localClass_d_0231.setMenuLoc(0,
 					(this.someGHeight + delMenu.menuHeight) / 2, 6);
 			localClass_d_0231.setParentMenu(menu);
 			this.deleteMapMenu = null;
@@ -2042,19 +2042,19 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.mapUnitsSprites = new Vector();
 		this.activeUnit = null;
 		this.var_34f3 = null;
-		this.var_39b3 = null;
+		this.m_tempUnit = null;
 	}
 
 	public final void loadMap(int mapId) throws Exception {
 		E_MainCanvas.stopMusic();
-		this.var_35c3 = new Vector();
+		this.someGameSpritesList = new Vector();
 		this.isFadingIn = false;
 		this.isCursorVisible = true;
 		this.var_364b = false;
-		this.var_3883 = false;
+		this.isSaethDead = false;
 		this.var_353b = null;
 		this.dyingUnit = null;
-		this.var_386b = null;
+		this.furyTargetUnit = null;
 		this.var_35db = null;
 		this.var_35eb = null;
 		this.gotNewLevelUnits.removeAllElements();
@@ -2241,7 +2241,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final void sub_91c4(C_Unit unit) {
 		E_MainCanvas.stopMusicPlayer(10);
-		this.var_39b3 = null;
+		this.m_tempUnit = null;
 		fillArrayWithValue(this.someMapData, 0);
 		this.var_351b = false;
 		if (this.var_35b3[this.playerId] == 1) {
@@ -2543,32 +2543,30 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 				} else {
 					for (int i = this.mapUnitsSprites.size() - 1; i >= 0; i--) {
-						C_Unit localObject11 = (C_Unit) this.mapUnitsSprites
-								.elementAt(i);
-						if ((localObject11.m_state != 3)
-								&& (this.playerId == ((C_Unit) localObject11).playerId)
+						C_Unit mUnit = (C_Unit) this.mapUnitsSprites.elementAt(i);
+						//unit not dead stay on his house
+						if ((mUnit.m_state != 3)
+								&& (this.playerId == mUnit.playerId)
 								&& ((getTileType(
-										((C_Unit) localObject11).positionX,
-										((C_Unit) localObject11).positionY) == 7) || (sub_e2b4(
-										((C_Unit) localObject11).positionX,
-										((C_Unit) localObject11).positionY,
-										this.var_3573[localObject11.playerId])))
-								&& (((C_Unit) localObject11).unitHealthMb < 100)) {
-							int i5;
-							if ((i5 = 100 - ((C_Unit) localObject11).unitHealthMb) > 20) {
-								i5 = 20;
+										mUnit.positionX,
+										mUnit.positionY) == 7) || (sub_e2b4(
+												mUnit.positionX,
+												mUnit.positionY,
+										this.var_3573[mUnit.playerId])))
+								&& (mUnit.unitHealthMb < 100)) {
+							int uHealth = 100 - mUnit.unitHealthMb;
+							if (uHealth > 20) {
+								uHealth = 20;
 							}
-							localObject11.unitHealthMb += i5;
-							F_Sprite localObject51 = F_Sprite.sub_15c2(
-									"+" + i5, 0, -4, (byte) 1);
-							localObject51
-									.setSpritePosition(
-											((F_Sprite) localObject11).posXPixel
-													+ ((F_Sprite) localObject11).frameWidth
+							mUnit.unitHealthMb += uHealth; // house revive units
+							F_Sprite healSprite = F_Sprite.sub_15c2("+" + uHealth, 0, -4, (byte) 1);
+							healSprite.setSpritePosition(
+											((F_Sprite) mUnit).posXPixel
+													+ ((F_Sprite) mUnit).frameWidth
 													/ 2,
-											((F_Sprite) localObject11).posYPixel
-													+ ((F_Sprite) localObject11).frameHeight);
-							this.var_35c3.addElement(localObject51);
+											((F_Sprite) mUnit).posYPixel
+													+ ((F_Sprite) mUnit).frameHeight);
+							this.someGameSpritesList.addElement(healSprite);
 						}
 					}
 					this.var_354b = 0;
@@ -2654,7 +2652,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							((F_Sprite) localObject3).setSpritePosition(i7,
 									this.attackedUnitMb.posYPixel
 											+ this.attackedUnitMb.frameHeight);
-							this.var_35c3.addElement(localObject3);
+							this.someGameSpritesList.addElement(localObject3);
 							this.var_3673 = this.time;
 							this.var_366b += 1;
 						} else if (this.var_366b == 1) {
@@ -2688,7 +2686,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									((F_Sprite) localObject3).setSpritePosition(i7,
 											this.attackerUnitMb.posYPixel
 													+ this.attackerUnitMb.frameHeight);
-									this.var_35c3.addElement(localObject3);
+									this.someGameSpritesList.addElement(localObject3);
 									this.var_3673 = this.time;
 									this.var_366b += 1;
 								} else {
@@ -2698,16 +2696,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						} else if (this.time - this.var_3673 >= 800L) {
 							sub_56c3();
 						}
-					} else if (this.var_386b != null) {
+					} else if (this.furyTargetUnit != null) {
 						if (this.var_3873 == 0) {
 							if (this.var_39cb) {
-								this.var_3863 = showSpriteOnMap(this.sparkSprite,
-										this.var_386b.posXPixel, -this.var_3423,
+								this.heavensFuryMissle = showSpriteOnMap(this.sparkSprite,
+										this.furyTargetUnit.posXPixel, -this.var_3423,
 										0, 12, -1, 0);
 								D_Menu localClass_d_0232;
 								(localClass_d_0232 = createDialog(null,
 										A_MenuBase.getLangString(280),
-										this.someGHeight, 2000)).sub_193f(
+										this.someGHeight, 2000)).setMenuLoc(
 										this.viewportWidth, 2, 17);
 								A_MenuBase.mainCanvas.showMenu(localClass_d_0232);
 								this.var_3873 = 1;
@@ -2716,52 +2714,50 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							for (int i = 0; i < 3; i++) {
 								showSpriteOnMap(
 										this.bigSmokeSprite,
-										this.var_3863.posXPixel
+										this.heavensFuryMissle.posXPixel
 												+ E_MainCanvas
-														.getRandomMax(this.var_3863.frameWidth
+														.getRandomMax(this.heavensFuryMissle.frameWidth
 																- this.bigSmokeSprite.frameWidth),
-										this.var_3863.posYPixel, 0, E_MainCanvas
+										this.heavensFuryMissle.posYPixel, 0, E_MainCanvas
 												.getRandomWithin(-3, 0), 1,
 										50 * E_MainCanvas.getRandomMax(4));
 							}
-							if (this.var_3863.posYPixel >= this.var_386b.posYPixel) {
-								this.var_3863.var_84c = false;
+							if (this.heavensFuryMissle.posYPixel >= this.furyTargetUnit.posYPixel) {
+								this.heavensFuryMissle.var_84c = false;
 								E_MainCanvas.vibrate(200);
 								startShakingScreen(500);
-								if (this.var_387b) {
-									int i3;
-									if ((i3 = 25 + E_MainCanvas.getRandomMax(25)) > this.var_386b.unitHealthMb) {
-										i3 = this.var_386b.unitHealthMb;
+								if (this.showFuryAfterEffect) {
+									int furyDmg = 25 + E_MainCanvas.getRandomMax(25);
+									if (furyDmg > this.furyTargetUnit.unitHealthMb) {
+										furyDmg = this.furyTargetUnit.unitHealthMb;
 									}
-									this.var_386b.unitHealthMb -= i3;
-									F_Sprite localObject31 = F_Sprite
-											.sub_15c2("-" + i3, 0, -4, (byte) 1);
-									localObject31
-											.setSpritePosition(
-													this.var_386b.posXPixel
-															+ this.var_386b.frameWidth
+									this.furyTargetUnit.unitHealthMb -= furyDmg;
+									F_Sprite furyDmgSprite = F_Sprite.sub_15c2("-" + furyDmg, 0, -4, (byte) 1);
+									furyDmgSprite.setSpritePosition(
+													this.furyTargetUnit.posXPixel
+															+ this.furyTargetUnit.frameWidth
 															/ 2,
-													this.var_386b.posYPixel
-															+ this.var_386b.frameHeight);
-									this.var_35c3.addElement(localObject31);
+													this.furyTargetUnit.posYPixel
+															+ this.furyTargetUnit.frameHeight);
+									this.someGameSpritesList.addElement(furyDmgSprite);
 								}
-								sub_b64d(this.var_386b);
+								showHeavensFuryAfterEffect(this.furyTargetUnit);
 								this.var_3873 = 2;
 							}
 						} else if (++this.var_3873 >= 20) {
-							if (this.var_386b.unitHealthMb <= 0) {
-								this.dyingUnit = this.var_386b;
+							if (this.furyTargetUnit.unitHealthMb <= 0) {
+								this.dyingUnit = this.furyTargetUnit;
 								showSpriteOnMap(this.sparkSprite, this.dyingUnit.posXPixel,
 										this.dyingUnit.posYPixel, 0, 0, 1, 50);
 								E_MainCanvas.playMusicLooped(12, 1);
 								this.var_35e3 = this.time;
 							}
-							this.var_386b = null;
+							this.furyTargetUnit = null;
 						}
 					} else if (this.var_35db != null) {
 						if (--this.var_3603 <= 0) {
 							E_MainCanvas.vibrate(100);
-							sub_b64d(this.var_35db);
+							showHeavensFuryAfterEffect(this.var_35db);
 							repairDestroyedHouse((byte) 27, this.var_35db.positionX,
 									this.var_35db.positionY);
 							this.var_35db = null;
@@ -2772,7 +2768,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 										this.dyingUnit.positionY))) {
 							if ((this.mapModeCampIf0 == 0) && (this.scenarioMapIndex == 7)
 									&& (this.dyingUnit == this.playersKings[1])) {
-								this.var_3883 = true;
+								this.isSaethDead = true;
 							} else {
 								showSpriteOnMap(this.smokeSprite, this.dyingUnit.posXPixel,
 										this.dyingUnit.posYPixel, 0, -3, 1, 100);
@@ -3062,7 +3058,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												this.activeUnit.goToPosition(
 														this.var_34ab,
 														this.var_34b3, true);
-												this.var_39b3 = this.activeUnit;
+												this.m_tempUnit = this.activeUnit;
 												this.isCursorVisible = false;
 												this.var_351b = false;
 												this.var_353b = null;
@@ -3206,57 +3202,56 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.canCancelMb = false;
 			this.canApplyMb = false;
 		}
-		for (i = this.var_35c3.size() - 1; i >= 0; i--) {
-			F_Sprite localObject21 = (F_Sprite) this.var_35c3
+		for (i = this.someGameSpritesList.size() - 1; i >= 0; i--) {
+			F_Sprite localObject21 = (F_Sprite) this.someGameSpritesList
 					.elementAt(i);
 			localObject21.spriteUpdate();
 			if (!((F_Sprite) localObject21).var_84c) {
-				this.var_35c3.removeElement(localObject21);
+				this.someGameSpritesList.removeElement(localObject21);
 			}
 		}
 		i = 0;
 		j = this.var_35cb.size();
 		while (i < j) {
-			this.var_35c3.addElement(this.var_35cb.elementAt(i));
+			this.someGameSpritesList.addElement(this.var_35cb.elementAt(i));
 			i++;
 		}
 		this.var_35cb.removeAllElements();
 	}
 
-	public final void sub_b64d(C_Unit paramClass_c_032) {
-		int i = paramClass_c_032.posYPixel + 24;
-		showSpriteOnMap(this.smokeSprite, paramClass_c_032.posXPixel, i
+	public final void showHeavensFuryAfterEffect(C_Unit unit) {
+		int i = unit.posYPixel + 24;
+		showSpriteOnMap(this.smokeSprite, unit.posXPixel, i
 				- this.smokeSprite.frameHeight, 0, -2, 1, 100);
 		for (int j = 0; j < 5; j++) {
-			showSpriteOnMap(this.bigSmokeSprite, paramClass_c_032.posXPixel, i
+			showSpriteOnMap(this.bigSmokeSprite, unit.posXPixel, i
 					- this.bigSmokeSprite.frameHeight, -2 + j,
 					E_MainCanvas.getRandomWithin(-4, -1), 1,
 					50 + 50 * E_MainCanvas.getRandomMax(4));
 		}
-		showSpriteOnMap(this.sparkSprite, paramClass_c_032.posXPixel,
-				paramClass_c_032.posYPixel, 0, 0, 1, 100);
+		showSpriteOnMap(this.sparkSprite, unit.posXPixel, unit.posYPixel, 0, 0, 1, 100);
 	}
 
-	public final void sub_b6fe(C_Unit paramClass_c_032, byte paramByte) {
-		this.var_35eb = paramClass_c_032;
+	public final void sub_b6fe(C_Unit unit1, byte paramByte) {
+		this.var_35eb = unit1;
 		this.var_35f3 = paramByte;
-		showSpriteOnMap(this.sparkSprite, paramClass_c_032.posXPixel - 8,
-				paramClass_c_032.posYPixel - 8, 1, 1, 3, 50);
-		showSpriteOnMap(this.sparkSprite, paramClass_c_032.posXPixel + 8,
-				paramClass_c_032.posYPixel - 8, -1, 1, 3, 50);
-		showSpriteOnMap(this.sparkSprite, paramClass_c_032.posXPixel - 8,
-				paramClass_c_032.posYPixel + 8, 1, -1, 3, 50);
-		showSpriteOnMap(this.sparkSprite, paramClass_c_032.posXPixel + 8,
-				paramClass_c_032.posYPixel + 8, -1, -1, 3, 50);
+		showSpriteOnMap(this.sparkSprite, unit1.posXPixel - 8,
+				unit1.posYPixel - 8, 1, 1, 3, 50);
+		showSpriteOnMap(this.sparkSprite, unit1.posXPixel + 8,
+				unit1.posYPixel - 8, -1, 1, 3, 50);
+		showSpriteOnMap(this.sparkSprite, unit1.posXPixel - 8,
+				unit1.posYPixel + 8, 1, -1, 3, 50);
+		showSpriteOnMap(this.sparkSprite, unit1.posXPixel + 8,
+				unit1.posYPixel + 8, -1, -1, 3, 50);
 		this.var_35fb = this.time;
 	}
 
 	public final void sub_b79b() {
-		if (this.var_39b3 == null) {
+		if (this.m_tempUnit == null) {
 			sub_b9f2(this.cursorSprite.posXPixel + 12, this.cursorSprite.posYPixel + 12);
 			return;
 		}
-		sub_b9f2(this.var_39b3.posXPixel + 12, this.var_39b3.posYPixel + 12);
+		sub_b9f2(this.m_tempUnit.posXPixel + 12, this.m_tempUnit.posYPixel + 12);
 	}
 
 	public final boolean sub_b7ff(int paramInt1, int paramInt2) {
@@ -3317,13 +3312,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (k < 0) {
 				if (n > -this.var_39c3) {
 					n = -this.var_39c3;
-				} else if (n < -this.var_39bb) {
-					n = -this.var_39bb;
+				} else if (n < -this.someCameraVelocityMb) {
+					n = -this.someCameraVelocityMb;
 				}
 			} else if (n < this.var_39c3) {
 				n = this.var_39c3;
-			} else if (n > this.var_39bb) {
-				n = this.var_39bb;
+			} else if (n > this.someCameraVelocityMb) {
+				n = this.someCameraVelocityMb;
 			}
 			this.var_341b += n;
 			this.var_39cb = false;
@@ -3333,13 +3328,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (m < 0) {
 				if (n > -this.var_39c3) {
 					n = -this.var_39c3;
-				} else if (n < -this.var_39bb) {
-					n = -this.var_39bb;
+				} else if (n < -this.someCameraVelocityMb) {
+					n = -this.someCameraVelocityMb;
 				}
 			} else if (n < this.var_39c3) {
 				n = this.var_39c3;
-			} else if (n > this.var_39bb) {
-				n = this.var_39bb;
+			} else if (n > this.someCameraVelocityMb) {
+				n = this.someCameraVelocityMb;
 			}
 			this.var_3423 += n;
 			this.var_39cb = false;
@@ -3354,7 +3349,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3983 = true;
 	}
 
-	public final void sub_bbf2(Graphics paramGraphics) {
+	public final void sub_bbf2(Graphics gr) {
 		int i = -this.var_341b / 24;
 		int j;
 		if ((j = -this.var_3423 / 24) < 0) {
@@ -3387,24 +3382,24 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				int i7 = this.mapTilesIds[i5][i4];
 				if ((!this.var_351b) || (this.someMapData[i5][i4] == 0)
 						|| (this.alphaWindowWTF > 0)) {
-					this.allTilesImages[i7].drawImageExt(paramGraphics, i1, i2);
+					this.allTilesImages[i7].drawImageExt(gr, i1, i2);
 				}
 				if ((this.var_351b) && (this.someMapData[i5][i4] > 0)) {
 					if (this.alphaWindowWTF != 0) {
-						paramGraphics.clipRect(i1 + this.alphaWindowWTF, i2
+						gr.clipRect(i1 + this.alphaWindowWTF, i2
 								+ this.alphaWindowWTF, 24 - this.alphaWindowWTF * 2,
 								24 - this.alphaWindowWTF * 2);
 					}
-					paramGraphics.drawImage(this.alphaMappedTilesImages[i3][i7], i1, i2, 0);
+					gr.drawImage(this.alphaMappedTilesImages[i3][i7], i1, i2, 0);
 					if (this.alphaWindowWTF != 0) {
-						paramGraphics.setClip(0, 0, this.someGWidth,
+						gr.setClip(0, 0, this.someGWidth,
 								this.someGHeight);
 					}
 				}
 				int i6;
 				if (((i6 = i4 + 1) < this.mapHeight)
 						&& (this.tilesProps[this.mapTilesIds[i5][i6]] == 9)) {
-					this.allTilesImages[28].drawImageExt(paramGraphics, i1, i2);
+					this.allTilesImages[28].drawImageExt(gr, i1, i2);
 				}
 				i1 += 24;
 			}
@@ -3484,7 +3479,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.gameMode2Mb = 3;
 	}
 
-	public final void sub_c16e(String text) {
+	public final void gameOverVictory(String text) {
 		this.var_3a13 = this.gameMode2Mb;
 		this.introText = A_MenuBase.wrapText(text, this.someCanWidth, E_MainCanvas.font0);
 		this.waveImageAmplitude = 16;
@@ -3858,10 +3853,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3423 + 12, 3);
 			}
 			int k = 0;
-			m = this.var_35c3.size();
+			m = this.someGameSpritesList.size();
 			while (k < m) {
 				F_Sprite localClass_f_045;
-				(localClass_f_045 = (F_Sprite) this.var_35c3.elementAt(k))
+				(localClass_f_045 = (F_Sprite) this.someGameSpritesList.elementAt(k))
 						.draw(gr, this.var_341b, this.var_3423
 								+ localClass_f_045.var_80c);
 				k++;
@@ -4504,11 +4499,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							this.activeUnit.posYPixel + 12)) {
 						if ((this.mapModeCampIf0 == 0) && (this.scenarioMapIndex == 7)
 								&& (this.activeUnit == this.playersKings[1])) {
-							this.var_39b3 = null;
+							this.m_tempUnit = null;
 							C_Unit[] localObject1 = getUnitsOfTypeStatePlayer(-1, -1,
 									(byte) 0);
 							if (localObject1.length > 0) {
-								sub_558c(localObject1[E_MainCanvas
+								targetUnit(localObject1[E_MainCanvas
 										.getRandomMax(localObject1.length)]);
 							}
 							this.var_3a6b = 4;
@@ -4665,7 +4660,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					&& (this.playersKings[1].m_state != 2)) {
 				this.activeUnit = this.playersKings[1];
 				moveCursorToPos(this.activeUnit.positionX, this.activeUnit.positionY);
-				this.var_39b3 = this.activeUnit;
+				this.m_tempUnit = this.activeUnit;
 				this.var_3a6b = 3;
 				this.var_3b0b.removeElement(this.activeUnit);
 				return;
@@ -4974,7 +4969,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		moveCursorToPos(paramClass_c_032.positionX, paramClass_c_032.positionY);
-		this.var_39b3 = paramClass_c_032;
+		this.m_tempUnit = paramClass_c_032;
 		this.var_3a6b = 3;
 	}
 
@@ -5117,7 +5112,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		D_Menu dialog = new D_Menu((byte) 7, 12);
 		int i = E_MainCanvas.someMenuShiftHeight * 3;
 		dialog.sub_1a04(msg, this.someCanWidth, i, paramByte1, paramByte2);
-		dialog.sub_193f(0, this.someCanHeight - i, 0);
+		dialog.setMenuLoc(0, this.someCanHeight - i, 0);
 		A_MenuBase.mainCanvas.showMenu(dialog);
 		return dialog;
 	}
@@ -5132,7 +5127,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		D_Menu localClass_d_023;
 		(localClass_d_023 = new D_Menu((byte) 10, 12)).createDescDialogMb(
 				header, msg, this.someCanWidth, paramInt2);
-		localClass_d_023.sub_193f(this.someCanWidthDiv2, paramInt1 / 2, 3);
+		localClass_d_023.setMenuLoc(this.someCanWidthDiv2, paramInt1 / 2, 3);
 		localClass_d_023.parentMenu = this;
 		localClass_d_023.var_10c5 = showTime;
 		return localClass_d_023;
@@ -5145,7 +5140,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_3793 = true;
 			this.isUpdatingMb = false;
 			this.mapNameDialog = createDialog(null, this.mapName, this.someCanHeight, 2000);
-			this.mapNameDialog.sub_193f(this.someCanWidthDiv2, this.someCanHeightDiv2, 3);
+			this.mapNameDialog.setMenuLoc(this.someCanWidthDiv2, this.someCanHeightDiv2, 3);
 			this.isFading = true;
 			this.var_380b = true;
 			this.fadeInColor = 0;
@@ -5155,7 +5150,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_35a3[0] = 0;
 			this.var_35a3[1] = 0;
 			C_Unit.var_a7b = 4;
-			this.var_39bb = 2;
+			this.someCameraVelocityMb = 2;
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			loadIntro(2, 3, 3);
@@ -5170,7 +5165,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_35a3[0] = 300;
 			this.var_35a3[1] = 50;
 			C_Unit.var_a7b = 4;
-			this.var_39bb = 2;
+			this.someCameraVelocityMb = 2;
 			this.playersKings[0].setKingName(2);
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
@@ -5215,7 +5210,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.playersKings[0].goToPosition(3, 3, false);
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(3, 3);
-			this.var_39b3 = this.playersKings[0];
+			this.m_tempUnit = this.playersKings[0];
 			loadIntro(3, 3, 3);
 			E_MainCanvas.playMusicLooped2(1, 1);
 			this.isFading = false;
@@ -5256,7 +5251,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.playersKings[0].setKingName(2);
 			sub_b9c5(5, 0);
 			moveCursorToPos(5, 0);
-			this.var_39bb = 4;
+			this.someCameraVelocityMb = 4;
 			moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
 			this.isCursorVisible = false;
@@ -5283,7 +5278,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.playersKings[0].goToPosition(14, 3, true);
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
-			this.var_39b3 = this.playersKings[0];
+			this.m_tempUnit = this.playersKings[0];
 			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
 			this.isCursorVisible = false;
 			this.scriptStep = 0;
@@ -5454,7 +5449,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				break;
 			case 4:
 				waitScript(10);
-				this.var_39bb = 12;
+				this.someCameraVelocityMb = 12;
 				C_Unit.var_a7b = C_Unit.var_a73;
 				this.scriptStep += 1;
 				break;
@@ -5643,7 +5638,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.scriptStep += 1;
 				break;
 			case 2:
-				this.var_39bb = 4; //??
+				this.someCameraVelocityMb = 4; //??
 				moveCameraTo(12, 3);
 				break;
 			case 3:
@@ -5714,7 +5709,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.skeleton1Map2 = null;
 				this.crystalOfWisdom = null;
 				this.skeleton2Map2 = null;
-				this.var_39bb = 12;
+				this.someCameraVelocityMb = 12;
 				moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
 				break;
 			case 12:
@@ -5974,7 +5969,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			break;
 		case 1:
 			if (this.playersKings[0].m_state != 1) {
-				this.var_39b3 = null;
+				this.m_tempUnit = null;
 				waitScript(20);
 				this.scriptStep += 1;
 			}
@@ -6008,7 +6003,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.skeleton1Map2 = null;
 			this.crystalOfWisdom = null;
 			this.skeleton2Map2 = null;
-			this.var_39bb = 2;//??
+			this.someCameraVelocityMb = 2;//??
 			waitScript(5);
 			this.scriptStep += 1;
 			break;
@@ -6024,7 +6019,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			break;
 		case 8:
 			C_Unit.var_a7b = 2;
-			this.var_39bb = 4;
+			this.someCameraVelocityMb = 4;
 			this.skeleton1Map2 = getSomeUnit(10, 10, (byte) 0);
 			this.skeleton1Map2.goToPosition(6, 10, false);
 			moveCursorToPos(6, 10);
@@ -6054,6 +6049,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.scriptStep += 1;
 			break;
 		case 12:
+			//They are destroying our buildings to cripple...
 			showUnitDialogMsg(A_MenuBase.getLangString(252), (byte) 5, (byte) 4);
 			moveCameraTo(7, 1);
 			break;
@@ -6111,6 +6107,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.scriptStep += 1;
 					break;
 				case 1:
+					//Your Highness, I do not like the look
 					showUnitDialogMsg(A_MenuBase.getLangString(256), (byte) 5, (byte) 4);
 					waitScript(5);
 					this.scriptStep += 1;
@@ -6125,11 +6122,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.scriptStep += 1;
 					break;
 				case 4:
-					C_Unit[] localObject1 = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
+					C_Unit[] plUnits = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
 					int m = 0;
-					while (m < localObject1.length) {
-						if ((localObject1[m].m_state == 2)
-								&& (localObject1[m].positionX <= 8)) {
+					while (m < plUnits.length) {
+						if ((plUnits[m].m_state == 2) && (plUnits[m].positionX <= 8)) {
 							this.isUpdatingMb = false;
 							waitScript(5);
 							this.scriptStep += 1;
@@ -6145,26 +6141,24 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.scriptStep += 1;
 					break;
 				case 6:
-					C_Unit.createUnitOnMap((byte) 10, (byte) 1, 4, 4).goToPosition(4, 1, false, true);
+					C_Unit.createUnitOnMap((byte) 10, (byte) 1, 4, 4).goToPosition(4, 1, false, true); //skeleton
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 7:
-					C_Unit.createUnitOnMap((byte) 1, (byte) 1, 4, 4)
-					.goToPosition(5, 2, false, true);
+					C_Unit.createUnitOnMap((byte) 1, (byte) 1, 4, 4).goToPosition(5, 2, false, true); //archer
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 8:
-					C_Unit.createUnitOnMap((byte) 10, (byte) 1, 4, 4).goToPosition(4, 3, false, true);
+					C_Unit.createUnitOnMap((byte) 10, (byte) 1, 4, 4).goToPosition(4, 3, false, true); //skeleton
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 9:
-					showUnitDialogMsg(A_MenuBase.getLangString(258), (byte) 5,
-							(byte) 4);
-					moveCameraTo(this.playersKings[0].positionX,
-							this.playersKings[0].positionY);
+					//Ambush! Protect the Crystal at all cost!...
+					showUnitDialogMsg(A_MenuBase.getLangString(258), (byte) 5, (byte) 4);
+					moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
 					this.scriptStep += 1;
 					break;
 				case 10:
@@ -6173,11 +6167,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.scriptStep += 1;
 					break;
 				case 11:
-					localObject1 = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
+					plUnits = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
 					m = 0;
-					while (m < localObject1.length) {
-						if ((localObject1[m].m_state == 2)
-								&& (localObject1[m].positionY >= 7)) {
+					while (m < plUnits.length) {
+						if ((plUnits[m].m_state == 2)
+								&& (plUnits[m].positionY >= 7)) {
 							this.isUpdatingMb = false;
 							this.isCursorVisible = false;
 							moveCameraTo(6, 10);
@@ -6189,30 +6183,28 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 					break;
 				case 12:
-					C_Unit.createUnitOnMap((byte) 1, (byte) 1, 6,
-							10).goToPosition(5, 10, false, true);
+					C_Unit.createUnitOnMap((byte) 1, (byte) 1, 6, 10).goToPosition(5, 10, false, true); //archer
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 13:
-					C_Unit.createUnitOnMap((byte) 5, (byte) 1, 6, 10).goToPosition(7, 8, false, true);
+					C_Unit.createUnitOnMap((byte) 5, (byte) 1, 6, 10).goToPosition(7, 8, false, true); //wolf
 					waitScript(15);
 					this.scriptStep += 1;
 					break;
 				case 14:
-					C_Unit.createUnitOnMap((byte) 5, (byte) 1, 6,
-							10).goToPosition(7, 9, false, true);
+					C_Unit.createUnitOnMap((byte) 5, (byte) 1, 6, 10).goToPosition(7, 9, false, true); //wolf
 					this.isUpdatingMb = true;
 					this.isCursorVisible = true;
 					this.scriptStep += 1;
 					break;
 				case 15:
-					localObject1 = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
+					plUnits = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
 					m = 0;
-					while (m < localObject1.length) {
-						if ((localObject1[m].m_state == 2)
-								&& (localObject1[m].positionX >= 8)
-								&& (localObject1[m].positionY >= 6)) {
+					while (m < plUnits.length) {
+						if ((plUnits[m].m_state == 2)
+								&& (plUnits[m].positionX >= 8)
+								&& (plUnits[m].positionY >= 6)) {
 							this.isUpdatingMb = false;
 							this.isCursorVisible = false;
 							moveCameraTo(12, 5);
@@ -6224,35 +6216,28 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 					break;
 				case 16:
-					C_Unit.createUnitOnMap((byte) 5,
-							(byte) 1, 12, 5).goToPosition(
-							12, 7, false, true);
+					C_Unit.createUnitOnMap((byte) 5, (byte) 1, 12, 5).goToPosition(	12, 7, false, true);//wolf
 					waitScript(15);
 					this.scriptStep += 1;
 					break;
 				case 17:
-					C_Unit.createUnitOnMap((byte) 6,
-							(byte) 1, 12, 5).goToPosition(
-							12, 6, false, true);
+					C_Unit.createUnitOnMap((byte) 6, (byte) 1, 12, 5).goToPosition(	12, 6, false, true); //golem
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 18:
-					C_Unit.createUnitOnMap((byte) 5,
-							(byte) 1, 12, 5).goToPosition(
-							12, 5, false, true);
+					C_Unit.createUnitOnMap((byte) 5, (byte) 1, 12, 5).goToPosition(	12, 5, false, true); //wolf
 					this.isUpdatingMb = true;
 					this.isCursorVisible = true;
 					this.scriptStep += 1;
 					break;
 				case 19:
-					localObject1 = getUnitsOfTypeStatePlayer(-1, -1,
-							(byte) 0);
+					plUnits = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
 					m = 0;
-					while (m < localObject1.length) {
-						if ((localObject1[m].m_state == 2)
-								&& (localObject1[m].positionX >= 15)
-								&& (localObject1[m].positionY >= 8)) {
+					while (m < plUnits.length) {
+						if ((plUnits[m].m_state == 2)
+								&& (plUnits[m].positionX >= 15)
+								&& (plUnits[m].positionY >= 8)) {
 							this.isUpdatingMb = false;
 							this.isCursorVisible = false;
 							moveCameraTo(18, 8);
@@ -6264,45 +6249,32 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 					break;
 				case 20:
-					C_Unit.createUnitOnMap(
-							(byte) 5, (byte) 1,
-							18, 8).goToPosition(16,
-							10, false, true);
+					C_Unit.createUnitOnMap((byte) 5, (byte) 1, 18, 8).goToPosition(16, 10, false, true);
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 21:
-					C_Unit.createUnitOnMap(
-							(byte) 6, (byte) 1,
-							18, 8).goToPosition(17,
-							10, false, true);
+					C_Unit.createUnitOnMap((byte) 6, (byte) 1, 18, 8).goToPosition(17, 10, false, true);
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 22:
-					C_Unit.createUnitOnMap( (byte) 5, (byte) 1,	18, 8).goToPosition(18,	10, false, true);
+					C_Unit.createUnitOnMap((byte) 5, (byte) 1,	18, 8).goToPosition(18,	10, false, true);
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 23:
-					C_Unit.createUnitOnMap(
-							(byte) 1, (byte) 1,
-							18, 8).goToPosition(18,
-							9, false, true);
+					C_Unit.createUnitOnMap((byte) 1, (byte) 1, 18, 8).goToPosition(18, 9, false, true);
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 24:
-					showUnitDialogMsg(
-							A_MenuBase
-									.getLangString(259),
-							(byte) 0, (byte) 4);
+					showUnitDialogMsg(A_MenuBase.getLangString(259), (byte) 0, (byte) 4);
 					this.isUpdatingMb = true;
 					this.isCursorVisible = true;
 					this.scriptStep += 1;
 					break;
 				case 25:
-					//@todo
 					if( (this.crystal3Unit.positionX >= 15)
 						&& (this.crystal3Unit.positionY >= 11)
 						&& (this.crystal3Unit.m_state == 2)) {
@@ -6372,7 +6344,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 				if (this.crystal3Unit.m_state == 3) {
 					this.crystal3Unit = null;
-					sub_1447e();
+					sub_1447e(); //gameover
 					return;
 				}
 			}
@@ -6380,7 +6352,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			switch (this.scriptStep) {
 				case 0:
 					if (this.playersKings[0].m_state != 1) {
-						this.var_39b3 = null;
+						this.m_tempUnit = null;
 						waitScript(10);
 						this.scriptStep += 1;
 					}
@@ -6396,9 +6368,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.scriptStep += 1;
 					break;
 				case 3:
-					C_Unit[] localObject1 = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
-					for (int m = 0; m < localObject1.length; m++) {
-						localObject1[m].followerUnitMb = null;
+					C_Unit[] plUnits = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
+					for (int m = 0; m < plUnits.length; m++) {
+						plUnits[m].followerUnitMb = null;
 					}
 					showObjective();
 					this.scriptStep += 1;
@@ -6412,55 +6384,49 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 					break;
 				case 5:
-					C_Unit localClass_c_0323 = C_Unit.createUnitOnMap((byte) 5,
-							(byte) 1, 11, 8);
-					localClass_c_0323.fillWhereUnitCanMove(this.someMapData);
-					localClass_c_0323.goToPosition(14, 7, true);
+					C_Unit unit2 = C_Unit.createUnitOnMap((byte) 5, (byte) 1, 11, 8); //wolf
+					unit2.fillWhereUnitCanMove(this.someMapData);
+					unit2.goToPosition(14, 7, true);
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 6:
-					C_Unit luuUnit = C_Unit.createUnitOnMap((byte) 0,
-							(byte) 1, 11, 8);
-					luuUnit.fillWhereUnitCanMove(this.someMapData);
-					luuUnit.goToPosition(13, 7, true);
+					C_Unit unit3 = C_Unit.createUnitOnMap((byte) 0, (byte) 1, 11, 8); //soldier
+					unit3.fillWhereUnitCanMove(this.someMapData);
+					unit3.goToPosition(13, 7, true);
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 7:
-					C_Unit localObject21 = C_Unit.createUnitOnMap(
-							(byte) 3, (byte) 1, 11, 8);
-					localObject21.fillWhereUnitCanMove(this.someMapData);
-					((C_Unit) localObject21).goToPosition(12, 7, true);
+					C_Unit unit4 = C_Unit.createUnitOnMap((byte) 3, (byte) 1, 11, 8); //magi
+					unit4.fillWhereUnitCanMove(this.someMapData);
+					unit4.goToPosition(12, 7, true);
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 8:
-					C_Unit localObject31 = C_Unit.createUnitOnMap(
-							(byte) 1, (byte) 1, 11, 8);
-					localObject31.goToPosition(13, 8, false);
+					C_Unit unit5 = C_Unit.createUnitOnMap((byte) 1, (byte) 1, 11, 8); //archer
+					unit5.goToPosition(13, 8, false);
 					waitScript(20);
 					this.scriptStep += 1;
 					break;
 				case 9:
+					//Another ambush! Don't let the Crystal leave your sight!
 					showUnitDialogMsg(A_MenuBase.getLangString(264), (byte) 5, (byte) 4);
 					this.isUpdatingMb = true;
 					this.isCursorVisible = true;
-					moveCameraTo(this.playersKings[0].positionX,
-							this.playersKings[0].positionY);
+					moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
 					break;
 				case 10:
-					int i3 = 0;
-					C_Unit[] arrayOfClass_c_032 = getUnitsOfTypeStatePlayer(-1, 2,
-							(byte) 0);
-					for (int i4 = 0; i4 < arrayOfClass_c_032.length; i4++) {
-						if ((arrayOfClass_c_032[i4].positionX <= 9)
-								|| (arrayOfClass_c_032[i4].positionY >= 10)) {
-							i3 = 1;
+					boolean outsideTheRegion = false;
+					C_Unit[] unitsEndedTurn = getUnitsOfTypeStatePlayer(-1, 2, (byte) 0);
+					for (int uT = 0; uT < unitsEndedTurn.length; uT++) {
+						if ((unitsEndedTurn[uT].positionX <= 9) || (unitsEndedTurn[uT].positionY >= 10)) {
+							outsideTheRegion = true;
 							break;
 						}
 					}
-					if ((i3 != 0) || (countSomeUnits(-1, -1, (byte) 1) == 0)) {
+					if ((outsideTheRegion) || (countSomeUnits(-1, -1, (byte) 1) == 0)) {
 						this.isCursorVisible = false;
 						this.isUpdatingMb = false;
 						waitScript(10);
@@ -6468,47 +6434,45 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 					break;
 				case 11:
-					this.skeleton1Map2 = getUnitsOfTypeStatePlayer(11, -1, (byte) 0)[0];
+					this.skeleton1Map2 = getUnitsOfTypeStatePlayer(11, -1, (byte) 0)[0]; //crystal
 					this.crystalOfWisdom = C_Unit.createUnitOnMap((byte) 8, (byte) 1,
-							this.mapWidth, this.skeleton1Map2.positionY);
+							this.mapWidth, this.skeleton1Map2.positionY); // dragon
 					moveCameraTo(this.mapWidth - 1, this.skeleton1Map2.positionY);
 					this.isCursorVisible = false;
 					break;
 				case 12:
-					this.crystalOfWisdom.goToPosition(this.skeleton1Map2.positionX,
-							this.skeleton1Map2.positionY, false);
+					this.crystalOfWisdom.goToPosition(this.skeleton1Map2.positionX, this.skeleton1Map2.positionY, false);
 					waitScript(5);
 					this.scriptStep += 1;
 					break;
 				case 13:
+					// Troops! That dragon is heading...
 					showUnitDialogMsg(A_MenuBase.getLangString(265), (byte) 5, (byte) 4);
-					this.var_39b3 = this.crystalOfWisdom;
+					this.m_tempUnit = this.crystalOfWisdom;
 					this.scriptStep += 1;
 					break;
 				case 14:
-					if (this.crystalOfWisdom.m_state != 1) {
-						showUnitDialogMsg(A_MenuBase.getLangString(266), (byte) 0,
-								(byte) 4);
-						this.crystalOfWisdom.goToPosition(-1, this.crystalOfWisdom.positionY,
-								false);
+					if (this.crystalOfWisdom.m_state != 1) { //stopped running
+						// It is the Crystal it is after! May the Creator protect us!...
+						showUnitDialogMsg(A_MenuBase.getLangString(266), (byte) 0, (byte) 4);
+						this.crystalOfWisdom.goToPosition(-1, this.crystalOfWisdom.positionY, false);
 						waitScript(3);
 						this.scriptStep += 1;
 					}
 					break;
 				case 15:
-					this.skeleton1Map2
-							.goToPosition(-1, this.crystalOfWisdom.positionY, false);
+					this.skeleton1Map2.goToPosition(-1, this.crystalOfWisdom.positionY, false);
 					this.scriptStep += 1;
 					break;
 				case 16:
-					if (this.crystalOfWisdom.m_state != 1) {
+					if (this.crystalOfWisdom.m_state != 1) { //stopped running
 						waitScript(10);
 						this.skeleton1Map2.removeFromMap();
 						this.crystalOfWisdom.removeFromMap();
 						moveCursorToPos(0, this.crystalOfWisdom.positionY);
 						this.skeleton1Map2 = null;
 						this.crystalOfWisdom = null;
-						this.var_39b3 = null;
+						this.m_tempUnit = null;
 						this.scriptStep += 1;
 					}
 					break;
@@ -6516,27 +6480,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					moveCameraTo(1, 9);
 					break;
 				case 18:
-					this.playersKings[1] = C_Unit.createUnitOnMap((byte) 9,
-							(byte) 1, -2, 8);
+					this.playersKings[1] = C_Unit.createUnitOnMap((byte) 9, (byte) 1, -2, 8);
 					this.playersKings[1].goToPosition(0, 8, false);
-					C_Unit.createUnitOnMap((byte) 0, (byte) 1, -1, 8)
-							.goToPosition(3, 8, false);
-					C_Unit.createUnitOnMap((byte) 0, (byte) 1, -1, 10)
-							.goToPosition(1, 10, false);
-					C_Unit.createUnitOnMap((byte) 8, (byte) 1, -3, 7)
-							.goToPosition(4, 8, false);
-					C_Unit.createUnitOnMap((byte) 8, (byte) 1, -3, 11)
-							.goToPosition(2, 10, false);
-					C_Unit.createUnitOnMap((byte) 4, (byte) 1, -2, 9)
-							.goToPosition(2, 9, false);
-					C_Unit.createUnitOnMap((byte) 6, (byte) 1, -4, 9)
-							.goToPosition(4, 9, false);
-					C_Unit.createUnitOnMap((byte) 6, (byte) 1, -6, 9)
-							.goToPosition(5, 10, false);
+					C_Unit.createUnitOnMap((byte) 0, (byte) 1, -1, 8).goToPosition(3, 8, false);
+					C_Unit.createUnitOnMap((byte) 0, (byte) 1, -1, 10).goToPosition(1, 10, false);
+					C_Unit.createUnitOnMap((byte) 8, (byte) 1, -3, 7).goToPosition(4, 8, false);
+					C_Unit.createUnitOnMap((byte) 8, (byte) 1, -3, 11).goToPosition(2, 10, false);
+					C_Unit.createUnitOnMap((byte) 4, (byte) 1, -2, 9).goToPosition(2, 9, false);
+					C_Unit.createUnitOnMap((byte) 6, (byte) 1, -4, 9).goToPosition(4, 9, false);
+					C_Unit.createUnitOnMap((byte) 6, (byte) 1, -6, 9).goToPosition(5, 10, false);
 					waitScript(50);
 					this.scriptStep += 1;
 					break;
 				case 19:
+					//Run, pitiful human, before it is too late!...
 					showUnitDialogMsg(A_MenuBase.getLangString(267), (byte) 3, (byte) 4);
 					this.scriptStep += 1;
 					break;
@@ -6544,30 +6501,27 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					moveCameraTo(13, 14);
 					break;
 				case 21:
-					C_Unit.createUnitOnMap((byte) 0, (byte) 1, 13, 14)
-							.goToPosition(12, 14, false);
+					C_Unit.createUnitOnMap((byte) 0, (byte) 1, 13, 14).goToPosition(12, 14, false);
 					waitScript(5);
 					this.scriptStep += 1;
 					break;
 				case 22:
-					C_Unit.createUnitOnMap((byte) 6, (byte) 1, 13, 14)
-							.goToPosition(14, 14, false);
+					C_Unit.createUnitOnMap((byte) 6, (byte) 1, 13, 14).goToPosition(14, 14, false);
 					waitScript(5);
 					this.scriptStep += 1;
 					break;
 				case 23:
-					C_Unit.createUnitOnMap((byte) 2, (byte) 1, 13, 14)
-							.goToPosition(13, 12, false);
+					C_Unit.createUnitOnMap((byte) 2, (byte) 1, 13, 14).goToPosition(13, 12, false);
 					waitScript(5);
 					this.scriptStep += 1;
 					break;
 				case 24:
-					C_Unit.createUnitOnMap((byte) 3, (byte) 1, 13, 14)
-							.goToPosition(13, 15, false);
+					C_Unit.createUnitOnMap((byte) 3, (byte) 1, 13, 14).goToPosition(13, 15, false);
 					waitScript(15);
 					this.scriptStep += 1;
 					break;
 				case 25:
+					//The enemy force looks formidable, I recommend retreat...
 					showUnitDialogMsg(A_MenuBase.getLangString(268), (byte) 5, (byte) 4);
 					waitScript(10);
 					this.scriptStep += 1;
@@ -6581,29 +6535,24 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					moveCameraTo(13, 17);
 					break;
 				case 28:
-					C_Unit localClass_c_0325;
-					(localClass_c_0325 = C_Unit.createUnitOnMap((byte) 9,
-							(byte) 0, 13, 18)).setKingName(2);
-					localClass_c_0325.goToPosition(13, 16, false);
-					C_Unit.createUnitOnMap((byte) 6, (byte) 0, 12, 18)
-							.goToPosition(12, 16, false);
-					C_Unit.createUnitOnMap((byte) 8, (byte) 0, 14, 19)
-							.goToPosition(14, 16, false);
-					C_Unit.createUnitOnMap((byte) 4, (byte) 0, 13, 19)
-							.goToPosition(13, 17, false);
-					C_Unit.createUnitOnMap((byte) 1, (byte) 0, 12, 19)
-							.goToPosition(12, 17, false);
+					C_Unit valadorn  = C_Unit.createUnitOnMap((byte) 9, (byte) 0, 13, 18); // valadorn
+					valadorn.setKingName(2);
+					valadorn.goToPosition(13, 16, false);
+					C_Unit.createUnitOnMap((byte) 6, (byte) 0, 12, 18).goToPosition(12, 16, false);
+					C_Unit.createUnitOnMap((byte) 8, (byte) 0, 14, 19).goToPosition(14, 16, false);
+					C_Unit.createUnitOnMap((byte) 4, (byte) 0, 13, 19).goToPosition(13, 17, false);
+					C_Unit.createUnitOnMap((byte) 1, (byte) 0, 12, 19).goToPosition(12, 17, false);
 					waitScript(20);
 					this.scriptStep += 1;
 					break;
 				case 29:
+					//Galamar! We came as fast as we could! Let us fight side by side!...
 					showUnitDialogMsg(A_MenuBase.getLangString(270), (byte) 1, (byte) 4);
 					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 30:
-					moveCameraTo(this.playersKings[0].positionX,
-							this.playersKings[0].positionY);
+					moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
 					break;
 				case 31:
 					this.helpTipId = 18;
@@ -6621,8 +6570,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.scriptStep += 1;
 					break;
 				case 33:
-					if ((countSomeUnits(-1, -1, (byte) 1) == 0)
-							&& (countPlayerOwnerCastles(1) == 0)) {
+					if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
 						this.isUpdatingMb = false;
 						this.isCursorVisible = false;
 						waitScript(10);
@@ -6636,6 +6584,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 	
 	public final void updateScenarioScript8() throws Exception{
+		//intro missing @todo
 		switch (this.scriptStep) {
 			case 0:
 				A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
@@ -6644,16 +6593,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				break;
 			case 1:
 				if (!this.var_380b) {
-					showUnitDialogMsg(A_MenuBase.getLangString(271), (byte) 0,
-							(byte) 4);
+					//The Ruins of the Ancient Citadel... and Saeth! With the Crystals!
+					showUnitDialogMsg(A_MenuBase.getLangString(271), (byte) 0, (byte) 4);
 					this.scriptStep += 1;
 				}
 				break;
 			case 2:
-				moveCameraTo(this.playersKings[1].positionX,
-						this.playersKings[1].positionY);
+				moveCameraTo(this.playersKings[1].positionX, this.playersKings[1].positionY);
+				this.scriptStep += 1;
 				break;
 			case 3:
+				//At last, Galamar and Valadorn!...
 				showUnitDialogMsg(A_MenuBase.getLangString(272), (byte) 4, (byte) 4);
 				waitScript(10);
 				this.scriptStep += 1;
@@ -6668,7 +6618,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.scriptStep += 1;
 				break;
 			case 6:
-				this.skeleton1Map2 = getSomeUnit(5, 2, (byte) 0);
+				this.skeleton1Map2 = getSomeUnit(5, 2, (byte) 0); // crystal 1
 				this.skeleton1Map2.goToPosition(7, 2, false);
 				this.scriptStep += 1;
 				break;
@@ -6676,16 +6626,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if (this.skeleton1Map2.m_state != 1) {
 					this.skeleton1Map2.removeFromMap();
 					this.skeleton1Map2 = null;
-					this.crystalOfWisdom = getSomeUnit(7, 3, (byte) 0);
+					this.crystalOfWisdom = getSomeUnit(7, 3, (byte) 0); // crystal 2
 					this.crystalOfWisdom.goToPosition(7, 2, false);
 					this.scriptStep += 1;
 				}
 				break;
 			case 8:
-				if (this.crystalOfWisdom.m_state != 1) {
+				if (this.crystalOfWisdom.m_state != 1) { 
 					this.crystalOfWisdom.removeFromMap();
 					this.crystalOfWisdom = null;
-					this.skeleton2Map2 = getSomeUnit(9, 2, (byte) 0);
+					this.skeleton2Map2 = getSomeUnit(9, 2, (byte) 0); // crystal 3
 					this.skeleton2Map2.goToPosition(7, 2, false);
 					this.scriptStep += 1;
 				}
@@ -6694,7 +6644,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if (this.skeleton2Map2.m_state != 1) {
 					this.skeleton2Map2.removeFromMap();
 					this.skeleton2Map2 = null;
-					this.playersKings[1].goToPosition(7, 2, false);
+					this.playersKings[1].goToPosition(7, 2, false); // saeth
 					waitScript(20);
 					this.scriptStep += 1;
 				}
@@ -6704,32 +6654,30 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.isCursorVisible = true;
 				break;
 			case 11:
-				D_Menu localObject11 = createDialog(null,
-						A_MenuBase.getLangString(279), this.someGHeight, 2000);
-				localObject11.sub_193f(this.viewportWidth, 2, 17);
-				A_MenuBase.mainCanvas
-						.showMenu((A_MenuBase) localObject11);
+				D_Menu targetMenu = createDialog(null, A_MenuBase.getLangString(279), this.someGHeight, 1000); //TARGET AQUIRED...
+				targetMenu.setMenuLoc(this.viewportWidth, 2, 17);
+				A_MenuBase.mainCanvas.showMenu((A_MenuBase) targetMenu);
 				this.scriptStep += 1;
 				break;
 			case 12:
-				this.var_387b = false;
-				sub_558c(getSomeUnit(9, 15, (byte) 0));
+				this.showFuryAfterEffect = false;
+				targetUnit(getSomeUnit(9, 15, (byte) 0));
 				this.scriptStep += 1;
 				break;
 			case 13:
 				if (this.var_3873 >= 2) {
 					//What in the name of the Creator is that!
-					showUnitDialogMsg(A_MenuBase.getLangString(275), (byte) 0,
-							(byte) 4);
-					C_Unit localClass_c_0323 = getSomeUnit(9, 15, (byte) 0);
-					localClass_c_0323.removeFromMap();
-					this.var_387b = true;
+					showUnitDialogMsg(A_MenuBase.getLangString(275), (byte) 0, (byte) 4);
+					C_Unit targetedUnit = getSomeUnit(9, 15, (byte) 0);
+					targetedUnit.removeFromMap();
+					this.showFuryAfterEffect = true;
 					waitScript(20);
 					this.scriptStep += 1;
 				}
 				break;
 			case 14:
 				this.isCursorVisible = false;
+				// Pathetic creatures, this is something ancient...
 				showUnitDialogMsg(A_MenuBase.getLangString(276), (byte) 4, (byte) 4);
 				this.scriptStep += 1;
 				break;
@@ -6740,24 +6688,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				break;
 			case 16:
 				this.isCursorVisible = true;
-				this.var_39bb = 4;
+				this.someCameraVelocityMb = 4;
 				moveCameraTo(3, 9);
 				break;
 			case 17:
 				moveCameraTo(13, 4);
 				break;
 			case 18:
-				this.var_39bb = 12;
+				this.someCameraVelocityMb = 12;
 				showUnitDialogMsg(A_MenuBase.getLangString(278), (byte) 5, (byte) 4);
-				moveCameraTo(this.playersKings[0].positionX,
-						this.playersKings[0].positionY);
+				moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
 				break;
 			case 19:
 				showObjective();
 				this.scriptStep += 1;
 				break;
 			case 20:
-				if (this.var_3883) {
+				if (this.isSaethDead) {
 					this.isCursorVisible = false;
 					this.isUpdatingMb = false;
 					waitScript(20);
@@ -6775,12 +6722,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					sub_b9c5(7, 2);
 					moveCursorToPos(7, 2);
 					sub_87e6();
-					this.playersKings[1] = C_Unit.createUnitOnMap((byte) 9,
-							(byte) 1, 7, 2);
+					this.playersKings[1] = C_Unit.createUnitOnMap((byte) 9, (byte) 1, 7, 2);
 					this.playersKings[1].setKingName(3);
 					C_Unit.createUnitOnMap((byte) 9, (byte) 0, 6, 3);
-					C_Unit luuUnit = C_Unit.createUnitOnMap((byte) 9,
-							(byte) 0, 8, 3);
+					C_Unit luuUnit = C_Unit.createUnitOnMap((byte) 9, (byte) 0, 8, 3);
 					luuUnit.setKingName(2);
 					C_Unit.createUnitOnMap((byte) 0, (byte) 0, 6, 1);
 					C_Unit.createUnitOnMap((byte) 0, (byte) 0, 8, 1);
@@ -6797,8 +6742,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				break;
 			case 24:
 				if (this.fadeInColor >= 16) {
-					showUnitDialogMsg(A_MenuBase.getLangString(281), (byte) 4,
-							(byte) 4);
+					//Pitiful wretches. You will not live...
+					showUnitDialogMsg(A_MenuBase.getLangString(281), (byte) 4, (byte) 4);
 					waitScript(15);
 					this.scriptStep += 1;
 				}
@@ -6826,6 +6771,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.scriptStep += 1;
 				break;
 			case 29:
+				//Your Majesty, the Ruins are falling apart!...
 				showUnitDialogMsg(A_MenuBase.getLangString(284), (byte) 5, (byte) 4);
 				waitScript(5);
 				this.scriptStep += 1;
@@ -6859,7 +6805,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				break;
 			case 35:
 				E_MainCanvas.playMusicLooped2(0, 0);
-				sub_c16e(A_MenuBase.getLangString(288));
+				gameOverVictory(A_MenuBase.getLangString(288)); //Congratulations!
 				this.scriptStep += 1;
 				break;
 			case 36:
@@ -6872,7 +6818,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	
 	public final void showObjective() {
 		this.mapNameDialog = null;
-		this.var_39bb = 12;
+		this.someCameraVelocityMb = 12;
 		C_Unit.var_a7b = C_Unit.var_a73;
 		this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
 		this.startupMessageBox.setMenuActionEnabled((byte) 1, false);
@@ -6980,7 +6926,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.gameSprites.removeAllElements();
 				this.var_3ba3 = null;
 				this.var_3b9b = null;
-				this.var_35c3 = new Vector();
+				this.someGameSpritesList = new Vector();
 				sub_56c3();
 				this.gameMode2Mb = 1;
 				E_MainCanvas.stopMusic();
