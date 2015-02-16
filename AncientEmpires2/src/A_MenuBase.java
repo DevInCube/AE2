@@ -22,7 +22,7 @@ public class A_MenuBase {
 		//@todo override
 	}
 
-	public void sub_865(int paramInt1, int paramInt2) {
+	public void sub_865(int inInt1, int inInt2) {
 		//@todo override or not?
 	}
 
@@ -30,7 +30,7 @@ public class A_MenuBase {
 		//@todo override
 	}
 
-	public void onPaint(Graphics paramGraphics) {
+	public void onPaint(Graphics graphics) {
 		//@todo override
 	}
 

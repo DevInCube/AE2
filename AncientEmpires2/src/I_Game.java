@@ -223,7 +223,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public D_Menu loadSlotsMenu;
 	public D_Menu saveSlotsMenu;
 	public D_Menu var_38bb;
-	public D_Menu var_38c3;
+	public D_Menu slotDescMenu;
 	public D_Menu mainMenuMb;
 	public D_Menu warningEndGameMenu;
 	public D_Menu warningDialog;
@@ -354,6 +354,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.m_tempUnit = null;
 		this.crystal3Unit = null;
 		this.unitEndTurnMb = null;
+	}
+	
+	//@Override
+	public final void onLoad() {
+		//sub_4d3f();
+		//sub_87e6();
+		//clearActiveUnit();
+		//sub_c1eb();
+		//sub_dd85();
+		//sub_ddbb();
+		//sub_1447e();
 	}
 
 	public final void runLoading() throws Exception {
@@ -809,14 +820,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.currentTurn);
 			this.slotsCurrentPlayerIds[paramInt] = this.playersIndexes[this.playerId];
 			this.slotsMapIndexes[paramInt] = this.scenarioMapIndex;
-			this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[paramInt],
-					this.someGWidth, -1);
-			this.var_38c3.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[paramInt]];
-			this.var_38c3.onLoad();
-			D_Menu dialog = createDialog(null, A_MenuBase.getLangString(77),
-					this.someGHeight, 1000); // GAME SAVED
-			dialog.parentMenu = parentMenu;
-			A_MenuBase.mainCanvas.showMenu(dialog);
+			this.slotDescMenu.createDescDialogMb(null, this.slotsDescriptions[paramInt], this.someGWidth, -1);
+			this.slotDescMenu.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[paramInt]];
+			this.slotDescMenu.onLoad();
+			D_Menu slotSavedDialog = createDialog(null, A_MenuBase.getLangString(77), this.someGHeight, 1000); // GAME SAVED
+			slotSavedDialog.parentMenu = parentMenu;
+			A_MenuBase.mainCanvas.showMenu(slotSavedDialog);
 			return;
 		} catch (Exception ex) {
 			//
@@ -888,7 +897,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final void sub_56c3() {
+	public final void afterUnitsAttacked() {
 		clearActiveUnit();
 		if (this.attackerUnitMb.unitHealthMb <= 0) {
 			this.dyingUnit = this.attackerUnitMb;
@@ -1006,13 +1015,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		this.var_38bb = new D_Menu((byte) 14, 0);
 		this.var_38bb.setMenuItemsNames(slotNames, this.someGWidth, -1);
-		this.var_38c3 = new D_Menu((byte) 10, 0);
-		this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[0], this.someGWidth, -1);
+		this.slotDescMenu = new D_Menu((byte) 10, 0);
+		this.slotDescMenu.createDescDialogMb(null, this.slotsDescriptions[0], this.someGWidth, -1);
 		if (this.slotsCurrentPlayerIds[0] != -1) {
-			this.var_38c3.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[0]];
+			this.slotDescMenu.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[0]];
 		}
 		D_Menu menu1 = new D_Menu((byte) 15, 15);
-		int j = (this.someGHeight - this.var_38bb.menuHeight - this.var_38c3.menuHeight) / 2;
+		int j = (this.someGHeight - this.var_38bb.menuHeight - this.slotDescMenu.menuHeight) / 2;
 		D_Menu aMenu = new D_Menu((byte) 10, 0);
 		aMenu.createDescDialogMb(null, desc, this.someGWidth, -1);
 		aMenu.menuTitleIcon = image;
@@ -1020,7 +1029,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		j += aMenu.menuHeight / 2;
 		menu1.addChildMenu(this.var_38bb, 0, j, 0);
 		j += this.var_38bb.menuHeight;
-		menu1.addChildMenu(this.var_38c3, 0, j, 20);
+		menu1.addChildMenu(this.slotDescMenu, 0, j, 20);
 		menu1.updateAllChildrenBoolMb = true;
 		menu1.setMenuActionEnabled((byte) 0, true);
 		return menu1;
@@ -1344,8 +1353,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 				if ((j < 2) || (n < 2)) {
 					//2 players and 2 teams minimum are required to start a skirmish game.
-					D_Menu infoMenu = createDialog(null,
-							A_MenuBase.getLangString(39), this.someGHeight, 2000); 
+					D_Menu infoMenu = createDialog(null, A_MenuBase.getLangString(39), this.someGHeight, 2000); 
 					infoMenu.setParentMenu(this.playerOptionsMenu);
 					A_MenuBase.mainCanvas.showMenu(infoMenu);
 					return;
@@ -1480,7 +1488,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			} else {
 				this.saveSlotsMenu = null;
 				this.var_38bb = null;
-				this.var_38c3 = null;
+				this.slotDescMenu = null;
 			}
 		} else if (menu == this.loadSlotsMenu) {
 			if (paramByte == 0) {
@@ -1494,7 +1502,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if (saveData != null) {
 					this.loadSlotsMenu = null;
 					this.var_38bb = null;
-					this.var_38c3 = null;
+					this.slotDescMenu = null;
 					A_MenuBase.mainCanvas.showMenu(this);
 					this.isBlackLoading = true;
 					A_MenuBase.mainCanvas.repaintAll();
@@ -1509,18 +1517,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			} else {
 				this.loadSlotsMenu = null;
 				this.var_38bb = null;
-				this.var_38c3 = null;
+				this.slotDescMenu = null;
 			}
 		} else if (menu == this.var_38bb) {
 			if ((paramByte == 2) || (paramByte == 3)) {
-				this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[itemNumber],
+				this.slotDescMenu.createDescDialogMb(null, this.slotsDescriptions[itemNumber],
 						this.someGWidth, -1);
 				if (this.slotsCurrentPlayerIds[itemNumber] == -1) {
-					this.var_38c3.titleGradientColor = 2370117; //#242A45 dark blue
+					this.slotDescMenu.titleGradientColor = 2370117; //#242A45 dark blue
 				} else {
-					this.var_38c3.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[itemNumber]];
+					this.slotDescMenu.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[itemNumber]];
 				}
-				this.var_38c3.onLoad();
+				this.slotDescMenu.onLoad();
 			}
 			return;
 		}
@@ -2690,11 +2698,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									this.var_3673 = this.time;
 									this.var_366b += 1;
 								} else {
-									sub_56c3();
+									afterUnitsAttacked();
 								}
 							}
 						} else if (this.time - this.var_3673 >= 800L) {
-							sub_56c3();
+							afterUnitsAttacked();
 						}
 					} else if (this.furyTargetUnit != null) {
 						if (this.var_3873 == 0) {
@@ -3693,9 +3701,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			m = this.someCanHeight / 2 + 1;
 			gr.setColor(13553358); // #CECECE light gray
-			D_Menu.sub_35f8(gr, 1, m, this.someCanWidth - 2, i);
+			D_Menu.drawRoundedRect(gr, 1, m, this.someCanWidth - 2, i);
 			gr.setColor(2370117); // dark blue
-			D_Menu.sub_35f8(gr, 2, m + 2, this.loadingProgress
+			D_Menu.drawRoundedRect(gr, 2, m + 2, this.loadingProgress
 					* (this.someCanWidth - 6) / 100, i - 4);
 			return;
 		}
@@ -5111,7 +5119,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final D_Menu showUnitDialogMsg(String msg, byte paramByte1, byte paramByte2) {
 		D_Menu dialog = new D_Menu((byte) 7, 12);
 		int i = E_MainCanvas.someMenuShiftHeight * 3;
-		dialog.sub_1a04(msg, this.someCanWidth, i, paramByte1, paramByte2);
+		dialog.initPortraitDialog(msg, this.someCanWidth, i, paramByte1, paramByte2);
 		dialog.setMenuLoc(0, this.someCanHeight - i, 0);
 		A_MenuBase.mainCanvas.showMenu(dialog);
 		return dialog;
@@ -6927,7 +6935,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3ba3 = null;
 				this.var_3b9b = null;
 				this.someGameSpritesList = new Vector();
-				sub_56c3();
+				afterUnitsAttacked();
 				this.gameMode2Mb = 1;
 				E_MainCanvas.stopMusic();
 				E_MainCanvas.playMusicLooped(var_33c3[this.playersIndexes[this.playerId]], 0);
