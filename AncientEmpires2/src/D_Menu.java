@@ -4,11 +4,12 @@ import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 
 public final class D_Menu extends A_MenuBase {
-	
+
 	public boolean[] menuActionsMb = { false, false };
-	public int var_fbd = 13553358; //#CECECE light gray
-	public static final int var_fc5 = E_MainCanvas.canvasHeight <= 143 ? 1 : 2;
-	public static final int var_fcd = var_fc5 * 2 + 1;
+	public int var_fbd = 13553358; // #CECECE light gray
+	public static final int someXPadding = E_MainCanvas.canvasHeight <= 143 ? 1
+			: 2;
+	public static final int var_fcd = someXPadding * 2 + 1;
 	public byte var_fd5 = 2;
 	public short var_fdd = 3;
 	public static I_Game gameVar;
@@ -16,27 +17,27 @@ public final class D_Menu extends A_MenuBase {
 	public H_ImageExt[] menuItemsImages;
 	public int menuLocX;
 	public int menuLocY;
-	public int someMenuWidth;
-	public int menuHeightMb;
+	public int menuWidth;
+	public int menuHeight;
 	public int var_101d;
 	public Font var_1025 = E_MainCanvas.font8;
 	public int activeItemPositionMb;
-	public int itemsCountMb;
+	public int menuItemsCount;
 	public int var_103d;
 	public int var_1045;
 	public int var_104d;
 	public int var_1055;
-	public byte var_105d;
-	public int var_1065;
+	public byte menuType;
+	public int someBorderMb;
 	public boolean var_106d = false;
 	public boolean var_1075 = false;
 	public C_Unit[] buyUnits;
 	public int var_1085;
 	public int var_108d;
-	public byte var_1095 = -1;
+	public byte portraitSpriteIndex = -1;
 	public int var_109d;
 	public int var_10a5;
-	public int var_10ad;
+	public int unitPortraitWidth;
 	public int var_10b5;
 	public String[] var_10bd;
 	public int var_10c5 = -1;
@@ -57,8 +58,8 @@ public final class D_Menu extends A_MenuBase {
 	public int var_113d;
 	public int var_1145;
 	public int var_114d;
-	public byte[][] var_1155;
-	public Vector var_115d;
+	public byte[][] mapTilesData;
+	public Vector mapUnitsList;
 	public int var_1165;
 	public int var_116d;
 	public int titleGradientColor = 2370117;
@@ -80,7 +81,7 @@ public final class D_Menu extends A_MenuBase {
 	public int wheelSectorDegree;
 	public int var_11fd;
 	public int var_1205;
-	public int var_120d;
+	public int menuItemFrameWidthMb;
 	public int var_1215;
 	public byte var_121d;
 	public F_Sprite wheelItemBgImage;
@@ -99,7 +100,7 @@ public final class D_Menu extends A_MenuBase {
 		if (this.somedescMenu != null) {
 			this.somedescMenu.var_106d = true;
 		}
-		if (this.var_105d == 15) {
+		if (this.menuType == 15) {
 			for (int i = 0; i < this.childrenMenuList.size(); i++) {
 				D_Menu localClass_d_023;
 				(localClass_d_023 = (D_Menu) this.childrenMenuList.elementAt(i))
@@ -107,11 +108,11 @@ public final class D_Menu extends A_MenuBase {
 				localClass_d_023.var_1075 = false;
 			}
 		}
-	} 
+	}
 
 	/***
-	 * index == 0 - left action
-	 * index == 2 - right action
+	 * index == 0 - left action index == 2 - right action
+	 * 
 	 * @param index
 	 * @param isEnabled
 	 */
@@ -121,32 +122,34 @@ public final class D_Menu extends A_MenuBase {
 
 	public final void setParentMenu(A_MenuBase parMenu) {
 		this.parentMenu = parMenu;
-		this.menuActionsMb[1] = (parMenu != null ? true : false);//return to parent action
+		this.menuActionsMb[1] = (parMenu != null ? true : false);// return to
+																	// parent
+																	// action
 	}
 
-	public D_Menu(byte paramByte, int paramInt) {
-		this.var_105d = paramByte;
-		this.var_1065 = paramInt;
-		if (paramByte == 15) {
-			this.var_11b5 = (gameVar.var_32d3 - gameVar.buttonsSprite.frameHeight);
+	public D_Menu(byte inMenuType, int paramInt) {
+		this.menuType = inMenuType;
+		this.someBorderMb = paramInt;
+		if (inMenuType == 15) {
+			this.var_11b5 = (gameVar.someGHeight - gameVar.buttonsSprite.frameHeight);
 			this.var_10cd = true;
-		} else if ((paramByte == 0) || (paramByte == 11)) {
+		} else if ((inMenuType == 0) || (inMenuType == 11)) {
 			this.menuActionsMb[0] = true;
 			this.menuActionsMb[1] = true;
-		} else if (paramByte == 3) {
+		} else if (inMenuType == 3) {
 			this.wheelItemBgImage = gameVar.bigCircleSprite;
 			sub_1dac();
 			this.var_10cd = false;
 			this.var_1125 = true;
 			this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
-			this.someMenuWidth = gameVar.var_32cb;
-			this.menuHeightMb = (gameVar.bigCircleSprite.frameHeight + var_fcd);
+			this.menuWidth = gameVar.someGWidth;
+			this.menuHeight = (gameVar.bigCircleSprite.frameHeight + var_fcd);
 			if ((paramInt & 0x2) == 0) {
-				this.menuHeightMb += 5;
+				this.menuHeight += 5;
 			}
 			this.buyUnits = C_Unit.sub_240e(gameVar.playerId);
-			this.itemsCountMb = this.buyUnits.length;
-			int j = this.someMenuWidth - gameVar.sideArrowSprite.frameWidth * 2;
+			this.menuItemsCount = this.buyUnits.length;
+			int j = this.menuWidth - gameVar.sideArrowSprite.frameWidth * 2;
 			if ((paramInt & 0x4) == 0) {
 				j -= 8;
 			}
@@ -154,26 +157,27 @@ public final class D_Menu extends A_MenuBase {
 				j -= 8;
 			}
 			this.var_10a5 = (j / (gameVar.bigCircleSprite.frameWidth + 3));
-			if (this.var_10a5 > this.itemsCountMb) {
-				this.var_10a5 = this.itemsCountMb;
+			if (this.var_10a5 > this.menuItemsCount) {
+				this.var_10a5 = this.menuItemsCount;
 			}
 			this.var_101d = (j / this.var_10a5);
 			this.var_10f5 = ((j - this.var_101d * this.var_10a5) / 2);
 			this.var_fd5 = 2;
-		} else if ((paramByte == 2) || (paramByte == 5)) {
+		} else if ((inMenuType == 2) || (inMenuType == 5)) {
 			this.var_10cd = false;
-			this.menuHeightMb = (5 + var_fc5 + 24 + var_fcd
-					+ gameVar.smallCircleSprite.frameHeight * 2 + var_fc5 + var_fc5 + 1);
-			if (paramByte == 5) {
-				this.menuHeightMb += var_fcd + E_MainCanvas.font8BaselinePos;
-				this.menuUnit = gameVar.sub_dc52(gameVar.var_34ab,
+			this.menuHeight = (5 + someXPadding + 24 + var_fcd
+					+ gameVar.smallCircleSprite.frameHeight * 2 + someXPadding
+					+ someXPadding + 1);
+			if (inMenuType == 5) {
+				this.menuHeight += var_fcd + E_MainCanvas.font8BaselinePos;
+				this.menuUnit = gameVar.getSomeUnit(gameVar.var_34ab,
 						gameVar.var_34b3, (byte) 0);
 				this.activeItemPositionMb = this.menuUnit.unitTypeId;
-				this.someMenuWidth = gameVar.var_32cb;
+				this.menuWidth = gameVar.someGWidth;
 			} else {
-				this.someMenuWidth = gameVar.var_32cb;
+				this.menuWidth = gameVar.someGWidth;
 			}
-		} else if ((paramByte != 7) && (paramByte == 8)) {
+		} else if ((inMenuType != 7) && (inMenuType == 8)) {
 			this.var_fdd = 8;
 			this.menuActionsMb[0] = true;
 		}
@@ -182,12 +186,13 @@ public final class D_Menu extends A_MenuBase {
 
 	public final D_Menu createTitleMenu(String header) {
 		this.somedescMenu = new D_Menu((byte) 10, 0);
-		this.somedescMenu.createDescDialogMb(null, header, gameVar.var_32cb, -1);
+		this.somedescMenu.createDescDialogMb(null, header, gameVar.someGWidth,
+				-1);
 		return this.somedescMenu;
 	}
 
-	public final void addChildMenu(D_Menu childMenu, int locX,
-			int locY, int paramInt3) {
+	public final void addChildMenu(D_Menu childMenu, int locX, int locY,
+			int paramInt3) {
 		if (this.childrenMenuList == null) {
 			this.childrenMenuList = new Vector();
 		}
@@ -204,7 +209,7 @@ public final class D_Menu extends A_MenuBase {
 		int i = childMenu.menuLocY;
 		for (int j = 0; j < 5; j++) {
 			if (i < this.var_11ad[j]) {
-				if (i + childMenu.menuHeightMb <= this.var_11ad[j]) {
+				if (i + childMenu.menuHeight <= this.var_11ad[j]) {
 					break;
 				}
 				this.var_11ad[j] = i;
@@ -221,80 +226,81 @@ public final class D_Menu extends A_MenuBase {
 		this.childrenMenuList.addElement(childMenu);
 	}
 
-	public final void sub_17fa(int paramInt1, int paramInt2,
-			byte[][] paramArrayOfByte, Vector paramVector) {
-		this.var_1065 = 15;
-		this.var_1155 = paramArrayOfByte;
-		this.var_115d = paramVector;
+	public final void initMapPreviewMenu(int inWidth, int inHeight,
+			byte[][] mapData, Vector unitsMb) {
+		this.someBorderMb = 15;
+		this.mapTilesData = mapData;
+		this.mapUnitsList = unitsMb;
 		this.var_fdd = 8;
 		this.menuActionsMb[0] = true;
 		this.var_10cd = true;
-		this.var_1165 = paramArrayOfByte.length;
-		this.var_116d = paramArrayOfByte[0].length;
-		this.someMenuWidth = (this.var_1165 * gameVar.smallTilesImages[0].imageWidth + 8);
-		this.menuHeightMb = (this.var_116d * gameVar.smallTilesImages[0].imageHeight + 8);
+		this.var_1165 = mapData.length;
+		this.var_116d = mapData[0].length;
+		this.menuWidth = (this.var_1165
+				* gameVar.smallTilesImages[0].imageWidth + 8);
+		this.menuHeight = (this.var_116d
+				* gameVar.smallTilesImages[0].imageHeight + 8);
 		int j;
-		if (this.someMenuWidth > paramInt1) {
+		if (this.menuWidth > inWidth) {
 			j = gameVar.smallTilesImages[0].imageWidth;
-			this.var_1145 = ((paramInt1 - 8) / j);
-			this.someMenuWidth = (j * this.var_1145 + 8);
+			this.var_1145 = ((inWidth - 8) / j);
+			this.menuWidth = (j * this.var_1145 + 8);
 		} else {
 			this.var_1145 = this.var_1165;
 		}
-		if (this.menuHeightMb > paramInt2) {
+		if (this.menuHeight > inHeight) {
 			j = gameVar.smallTilesImages[0].imageHeight;
-			this.var_114d = ((paramInt2 - 8) / j);
-			this.menuHeightMb = (j * this.var_114d + 8);
+			this.var_114d = ((inHeight - 8) / j);
+			this.menuHeight = (j * this.var_114d + 8);
 		} else {
 			this.var_114d = this.var_116d;
 		}
-		this.var_105d = 8;
+		this.menuType = 8;
 	}
 
 	public final void sub_193f(int inX, int inY, int paramInt3) {
 		this.menuLocX = inX;
 		this.menuLocY = inY;
 		if ((paramInt3 & 0x1) != 0) {
-			this.menuLocX -= (this.someMenuWidth >> 1);
+			this.menuLocX -= (this.menuWidth >> 1);
 		} else if ((paramInt3 & 0x8) != 0) {
-			this.menuLocX -= this.someMenuWidth;
+			this.menuLocX -= this.menuWidth;
 		}
 		if ((paramInt3 & 0x2) != 0) {
-			this.menuLocY -= (this.menuHeightMb >> 1);
+			this.menuLocY -= (this.menuHeight >> 1);
 		} else if ((paramInt3 & 0x20) != 0) {
-			this.menuLocY -= this.menuHeightMb;
+			this.menuLocY -= this.menuHeight;
 		}
 		this.var_104d = this.menuLocX;
 		this.var_1055 = this.menuLocY;
 	}
 
-	public final void sub_1a04(String paramString, int paramInt1,
-			int paramInt2, byte paramByte1, byte paramByte2) {
-		this.var_1095 = paramByte1;
-		if (paramByte1 == -1) {
-			this.var_1065 = 14;
+	public final void sub_1a04(String msg, int inW,
+			int inH, byte portraintIndex, byte paramByte2) {
+		this.portraitSpriteIndex = portraintIndex;
+		if (portraintIndex == -1) {
+			this.someBorderMb = 14;
 		} else {
-			this.var_10ad = (gameVar.portraitsSprite.frameWidth - 8);
+			this.unitPortraitWidth = (gameVar.portraitsSprite.frameWidth - 8);
 		}
-		int i = paramInt1 - this.var_10ad - 16;
-		this.menuItemsNamesMb = A_MenuBase
-				.wrapText(paramString, i, E_MainCanvas.font8);
-		sub_1a9a(null, this.menuItemsNamesMb, paramInt1, paramInt2);
+		int textWidth = inW - this.unitPortraitWidth - 16;
+		this.menuItemsNamesMb = A_MenuBase.wrapText(msg, textWidth, E_MainCanvas.font8);
+		sub_1a9a(null, this.menuItemsNamesMb, inW, inH);
 		this.var_110d = false;
-		this.var_105d = 7;
+		this.menuType = 7;
 	}
 
 	public final void sub_1a9a(String paramString, String[] paramArrayOfString,
-			int paramInt1, int paramInt2) {
+			int paramInt1, int inHeight) {
 		this.var_10cd = false;
-		this.someMenuWidth = paramInt1;
-		this.menuHeightMb = paramInt2;
-		this.itemsCountMb = paramArrayOfString.length;
+		this.menuWidth = paramInt1;
+		this.menuHeight = inHeight;
+		this.menuItemsCount = paramArrayOfString.length;
 		this.activeItemPositionMb = 0;
 		this.var_109d = 0;
 		this.var_10b5 = 0;
 		this.var_110d = false;
-		int i = paramInt1 - this.var_10ad - 16;
+		int i = paramInt1 - this.unitPortraitWidth - 16;
 		if (paramString != null) {
 			this.var_10bd = A_MenuBase.wrapText(paramString, i,
 					E_MainCanvas.font8);
@@ -304,15 +310,15 @@ public final class D_Menu extends A_MenuBase {
 		this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
 		this.var_108d = (this.var_1085 / 2);
 		int j;
-		if (paramInt2 <= 0) {
+		if (inHeight <= 0) {
 			j = this.someCanHeight;
 		} else {
-			j = paramInt2;
+			j = inHeight;
 		}
-		if ((this.var_1065 & 0x1) == 0) {
+		if ((this.someBorderMb & 0x1) == 0) {
 			j -= 5;
 		}
-		if ((this.var_1065 & 0x2) == 0) {
+		if ((this.someBorderMb & 0x2) == 0) {
 			j -= 5;
 		}
 		if (paramString != null) {
@@ -324,31 +330,31 @@ public final class D_Menu extends A_MenuBase {
 		} else if (this.var_10a5 < this.menuItemsNamesMb.length) {
 			this.var_110d = true;
 		}
-		if (paramInt2 < 0) {
+		if (inHeight < 0) {
 			if (this.var_10bd != null) {
-				this.menuHeightMb = (this.var_10bd.length * this.var_101d);
+				this.menuHeight = (this.var_10bd.length * this.var_101d);
 			}
-			this.menuHeightMb += this.var_10a5 * this.var_101d;
-			if ((this.var_1065 & 0x1) == 0) {
-				this.menuHeightMb += 5;
+			this.menuHeight += this.var_10a5 * this.var_101d;
+			if ((this.someBorderMb & 0x1) == 0) {
+				this.menuHeight += 5;
 			}
-			if ((this.var_1065 & 0x2) == 0) {
-				this.menuHeightMb += 5;
+			if ((this.someBorderMb & 0x2) == 0) {
+				this.menuHeight += 5;
 			}
 		} else {
 			this.var_10f5 = ((j - this.var_10a5 * this.var_101d) / 2);
 		}
-		this.var_105d = 10;
+		this.menuType = 10;
 		this.var_fd5 = 2;
 	}
 
-	public final void createDescDialogMb(String paramString1, String paramString2,
-			int paramInt1, int paramInt2) {
-		int i = paramInt1 - this.var_10ad;
-		if ((this.var_1065 & 0x4) == 0) {
+	public final void createDescDialogMb(String paramString1,
+			String paramString2, int paramInt1, int paramInt2) {
+		int i = paramInt1 - this.unitPortraitWidth;
+		if ((this.someBorderMb & 0x4) == 0) {
 			i -= 8;
 		}
-		if ((this.var_1065 & 0x8) == 0) {
+		if ((this.someBorderMb & 0x8) == 0) {
 			i -= 8;
 		}
 		this.menuItemsNamesMb = A_MenuBase.wrapText(paramString2, i,
@@ -373,74 +379,78 @@ public final class D_Menu extends A_MenuBase {
 	public final void sub_1e13() {
 		for (int i = 0; i < this.var_10fd.length; i++) {
 			this.var_10fd[i].var_7ec = true;
-			this.var_10fd[i].setSpritePosition(
-					E_MainCanvas.getRandomMax(this.wheelItemBgImage.frameWidth),
-					E_MainCanvas.getRandomMax(this.wheelItemBgImage.frameHeight));
-			this.var_10fd[i].setCurrentFrameIndex(E_MainCanvas.getRandomMax(this.var_10fd[i]
-					.getFramesCount()));
+			this.var_10fd[i]
+					.setSpritePosition(
+							E_MainCanvas
+									.getRandomMax(this.wheelItemBgImage.frameWidth),
+							E_MainCanvas
+									.getRandomMax(this.wheelItemBgImage.frameHeight));
+			this.var_10fd[i].setCurrentFrameIndex(E_MainCanvas
+					.getRandomMax(this.var_10fd[i].getFramesCount()));
 		}
 	}
 
-	public final void sub_1e97(String[] names,
-			H_ImageExt[] images, int paramInt1,
-			int paramInt2, int paramInt3) {
-		this.var_1065 = 15;
+	public final void sub_1e97(String[] names, H_ImageExt[] images,
+			int paramInt1, int paramInt2, int paramInt3) {
+		this.someBorderMb = 15;
 		this.menuItemsNamesMb = names;
 		this.menuItemsImages = images;
-		this.itemsCountMb = this.menuItemsNamesMb.length;
-		this.someMenuWidth = 0;
-		for (int i = 0; i < this.itemsCountMb; i++) {
-			int strWidth = E_MainCanvas.font8.stringWidth(this.menuItemsNamesMb[i]);
-			if (strWidth > this.someMenuWidth) {
-				this.someMenuWidth = strWidth;
+		this.menuItemsCount = this.menuItemsNamesMb.length;
+		this.menuWidth = 0;
+		for (int i = 0; i < this.menuItemsCount; i++) {
+			int itemStrWidth = E_MainCanvas.font8
+					.stringWidth(this.menuItemsNamesMb[i]);
+			if (itemStrWidth > this.menuWidth) {
+				this.menuWidth = itemStrWidth;
 			}
 		}
 		this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
 		this.var_108d = (this.var_1085 / 2);
-		this.var_120d = gameVar.smallCircleSprite.frameWidth;
-		this.var_101d = (this.var_120d + this.var_1085);
-		this.someMenuWidth += this.itemsCountMb * this.var_101d;
-		this.someMenuWidth += 32;
-		if (this.someMenuWidth > this.someCanWidth) {
-			this.someMenuWidth = this.someCanWidth;
+		this.menuItemFrameWidthMb = gameVar.smallCircleSprite.frameWidth;
+		this.var_101d = (this.menuItemFrameWidthMb + this.var_1085);
+		this.menuWidth += this.menuItemsCount * this.var_101d;
+		this.menuWidth += 32;
+		if (this.menuWidth > this.someCanWidth) {
+			this.menuWidth = this.someCanWidth;
 		}
-		this.menuHeightMb = this.var_120d;
+		this.menuHeight = this.menuItemFrameWidthMb;
 		sub_193f(paramInt1, paramInt2, paramInt3);
-		this.var_105d = 13;
+		this.menuType = 13;
 		this.var_fd5 = 2;
 	}
 
-	public final void setMenuItemsNames(String[] paramArrayOfString, int paramInt1,
-			int paramInt2) {
-		this.menuItemsNamesMb = paramArrayOfString;
-		this.itemsCountMb = this.menuItemsNamesMb.length;
+	public final void setMenuItemsNames(String[] names, int inWidth,
+			int inHeight) {
+		this.menuItemsNamesMb = names;
+		this.menuItemsCount = this.menuItemsNamesMb.length;
 		this.var_1125 = true;
 		this.var_10cd = false;
-		this.menuHeightMb = paramInt2;
-		int i = 0;
+		this.menuHeight = inHeight;
+		int maxStrWidth = 0;
 		for (int j = 0; j < this.menuItemsNamesMb.length; j++) {
-			int k;
-			if ((k = E_MainCanvas.font8.stringWidth(this.menuItemsNamesMb[j])) > i) {
-				i = k;
+			int strWidth = E_MainCanvas.font8
+					.stringWidth(this.menuItemsNamesMb[j]);
+			if (strWidth > maxStrWidth) {
+				maxStrWidth = strWidth;
 			}
 		}
-		this.someMenuWidth = (i + 16 + gameVar.sideArrowSprite.frameWidth * 2);
-		if (this.someMenuWidth < paramInt1) {
-			this.someMenuWidth = paramInt1;
+		this.menuWidth = (maxStrWidth + 16 + gameVar.sideArrowSprite.frameWidth * 2);
+		if (this.menuWidth < inWidth) {
+			this.menuWidth = inWidth;
 		}
-		if (this.menuHeightMb < 0) {
-			this.menuHeightMb = E_MainCanvas.var_138c;
-			if (gameVar.sideArrowSprite.frameHeight > this.menuHeightMb) {
-				this.menuHeightMb = gameVar.sideArrowSprite.frameHeight;
+		if (this.menuHeight < 0) {
+			this.menuHeight = E_MainCanvas.var_138c;
+			if (gameVar.sideArrowSprite.frameHeight > this.menuHeight) {
+				this.menuHeight = gameVar.sideArrowSprite.frameHeight;
 			}
-			if ((this.var_1065 & 0x1) == 0) {
-				this.menuHeightMb += 5;
+			if ((this.someBorderMb & 0x1) == 0) {
+				this.menuHeight += 5;
 			}
-			if ((this.var_1065 & 0x2) == 0) {
-				this.menuHeightMb += 5;
+			if ((this.someBorderMb & 0x2) == 0) {
+				this.menuHeight += 5;
 			}
 		}
-		this.var_105d = 14;
+		this.menuType = 14;
 		this.var_fd5 = 2;
 	}
 
@@ -448,69 +458,71 @@ public final class D_Menu extends A_MenuBase {
 			int paramInt2, int paramInt3, int paramInt4, int paramInt5,
 			int paramInt6) {
 		this.menuItemsNamesMb = itemNames;
-		this.itemsCountMb = this.menuItemsNamesMb.length;
+		this.menuItemsCount = this.menuItemsNamesMb.length;
 		this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
 		this.var_101d = E_MainCanvas.var_138c;
-		int i = 0;
+		int maxStrWidth = 0;
 		for (int j = 0; j < this.menuItemsNamesMb.length; j++) {
-			int k = E_MainCanvas.font8.stringWidth(this.menuItemsNamesMb[j]);
-			if (k > i) {
-				i = k;
+			int strWid = E_MainCanvas.font8
+					.stringWidth(this.menuItemsNamesMb[j]);
+			if (strWid > maxStrWidth) {
+				maxStrWidth = strWid;
 			}
 		}
-		this.someMenuWidth = (i + 4 + 16);
-		if (this.someMenuWidth > this.someCanWidth) {
-			this.someMenuWidth = this.someCanWidth;
-		} else if (this.someMenuWidth < paramInt3) {
+		this.menuWidth = (maxStrWidth + 4 + 16);
+		if (this.menuWidth > this.someCanWidth) {
+			this.menuWidth = this.someCanWidth;
+		} else if (this.menuWidth < paramInt3) {
 			if (paramInt6 == 4) {
-				this.var_11bd = ((paramInt3 - this.someMenuWidth) / 2);
+				this.var_11bd = ((paramInt3 - this.menuWidth) / 2);
 			}
-			this.someMenuWidth = paramInt3;
+			this.menuWidth = paramInt3;
 		}
-		this.menuHeightMb = (this.var_101d * this.menuItemsNamesMb.length + this.var_1085 + 16);
-		if (this.menuHeightMb > paramInt4) {
-			this.menuHeightMb = paramInt4;
+		this.menuHeight = (this.var_101d * this.menuItemsNamesMb.length
+				+ this.var_1085 + 16);
+		if (this.menuHeight > paramInt4) {
+			this.menuHeight = paramInt4;
 		}
-		sub_1a9a(null, this.menuItemsNamesMb, this.someMenuWidth, this.menuHeightMb);
-		if ((this.someMenuWidth < this.someCanWidth) && (this.var_110d)) {
-			this.someMenuWidth += gameVar.arrowSprite.frameWidth;
+		sub_1a9a(null, this.menuItemsNamesMb, this.menuWidth, this.menuHeight);
+		if ((this.menuWidth < this.someCanWidth) && (this.var_110d)) {
+			this.menuWidth += gameVar.arrowSprite.frameWidth;
 		}
-		this.var_105d = 11;
+		this.menuType = 11;
 		sub_193f(paramInt1, paramInt2, paramInt5);
 	}
 
 	public final void initWheelMenu(String[] itemString,
-			H_ImageExt[] itemImages, int paramInt1,
-			int inX, int inY, int paramInt4, byte someType) {
+			H_ImageExt[] itemImages, int paramInt1, int inX, int inY,
+			int paramInt4, byte someType) {
 		this.var_121d = someType;
 		this.menuItemsNamesMb = itemString;
 		this.menuItemsImages = itemImages;
-		this.itemsCountMb = this.menuItemsNamesMb.length;
+		this.menuItemsCount = this.menuItemsNamesMb.length;
 		if (someType == 1) {
 			this.wheelItemBgImage = gameVar.bigCircleSprite;
 		} else if (someType == 2) {
 			this.wheelItemBgImage = gameVar.smallCircleSprite;
-			if (this.itemsCountMb < 4) {
+			if (this.menuItemsCount < 4) {
 				String[] names = new String[4];
 				System.arraycopy(this.menuItemsNamesMb, 0, names, 0,
-						this.itemsCountMb);
+						this.menuItemsCount);
 				this.menuItemsNamesMb = names;
-				this.itemsCountMb = 4;
+				this.menuItemsCount = 4;
 			}
 		}
 		this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
-		this.var_1065 = 15;
-		this.var_120d = this.wheelItemBgImage.frameWidth;
-		this.var_1215 = (this.var_120d >> 1);
+		this.someBorderMb = 15;
+		this.menuItemFrameWidthMb = this.wheelItemBgImage.frameWidth;
+		this.var_1215 = (this.menuItemFrameWidthMb >> 1);
 		sub_1dac();
-		this.wheelItemDegree = new short[this.itemsCountMb];
-		this.wheelSectorDegree = (360 / this.itemsCountMb);
+		this.wheelItemDegree = new short[this.menuItemsCount];
+		this.wheelSectorDegree = (360 / this.menuItemsCount);
 		this.var_11ed = (this.wheelSectorDegree / 2);
 		this.var_11e5 = this.var_11ed;
-		for (int i = 0; i < this.itemsCountMb; i++) {
+		for (int i = 0; i < this.menuItemsCount; i++) {
 			this.wheelItemDegree[i] = ((short) (this.wheelSectorDegree * i));
 		}
-		if (this.itemsCountMb == 1) {
+		if (this.menuItemsCount == 1) {
 			this.var_11d5 = 0;
 		} else if (inY <= 0) {
 			this.var_11d5 = ((this.wheelItemBgImage.frameWidth << 10) / (2 * A_MenuBase
@@ -528,14 +540,14 @@ public final class D_Menu extends A_MenuBase {
 			this.var_11d5 = (this.var_11dd - this.wheelItemBgImage.frameHeight / 2);
 		}
 		this.var_11cd = 0;
-		this.someMenuWidth = (this.var_11dd * 2);
-		this.menuHeightMb = inY;
+		this.menuWidth = (this.var_11dd * 2);
+		this.menuHeight = inY;
 		this.var_fd5 = 0;
 		sub_193f(paramInt1, inX, paramInt4);
 	}
 
 	public final int sub_254b(int step) {
-		int i = this.var_111d; 
+		int i = this.var_111d;
 		int j = i;
 		int countItems = this.childrenMenuList.size();
 		do {
@@ -552,7 +564,7 @@ public final class D_Menu extends A_MenuBase {
 		return i;
 	}
 
-	//@Override
+	// @Override
 	public final void onUpdate() throws Exception {
 		updateMenu(true);
 	}
@@ -561,7 +573,7 @@ public final class D_Menu extends A_MenuBase {
 		if (this.var_fd5 == 3) {
 			return;
 		}
-		if ((this.var_105d == 10) && (this.var_10c5 > 0)
+		if ((this.menuType == 10) && (this.var_10c5 > 0)
 				&& (this.var_10c5 <= 250)) {
 			this.var_1105 += 1;
 			this.var_106d = true;
@@ -573,21 +585,26 @@ public final class D_Menu extends A_MenuBase {
 		if ((paramBoolean) && (this.var_fd5 == 2)) {
 			i = 0;
 			if ((this.menuActionsMb[0] != false)
-					&& ((A_MenuBase.mainCanvas.invertActionCode(I_Game.var_3333)) || (A_MenuBase.mainCanvas
+					&& ((A_MenuBase.mainCanvas
+							.invertActionCode(I_Game.var_3333)) || (A_MenuBase.mainCanvas
 							.invertActionCode(16)))) {
 				i = 1;
 				A_MenuBase.mainCanvas.clearActionCode(I_Game.var_3333);
 				A_MenuBase.mainCanvas.clearActionCode(16);
 			}
-			if ((this.var_105d == 0) || (this.var_105d == 3)) {
+			if ((this.menuType == 0) || (this.menuType == 3)) {
 				for (int j = 0; j < this.var_10fd.length; j++) {
-					if (this.var_10fd[j].currentFrameIndex == this.var_10fd[j].getFramesCount() - 1) {
+					if (this.var_10fd[j].currentFrameIndex == this.var_10fd[j]
+							.getFramesCount() - 1) {
 						if (this.var_1205 == 0) {
-							this.var_10fd[j].setSpritePosition(
-									E_MainCanvas.getRandomMax(this.wheelItemBgImage.frameWidth
-											- this.var_10fd[j].frameWidth),
-									E_MainCanvas.getRandomMax(this.wheelItemBgImage.frameHeight
-											- this.var_10fd[j].frameHeight));
+							this.var_10fd[j]
+									.setSpritePosition(
+											E_MainCanvas
+													.getRandomMax(this.wheelItemBgImage.frameWidth
+															- this.var_10fd[j].frameWidth),
+											E_MainCanvas
+													.getRandomMax(this.wheelItemBgImage.frameHeight
+															- this.var_10fd[j].frameHeight));
 						} else {
 							this.var_10fd[j].var_7ec = false;
 						}
@@ -597,13 +614,15 @@ public final class D_Menu extends A_MenuBase {
 				this.var_106d = true;
 			}
 			int k;
-			if (this.var_105d == 15) {
+			if (this.menuType == 15) {
 				if ((!this.updateAllChildrenBoolMb) && (this.var_111d >= 0)) {
 					D_Menu someMenu;
 					if (A_MenuBase.mainCanvas.invertActionCode(1)) {
-						((D_Menu) this.childrenMenuList.elementAt(this.var_111d)).var_106d = true;
+						((D_Menu) this.childrenMenuList
+								.elementAt(this.var_111d)).var_106d = true;
 						this.var_111d = sub_254b(-1);
-						someMenu = (D_Menu) this.childrenMenuList.elementAt(this.var_111d);
+						someMenu = (D_Menu) this.childrenMenuList
+								.elementAt(this.var_111d);
 						someMenu.var_106d = true;
 						int m = someMenu.menuLocY;
 						for (int n = 0; n < 5; n++) {
@@ -619,7 +638,8 @@ public final class D_Menu extends A_MenuBase {
 						}
 					}
 					if (A_MenuBase.mainCanvas.invertActionCode(2)) {
-						((D_Menu) this.childrenMenuList.elementAt(this.var_111d)).var_106d = true;
+						((D_Menu) this.childrenMenuList
+								.elementAt(this.var_111d)).var_106d = true;
 						this.var_111d = sub_254b(1);
 						(someMenu = (D_Menu) this.childrenMenuList
 								.elementAt(this.var_111d)).var_106d = true;
@@ -651,7 +671,7 @@ public final class D_Menu extends A_MenuBase {
 					}
 				}
 				this.var_106d = true;
-			} else if (this.var_105d == 0) {
+			} else if (this.menuType == 0) {
 				if (this.var_fd5 == 2) {
 					this.var_106d = true;
 					if (A_MenuBase.mainCanvas.invertActionCode(4)) {
@@ -659,7 +679,7 @@ public final class D_Menu extends A_MenuBase {
 						this.var_11fd += this.wheelSectorDegree;
 						this.activeItemPositionMb -= 1;
 						if (this.activeItemPositionMb < 0) {
-							this.activeItemPositionMb = (this.itemsCountMb - 1);
+							this.activeItemPositionMb = (this.menuItemsCount - 1);
 						}
 					} else if (A_MenuBase.mainCanvas.invertActionCode(8)) {
 						this.var_1205 += this.wheelSectorDegree;
@@ -668,7 +688,7 @@ public final class D_Menu extends A_MenuBase {
 							this.var_11fd += 360;
 						}
 						this.activeItemPositionMb += 1;
-						if (this.activeItemPositionMb >= this.itemsCountMb) {
+						if (this.activeItemPositionMb >= this.menuItemsCount) {
 							this.activeItemPositionMb = 0;
 						}
 					}
@@ -686,7 +706,7 @@ public final class D_Menu extends A_MenuBase {
 						this.var_11fd += this.wheelSectorDegree;
 						this.activeItemPositionMb -= 1;
 						if (this.activeItemPositionMb < 0) {
-							this.activeItemPositionMb = (this.itemsCountMb - 1);
+							this.activeItemPositionMb = (this.menuItemsCount - 1);
 						}
 					} else if (A_MenuBase.mainCanvas.isActionLongPressed(8)) {
 						this.var_1205 += this.wheelSectorDegree;
@@ -695,39 +715,45 @@ public final class D_Menu extends A_MenuBase {
 							this.var_11fd += 360;
 						}
 						this.activeItemPositionMb += 1;
-						if (this.activeItemPositionMb >= this.itemsCountMb) {
+						if (this.activeItemPositionMb >= this.menuItemsCount) {
 							this.activeItemPositionMb = 0;
 						}
 					}
 					if (i != 0) {
-						gameVar.sub_6260(this, this.activeItemPositionMb,
-								this.menuItemsNamesMb[this.activeItemPositionMb], (byte) 0); 
+						gameVar.sub_6260(
+								this,
+								this.activeItemPositionMb,
+								this.menuItemsNamesMb[this.activeItemPositionMb],
+								(byte) 0);
 					}
 				}
-			} else if ((this.var_105d == 13) || (this.var_105d == 14)) {
+			} else if ((this.menuType == 13) || (this.menuType == 14)) {
 				if (A_MenuBase.mainCanvas.invertActionCode(4)) {
 					this.activeItemPositionMb -= 1;
 					if (this.activeItemPositionMb < 0) {
-						this.activeItemPositionMb = (this.itemsCountMb - 1);
+						this.activeItemPositionMb = (this.menuItemsCount - 1);
 					}
-					if (this.var_105d == 14) {
-						gameVar.sub_6260(this, this.activeItemPositionMb, null, (byte) 2);
+					if (this.menuType == 14) {
+						gameVar.sub_6260(this, this.activeItemPositionMb, null,
+								(byte) 2);
 					}
 					this.var_106d = true;
 				} else if (A_MenuBase.mainCanvas.invertActionCode(8)) {
 					this.activeItemPositionMb += 1;
-					if (this.activeItemPositionMb >= this.itemsCountMb) {
+					if (this.activeItemPositionMb >= this.menuItemsCount) {
 						this.activeItemPositionMb = 0;
 					}
-					if (this.var_105d == 14) {
-						gameVar.sub_6260(this, this.activeItemPositionMb, null, (byte) 2);
+					if (this.menuType == 14) {
+						gameVar.sub_6260(this, this.activeItemPositionMb, null,
+								(byte) 2);
 					}
 					this.var_106d = true;
 				} else if (i != 0) {
 					gameVar.sub_6260(this, this.activeItemPositionMb,
-							this.menuItemsNamesMb[this.activeItemPositionMb], (byte) 0);
+							this.menuItemsNamesMb[this.activeItemPositionMb],
+							(byte) 0);
 				}
-			} else if (this.var_105d == 3) {
+			} else if (this.menuType == 3) {
 				if (this.var_10b5 != 0) {
 					if (Math.abs(this.var_10b5) < 2) {
 						this.var_10b5 = 0;
@@ -738,41 +764,45 @@ public final class D_Menu extends A_MenuBase {
 				}
 				if (i != 0) {
 					gameVar.sub_6260(this, this.activeItemPositionMb,
-							this.menuItemsNamesMb[this.activeItemPositionMb], (byte) 0);
+							this.menuItemsNamesMb[this.activeItemPositionMb],
+							(byte) 0);
 					return;
 				}
 				if (A_MenuBase.mainCanvas.invertActionCode(4)) {
 					if (this.activeItemPositionMb < this.var_109d) {
-						this.activeItemPositionMb += this.itemsCountMb;
+						this.activeItemPositionMb += this.menuItemsCount;
 					}
 					this.activeItemPositionMb -= 1;
 					if (this.activeItemPositionMb < this.var_109d) {
 						if (this.activeItemPositionMb < 0) {
-							this.activeItemPositionMb += this.itemsCountMb;
+							this.activeItemPositionMb += this.menuItemsCount;
 						}
 						this.var_109d = this.activeItemPositionMb;
 						this.var_10b5 = (-this.var_101d);
 					}
-					this.activeItemPositionMb %= this.itemsCountMb;
-					gameVar.sub_6260(this, this.activeItemPositionMb, null, (byte) 2);
+					this.activeItemPositionMb %= this.menuItemsCount;
+					gameVar.sub_6260(this, this.activeItemPositionMb, null,
+							(byte) 2);
 					sub_1e13();
 					this.var_106d = true;
 				} else if (A_MenuBase.mainCanvas.invertActionCode(8)) {
 					if (this.activeItemPositionMb < this.var_109d) {
-						this.activeItemPositionMb += this.itemsCountMb;
+						this.activeItemPositionMb += this.menuItemsCount;
 					}
 					this.activeItemPositionMb += 1;
-					if (this.activeItemPositionMb >= this.var_109d + this.var_10a5) {
+					if (this.activeItemPositionMb >= this.var_109d
+							+ this.var_10a5) {
 						this.var_10b5 = this.var_101d;
-						this.var_109d = ((this.var_109d + 1) % this.itemsCountMb);
+						this.var_109d = ((this.var_109d + 1) % this.menuItemsCount);
 					}
-					this.activeItemPositionMb %= this.itemsCountMb;
-					gameVar.sub_6260(this, this.activeItemPositionMb, null, (byte) 3);
+					this.activeItemPositionMb %= this.menuItemsCount;
+					gameVar.sub_6260(this, this.activeItemPositionMb, null,
+							(byte) 3);
 					sub_1e13();
 					this.var_106d = true;
 				}
-			} else if ((this.var_105d == 10) || (this.var_105d == 7)
-					|| (this.var_105d == 11)) {
+			} else if ((this.menuType == 10) || (this.menuType == 7)
+					|| (this.menuType == 11)) {
 				if (this.var_10c5 != -1) {
 					if (this.var_10c5 > 0) {
 						this.var_10c5 -= 50;
@@ -794,28 +824,31 @@ public final class D_Menu extends A_MenuBase {
 					this.var_106d = true;
 				}
 				if (this.var_10b5 == 0) {
-					if (((this.var_105d == 11) || (this.var_105d == 10))
+					if (((this.menuType == 11) || (this.menuType == 10))
 							&& (i != 0)) {
-						gameVar.sub_6260(this, this.activeItemPositionMb,
-								this.menuItemsNamesMb[this.activeItemPositionMb], (byte) 0);
+						gameVar.sub_6260(
+								this,
+								this.activeItemPositionMb,
+								this.menuItemsNamesMb[this.activeItemPositionMb],
+								(byte) 0);
 						return;
 					}
-					if ((this.var_105d != 7)
+					if ((this.menuType != 7)
 							&& (A_MenuBase.mainCanvas.invertActionCode(1))) {
-						if (this.var_105d == 11) {
+						if (this.menuType == 11) {
 							this.activeItemPositionMb -= 1;
 							if (this.activeItemPositionMb < 0) {
-								this.activeItemPositionMb = (this.itemsCountMb - 1);
-								this.var_109d = (this.itemsCountMb - this.var_10a5);
-								if (this.var_105d == 3) {
+								this.activeItemPositionMb = (this.menuItemsCount - 1);
+								this.var_109d = (this.menuItemsCount - this.var_10a5);
+								if (this.menuType == 3) {
 									this.var_109d = this.activeItemPositionMb;
 								}
 							} else if (this.activeItemPositionMb < this.var_109d) {
 								this.var_10b5 = (-this.var_101d);
 								this.var_109d -= 1;
 							}
-							gameVar.sub_6260(this, this.activeItemPositionMb, null,
-									(byte) 2);
+							gameVar.sub_6260(this, this.activeItemPositionMb,
+									null, (byte) 2);
 							this.var_106d = true;
 						} else if (this.var_109d > 0) {
 							this.var_10b5 = (-this.var_101d);
@@ -825,11 +858,11 @@ public final class D_Menu extends A_MenuBase {
 						A_MenuBase.mainCanvas.clearActions();
 					}
 					if ((A_MenuBase.mainCanvas.invertActionCode(2))
-							|| ((this.var_105d == 7) && (A_MenuBase.mainCanvas
+							|| ((this.menuType == 7) && (A_MenuBase.mainCanvas
 									.invertActionCode(2048)))) {
-						if (this.var_105d == 11) {
+						if (this.menuType == 11) {
 							this.activeItemPositionMb += 1;
-							if (this.activeItemPositionMb >= this.itemsCountMb) {
+							if (this.activeItemPositionMb >= this.menuItemsCount) {
 								this.activeItemPositionMb = 0;
 								this.var_109d = 0;
 							} else if (this.activeItemPositionMb >= this.var_109d
@@ -837,21 +870,21 @@ public final class D_Menu extends A_MenuBase {
 								this.var_10b5 = this.var_101d;
 								this.var_109d += 1;
 							}
-							gameVar.sub_6260(this, this.activeItemPositionMb, null,
-									(byte) 3);
+							gameVar.sub_6260(this, this.activeItemPositionMb,
+									null, (byte) 3);
 							this.var_106d = true;
 						} else if (this.var_109d + this.var_10a5 < this.menuItemsNamesMb.length) {
 							this.var_10b5 = this.var_101d;
 							this.var_109d += 1;
 							this.var_106d = true;
-						} else if (this.var_105d == 7) {
+						} else if (this.menuType == 7) {
 							gameVar.sub_6260(this, 0, null, (byte) 0);
 							return;
 						}
 						A_MenuBase.mainCanvas.clearActions();
 					}
 				}
-			} else if (this.var_105d == 8) {
+			} else if (this.menuType == 8) {
 				if (A_MenuBase.mainCanvas.invertActionCode(1)) {
 					if (this.var_113d > 0) {
 						this.var_113d -= 1;
@@ -873,7 +906,8 @@ public final class D_Menu extends A_MenuBase {
 					this.var_106d = true;
 				}
 			}
-			if ((this.var_fd5 == 2) && (this.menuActionsMb[1] != false)
+			if ((this.var_fd5 == 2)
+					&& (this.menuActionsMb[1] != false)
 					&& (A_MenuBase.mainCanvas.invertActionCode(I_Game.var_333b))) {
 				A_MenuBase.mainCanvas.clearActionCode(I_Game.var_333b);
 				A_MenuBase.mainCanvas.clearActions();
@@ -882,7 +916,8 @@ public final class D_Menu extends A_MenuBase {
 				}
 				if (this.menuItemsNamesMb != null) {
 					gameVar.sub_6260(this, this.activeItemPositionMb,
-							this.menuItemsNamesMb[this.activeItemPositionMb], (byte) 1);
+							this.menuItemsNamesMb[this.activeItemPositionMb],
+							(byte) 1);
 					return;
 				}
 				gameVar.sub_6260(this, -1, null, (byte) 1);
@@ -900,7 +935,7 @@ public final class D_Menu extends A_MenuBase {
 		}
 		switch (this.var_fd5) {
 		case 0:
-			if (this.var_105d == 0) {
+			if (this.menuType == 0) {
 				if (this.var_11cd < this.var_11d5) {
 					if (this.var_121d == 2) {
 						i = this.var_11d5 / 2;
@@ -938,7 +973,7 @@ public final class D_Menu extends A_MenuBase {
 						A_MenuBase.mainCanvas.clearActions();
 					}
 				}
-			} else if (this.var_105d == 13) {
+			} else if (this.menuType == 13) {
 				this.var_104d += (this.menuLocX - this.var_104d) / 2;
 				this.var_10d5 += 1;
 				if (this.var_10d5 == 2) {
@@ -973,13 +1008,13 @@ public final class D_Menu extends A_MenuBase {
 				paramInt4);
 	}
 
-	//@Override
+	// @Override
 	public final void onPaint(Graphics paramGraphics) {
 		sub_3675(paramGraphics, 0, 0, false);
 	}
 
-	public final void sub_3675(Graphics paramGraphics, int paramInt1,
-			int paramInt2, boolean paramBoolean) {
+	public final void sub_3675(Graphics gr, int paramInt1, int paramInt2,
+			boolean paramBoolean) {
 		if (this.var_fd5 == 3) {
 			return;
 		}
@@ -988,51 +1023,51 @@ public final class D_Menu extends A_MenuBase {
 		}
 		this.var_106d = false;
 		if (((A_MenuBase.mainCanvas.mainDrawElement == this) && (this.var_1075))
-				|| (this.var_105d == 0)) {
-			gameVar.onPaint(paramGraphics);
+				|| (this.menuType == 0)) {
+			gameVar.onPaint(gr);
 		}
 		this.var_1075 = false;
-		paramGraphics.setClip(0, 0, this.someCanWidth, this.someCanHeight);
+		gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
 		if (this.somedescMenu != null) {
-			this.somedescMenu.onPaint(paramGraphics);
+			this.somedescMenu.onPaint(gr);
 		}
 		int i = this.var_104d + paramInt1;
 		int j = this.var_1055 + paramInt2;
-		int k = 0;
-		int m = 0;
-		if ((this.var_105d != 0) && (this.var_105d != 13)) {
-			sub_562e(paramGraphics, i, j, this.someMenuWidth, this.menuHeightMb,
-					this.var_1065, this.var_117d, this.titleGradientColor, this.var_1105,
-					5);
-			paramGraphics.setClip(0, 0, this.someCanWidth, this.someCanHeight);
+		int menuWid = 0;
+		int menuHei = 0;
+		if ((this.menuType != 0) && (this.menuType != 13)) {
+			sub_562e(gr, i, j, this.menuWidth, this.menuHeight,
+					this.someBorderMb, this.var_117d, this.titleGradientColor,
+					this.var_1105, 5);
+			gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
 		}
-		k = this.someMenuWidth;
-		m = this.menuHeightMb;
-		if ((this.var_1065 & 0x1) == 0) {
-			m -= 5;
+		menuWid = this.menuWidth;
+		menuHei = this.menuHeight;
+		if ((this.someBorderMb & 0x1) == 0) {
+			menuHei -= 5;
 			j += 5;
 		}
-		if ((this.var_1065 & 0x2) == 0) {
-			m -= 5;
+		if ((this.someBorderMb & 0x2) == 0) {
+			menuHei -= 5;
 		}
-		if ((this.var_1065 & 0x4) == 0) {
+		if ((this.someBorderMb & 0x4) == 0) {
 			i += 8;
-			k -= 8;
+			menuWid -= 8;
 		}
-		if ((this.var_1065 & 0x8) == 0) {
-			k -= 8;
+		if ((this.someBorderMb & 0x8) == 0) {
+			menuWid -= 8;
 		}
-		paramGraphics.translate(i, j);
-		paramGraphics.setFont(this.var_1025);
+		gr.translate(i, j);
+		gr.setFont(this.var_1025);
 		if ((this.menuTitleIcon != null)
 				&& ((this.menuItemsNamesMb == null) || (this.var_1025
-						.stringWidth(this.menuItemsNamesMb[0]) < k
+						.stringWidth(this.menuItemsNamesMb[0]) < menuWid
 						- this.menuTitleIcon.imageWidth * 2))) {
-			this.menuTitleIcon.drawImageExt(paramGraphics, 0, m / 2, 6);
+			this.menuTitleIcon.drawImageExt(gr, 0, menuHei / 2, 6);
 		}
 		if (paramBoolean) {
-			paramGraphics.setColor(5594742);
-			sub_35f8(paramGraphics, 0, 0, k, m);
+			gr.setColor(5594742);
+			sub_35f8(gr, 0, 0, menuWid, menuHei);
 		}
 		int i2;
 		int i3;
@@ -1040,8 +1075,8 @@ public final class D_Menu extends A_MenuBase {
 		int n;
 		int i1;
 		int i5 = 0;
-		if (this.var_105d == 0) {
-			paramGraphics.setColor(16777215);
+		if (this.menuType == 0) {
+			gr.setColor(16777215);
 			i2 = this.var_11fd + this.var_1205;
 			for (i3 = this.wheelItemDegree.length - 1; i3 >= 0; i3--) {
 				if ((i4 = (this.wheelItemDegree[i3] + i2) % 360) < 0) {
@@ -1052,29 +1087,30 @@ public final class D_Menu extends A_MenuBase {
 				i1 = E_MainCanvas.var_138c + this.var_11dd + 2
 						- (A_MenuBase.getCos2014(i4) * this.var_11cd >> 10);
 				if ((this.var_fd5 == 2) && (i3 == this.activeItemPositionMb)) {
-					this.wheelItemBgImage.drawFrameAt(paramGraphics, 1, n, i1, 3);
+					this.wheelItemBgImage.drawFrameAt(gr, 1, n, i1, 3);
 					if (this.var_1205 == 0) {
 						i5 = 0;
 					}
 				} else {
 					while (i5 < this.var_10fd.length) {
-						this.var_10fd[i5].drawCurrentFrame(paramGraphics, n
+						this.var_10fd[i5].drawCurrentFrame(gr, n
 								- this.var_1215, i1 - this.var_1215, 20);
 						i5++;
 						// continue; @todo
 
-						this.wheelItemBgImage.drawFrameAt(paramGraphics, 0, n, i1, 3);
+						this.wheelItemBgImage.drawFrameAt(gr, 0, n, i1, 3);
 					}
 				}
-				if ((this.menuItemsNamesMb[i3] != null) && (this.menuItemsImages != null)
+				if ((this.menuItemsNamesMb[i3] != null)
+						&& (this.menuItemsImages != null)
 						&& (this.menuItemsImages[i3] != null)) {
-					this.menuItemsImages[i3].drawImageExt(paramGraphics, n, i1, 3);
+					this.menuItemsImages[i3].drawImageExt(gr, n, i1, 3);
 				}
 			}
 			if (this.var_fd5 == 2) {
 				for (i3 = 0; i3 < this.var_10fd.length; i3++) {
-					this.var_10fd[i3].drawCurrentFrame(paramGraphics,
-							(this.someMenuWidth - this.var_120d) / 2,
+					this.var_10fd[i3].drawCurrentFrame(gr,
+							(this.menuWidth - this.menuItemFrameWidthMb) / 2,
 							E_MainCanvas.var_138c, 3);
 				}
 			}
@@ -1086,454 +1122,456 @@ public final class D_Menu extends A_MenuBase {
 		int i12;
 		int i13;
 		int i14;
-		int i15;
-		int i16;
+		int sTileWidth;
+		int sTileHeight;
 		int i17;
 		int i18;
 		int i19;
 		int i20;
 		int i21 = 0;
-		int i22 = 0;
-		switch (this.var_105d) {
-		case 15:
-			i3 = 0;
-			i4 = 0;
-			i5 = this.var_11ad[0];
-			for (i6 = 1; i6 <= this.var_119d; i6++) {
-				i3 = i5;
-				i5 += this.var_11ad[i6];
-			}
-			if (this.var_119d > 0) {
-				i4 = -i3 + gameVar.buttonsSprite.frameHeight;
-			}
-			for (i6 = 0; i6 < this.childrenMenuList.size(); i6++) {
-				D_Menu localClass_d_023;
-				if (((localClass_d_023 = (D_Menu) this.childrenMenuList
-						.elementAt(i6)).menuLocY >= i3)
-						&& (localClass_d_023.menuLocY < i5)) {
-					localClass_d_023.sub_3675(paramGraphics, 0, i4,
-							i6 == this.var_111d);
+		int mapUnitsCount = 0;
+		switch (this.menuType) {
+			case 15:
+				i3 = 0;
+				i4 = 0;
+				i5 = this.var_11ad[0];
+				for (i6 = 1; i6 <= this.var_119d; i6++) {
+					i3 = i5;
+					i5 += this.var_11ad[i6];
 				}
-			}
-			paramGraphics.setClip(0, 0, gameVar.var_32cb, gameVar.var_32d3);
-			if (this.var_119d > 0) {
-				paramGraphics.setColor(2370117);
-				paramGraphics.fillRect(0, 0, this.someCanWidth,
-						gameVar.buttonsSprite.frameHeight);
-				gameVar.arrowSprite.drawFrameAt(paramGraphics, 0,
-						gameVar.var_32cb / 2, -this.var_103d, 17);
-			}
-			if (this.var_119d < this.var_11a5) {
-				paramGraphics.setColor(2370117);
-				i6 = this.var_11ad[this.var_119d];
 				if (this.var_119d > 0) {
-					i6 += gameVar.buttonsSprite.frameHeight;
+					i4 = -i3 + gameVar.buttonsSprite.frameHeight;
 				}
-				paramGraphics.fillRect(0, i6, this.someCanWidth, gameVar.var_32d3
-						- i6);
-				gameVar.arrowSprite.drawFrameAt(paramGraphics, 1,
-						gameVar.var_32cb / 2, gameVar.var_32d3 + this.var_103d,
-						33);
-			}
-			break;
-		case 0:
-			if (this.var_fd5 == 2) {
-				paramGraphics.setColor(1645370);
-				if (this.var_121d == 2) {
-					i6 = this.someMenuWidth;
+				for (i6 = 0; i6 < this.childrenMenuList.size(); i6++) {
+					D_Menu localClass_d_023;
+					if (((localClass_d_023 = (D_Menu) this.childrenMenuList
+							.elementAt(i6)).menuLocY >= i3)
+							&& (localClass_d_023.menuLocY < i5)) {
+						localClass_d_023.sub_3675(gr, 0, i4, i6 == this.var_111d);
+					}
+				}
+				gr.setClip(0, 0, gameVar.someGWidth, gameVar.someGHeight);
+				if (this.var_119d > 0) {
+					gr.setColor(2370117);
+					gr.fillRect(0, 0, this.someCanWidth,
+							gameVar.buttonsSprite.frameHeight);
+					gameVar.arrowSprite.drawFrameAt(gr, 0, gameVar.someGWidth / 2,
+							-this.var_103d, 17);
+				}
+				if (this.var_119d < this.var_11a5) {
+					gr.setColor(2370117);
+					i6 = this.var_11ad[this.var_119d];
+					if (this.var_119d > 0) {
+						i6 += gameVar.buttonsSprite.frameHeight;
+					}
+					gr.fillRect(0, i6, this.someCanWidth, gameVar.someGHeight - i6);
+					gameVar.arrowSprite.drawFrameAt(gr, 1, gameVar.someGWidth / 2,
+							gameVar.someGHeight + this.var_103d, 33);
+				}
+				break;
+			case 0:
+				if (this.var_fd5 == 2) {
+					gr.setColor(1645370); // dark blue
+					if (this.var_121d == 2) {
+						i6 = this.menuWidth;
+						if (this.menuItemsNamesMb[this.activeItemPositionMb] != null) {
+							i7 = E_MainCanvas.font8
+									.stringWidth(this.menuItemsNamesMb[this.activeItemPositionMb]) + 2;
+							if (i6 < i7) {
+								i6 = i7;
+							}
+						}
+						sub_35f8(gr, (this.menuWidth - i6) / 2, 1, i6,
+								E_MainCanvas.var_138c);
+					} else {
+						sub_35f8(gr, 2 - this.menuLocX, 1, this.someCanWidth - 4,
+								E_MainCanvas.var_138c);
+					}
 					if (this.menuItemsNamesMb[this.activeItemPositionMb] != null) {
-						i7 = E_MainCanvas.font8
-								.stringWidth(this.menuItemsNamesMb[this.activeItemPositionMb]) + 2;
-						if (i6 < i7) {
-							i6 = i7;
-						}
-					}
-					sub_35f8(paramGraphics, (this.someMenuWidth - i6) / 2, 1, i6,
-							E_MainCanvas.var_138c);
-				} else {
-					sub_35f8(paramGraphics, 2 - this.menuLocX, 1,
-							this.someCanWidth - 4, E_MainCanvas.var_138c);
-				}
-				if (this.menuItemsNamesMb[this.activeItemPositionMb] != null) {
-					paramGraphics.setColor(16777215);
-					E_MainCanvas.drawString(paramGraphics,
-							this.menuItemsNamesMb[this.activeItemPositionMb], this.var_11dd,
-							(this.var_1085 >> 1) + 1, 17);
-				}
-			}
-			break;
-		case 3:
-			paramGraphics.setClip(0, 0, k, m);
-			i1 = var_fc5;
-			paramGraphics.setColor(11515819);
-			paramGraphics.drawLine(var_fc5, i1, k - var_fc5 * 2, i1);
-			i1 = i1 += 1 + var_fc5 + gameVar.bigCircleSprite.frameHeight / 2;
-			n = gameVar.sideArrowSprite.frameWidth + this.var_10b5 + this.var_10f5;
-			i6 = this.var_109d;
-			i7 = this.var_109d + this.var_10a5;
-			if (this.var_10b5 > 0) {
-				i6--;
-				n -= this.var_101d;
-			} else if (this.var_10b5 < 0) {
-				i7++;
-			}
-			for (int i8 = i6; i8 < i7; i8++) {
-				if ((i9 = i8 % this.itemsCountMb) < 0) {
-					i9 += this.itemsCountMb;
-				}
-				i10 = n + this.var_101d / 2;
-				if (i9 == this.activeItemPositionMb) {
-					gameVar.bigCircleSprite.drawFrameAt(paramGraphics, 1, i10, i1, 3);
-				} else {
-					gameVar.bigCircleSprite.drawFrameAt(paramGraphics, 0, i10, i1, 3);
-				}
-				C_Unit localClass_c_0321 = this.buyUnits[i9];
-				i12 = i10 - localClass_c_0321.posXPixel
-						- localClass_c_0321.frameWidth / 2;
-				i13 = i1 - localClass_c_0321.posYPixel
-						- localClass_c_0321.frameHeight / 2;
-				localClass_c_0321
-						.sub_2551(
-								paramGraphics,
-								i12,
-								i13,
-								localClass_c_0321.cost > gameVar.var_35a3[gameVar.playerId]);
-				if (i9 == this.activeItemPositionMb) {
-					i14 = i10 - this.wheelItemBgImage.frameWidth / 2;
-					i15 = i1 - this.wheelItemBgImage.frameWidth / 2;
-					for (i16 = 0; i16 < this.var_10fd.length; i16++) {
-						this.var_10fd[i16]
-								.drawCurrentFrame(paramGraphics, i14, i15, 20);
+						gr.setColor(16777215);
+						E_MainCanvas.drawString(gr,
+								this.menuItemsNamesMb[this.activeItemPositionMb],
+								this.var_11dd, (this.var_1085 >> 1) + 1, 17);
 					}
 				}
-				n += this.var_101d;
-			}
-			gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 0, 0, i1, 6);
-			gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 1, k, i1, 10);
-			break;
-		case 2:
-		case 5:
-			paramGraphics.setClip(0, 0, k, m);
-			i6 = var_fc5;
-			i7 = E_MainCanvas.charsSprites[0].frameWidth;
-			i1 = i6;
-			this.menuUnit.sub_252e(paramGraphics, -this.menuUnit.posXPixel + i6,
-					-this.menuUnit.posYPixel + i1);
-			i2 = i1 + this.menuUnit.frameHeight / 2;
-			String str = null;
-			paramGraphics.setFont(E_MainCanvas.font8);
-			paramGraphics.setColor(this.var_fbd);
-			E_MainCanvas.drawString(paramGraphics, this.menuUnit.unitName, i6
-					+ this.menuUnit.frameWidth + i6,
-					i2 - E_MainCanvas.font8BaselinePos / 2, 20);
-			if (this.var_105d == 2) {
-				str = "" + this.menuUnit.cost;
-				gameVar.hudIcons2Sprite.drawFrameAt(paramGraphics, 1, k - i6
-						- E_MainCanvas.getCharedStringWidth((byte) 1, str), i2, 10);
-			} else {
-				str = "" + this.menuUnit.unitHealthMb;
-			}
-			E_MainCanvas.drawCharedString(paramGraphics, str, k - i6, i2, 1, 10);
-			this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
-			i1 += this.menuUnit.frameHeight + var_fc5;
-			paramGraphics.setColor(this.var_fbd);
-			paramGraphics.drawLine(i6, i1, k - i6 - i6, i1);
-			i1 += 1 + var_fc5;
-			int i11;
-			if (this.var_105d == 5) {
-				i9 = E_MainCanvas.font8BaselinePos;
-				i2 = i1 + i9 / 2;
-				n = i6;
-				E_MainCanvas.drawString(paramGraphics, A_MenuBase.getLangString(97), n,
-						i1, 20);
-				i10 = E_MainCanvas.font8.stringWidth(A_MenuBase.getLangString(97));
-				n += i10 + i6;
-				i11 = k - n - i6 - gameVar.hudIconsSprite.frameWidth - i7 - i6;
-				paramGraphics.setColor(this.var_fbd);
-				sub_35f8(paramGraphics, n, i1, i11, i9);
-				paramGraphics.setColor(2370117);
-				if ((i12 = i11 * this.menuUnit.experience
-						/ this.menuUnit.getLevelExpMax()) <= 0) {
-					i12 = 1;
+				break;
+			case 3:
+				gr.setClip(0, 0, menuWid, menuHei);
+				i1 = someXPadding;
+				gr.setColor(11515819); // #AFB7AB light green blue
+				gr.drawLine(someXPadding, i1, menuWid - someXPadding * 2, i1);
+				i1 = i1 += 1 + someXPadding + gameVar.bigCircleSprite.frameHeight
+						/ 2;
+				n = gameVar.sideArrowSprite.frameWidth + this.var_10b5
+						+ this.var_10f5;
+				i6 = this.var_109d;
+				i7 = this.var_109d + this.var_10a5;
+				if (this.var_10b5 > 0) {
+					i6--;
+					n -= this.var_101d;
+				} else if (this.var_10b5 < 0) {
+					i7++;
 				}
-				paramGraphics.fillRect(n + 1, i1 + 1, i12, i9 - 2);
-				n = k - i6 - i7;
-				gameVar.hudIconsSprite.drawFrameAt(paramGraphics, 2, n, i2, 10);
-				E_MainCanvas.drawCharedString(paramGraphics, "" + this.menuUnit.level,
-						n, i2, 0, 6);
-				i1 += i9 + var_fc5;
-				paramGraphics.setColor(this.var_fbd);
-				paramGraphics.drawLine(i6, i1, k - i6 - i6, i1);
-				i1 += 1 + var_fc5;
-			}
-			i9 = (k - i6 * 3) / 2;
-			i10 = gameVar.hudIconsSprite.frameHeight;
-			i12 = (i11 = gameVar.smallCircleSprite.frameHeight) / 2;
-			for (i14 = 0; i14 < 2; i14++) {
-				i13 = i1 + i12 - i10 / 2;
-				n = i6;
-				for (i15 = 0; i15 < 2; i15++) {
-					if ((i14 == 0) || (i15 == 0)) {
-						i16 = n + i12;
-						sub_35f8(paramGraphics, i16, i13, i9 - i12, i10);
-						gameVar.smallCircleSprite.draw(paramGraphics, n, i1);
-						if (((i17 = i14 * 2 + i15) == 0) || (i17 == 1)) {
-							gameVar.hudIconsSprite.drawFrameAt(paramGraphics, i17, i16,
-									i1 + i12, 3);
+				for (int i8 = i6; i8 < i7; i8++) {
+					if ((i9 = i8 % this.menuItemsCount) < 0) {
+						i9 += this.menuItemsCount;
+					}
+					i10 = n + this.var_101d / 2;
+					if (i9 == this.activeItemPositionMb) {
+						gameVar.bigCircleSprite.drawFrameAt(gr, 1, i10, i1, 3);
+					} else {
+						gameVar.bigCircleSprite.drawFrameAt(gr, 0, i10, i1, 3);
+					}
+					C_Unit cUnit = this.buyUnits[i9];
+					i12 = i10 - cUnit.posXPixel - cUnit.frameWidth / 2;
+					i13 = i1 - cUnit.posYPixel - cUnit.frameHeight / 2;
+					cUnit.sub_2551(gr, i12, i13,
+							cUnit.cost > gameVar.var_35a3[gameVar.playerId]);
+					if (i9 == this.activeItemPositionMb) {
+						i14 = i10 - this.wheelItemBgImage.frameWidth / 2;
+						sTileWidth = i1 - this.wheelItemBgImage.frameWidth / 2;
+						for (sTileHeight = 0; sTileHeight < this.var_10fd.length; sTileHeight++) {
+							this.var_10fd[sTileHeight].drawCurrentFrame(gr, i14, sTileWidth, 20);
 						}
-						i18 = 0;
-						if (i17 == 0) {
-							if (this.var_105d == 5) {
-								i18 = this.menuUnit.sub_e5f(null);
+					}
+					n += this.var_101d;
+				}
+				gameVar.sideArrowSprite.drawFrameAt(gr, 0, 0, i1, 6);
+				gameVar.sideArrowSprite.drawFrameAt(gr, 1, menuWid, i1, 10);
+				break;
+			case 2:
+			case 5:
+				gr.setClip(0, 0, menuWid, menuHei);
+				i6 = someXPadding;
+				i7 = E_MainCanvas.charsSprites[0].frameWidth;
+				i1 = i6;
+				this.menuUnit.sub_252e(gr, -this.menuUnit.posXPixel + i6,
+						-this.menuUnit.posYPixel + i1);
+				i2 = i1 + this.menuUnit.frameHeight / 2;
+				String str = null;
+				gr.setFont(E_MainCanvas.font8);
+				gr.setColor(this.var_fbd);
+				E_MainCanvas.drawString(gr, this.menuUnit.unitName, i6
+						+ this.menuUnit.frameWidth + i6, i2
+						- E_MainCanvas.font8BaselinePos / 2, 20);
+				if (this.menuType == 2) {
+					str = "" + this.menuUnit.cost;
+					gameVar.hudIcons2Sprite.drawFrameAt(gr, 1, menuWid - i6
+							- E_MainCanvas.getCharedStringWidth((byte) 1, str), i2,
+							10);
+				} else {
+					str = "" + this.menuUnit.unitHealthMb;
+				}
+				E_MainCanvas.drawCharedString(gr, str, menuWid - i6, i2, 1, 10);
+				this.var_1085 = (E_MainCanvas.var_138c - E_MainCanvas.font8BaselinePos);
+				i1 += this.menuUnit.frameHeight + someXPadding;
+				gr.setColor(this.var_fbd);
+				gr.drawLine(i6, i1, menuWid - i6 - i6, i1);
+				i1 += 1 + someXPadding;
+				int i11;
+				if (this.menuType == 5) {
+					i9 = E_MainCanvas.font8BaselinePos;
+					i2 = i1 + i9 / 2;
+					n = i6;
+					E_MainCanvas.drawString(gr, A_MenuBase.getLangString(97), n,
+							i1, 20);
+					i10 = E_MainCanvas.font8.stringWidth(A_MenuBase
+							.getLangString(97));
+					n += i10 + i6;
+					i11 = menuWid - n - i6 - gameVar.hudIconsSprite.frameWidth - i7
+							- i6;
+					gr.setColor(this.var_fbd);
+					sub_35f8(gr, n, i1, i11, i9);
+					gr.setColor(2370117);
+					if ((i12 = i11 * this.menuUnit.experience
+							/ this.menuUnit.getLevelExpMax()) <= 0) {
+						i12 = 1;
+					}
+					gr.fillRect(n + 1, i1 + 1, i12, i9 - 2);
+					n = menuWid - i6 - i7;
+					gameVar.hudIconsSprite.drawFrameAt(gr, 2, n, i2, 10);
+					E_MainCanvas.drawCharedString(gr, "" + this.menuUnit.level, n,
+							i2, 0, 6);
+					i1 += i9 + someXPadding;
+					gr.setColor(this.var_fbd);
+					gr.drawLine(i6, i1, menuWid - i6 - i6, i1);
+					i1 += 1 + someXPadding;
+				}
+				i9 = (menuWid - i6 * 3) / 2;
+				i10 = gameVar.hudIconsSprite.frameHeight;
+				i12 = (i11 = gameVar.smallCircleSprite.frameHeight) / 2;
+				for (int i141 = 0; i141 < 2; i141++) {
+					i13 = i1 + i12 - i10 / 2;
+					n = i6;
+					for (int i151 = 0; i151 < 2; i151++) {
+						if ((i141 == 0) || (i151 == 0)) {
+							sTileHeight = n + i12;
+							sub_35f8(gr, sTileHeight, i13, i9 - i12, i10);
+							gameVar.smallCircleSprite.draw(gr, n, i1);
+							if (((i17 = i141 * 2 + i151) == 0) || (i17 == 1)) {
+								gameVar.hudIconsSprite.drawFrameAt(gr, i17, sTileHeight, i1
+										+ i12, 3);
 							}
-							str = this.menuUnit.unitAttackMin + i18 + "-"
-									+ (this.menuUnit.unitAttackMax + i18);
-						} else if (i17 == 1) {
-							if (this.var_105d == 5) {
-								i18 = this.menuUnit.sub_f43(null);
+							i18 = 0;
+							if (i17 == 0) {
+								if (this.menuType == 5) {
+									i18 = this.menuUnit.sub_e5f(null);
+								}
+								str = this.menuUnit.unitAttackMin + i18 + "-"
+										+ (this.menuUnit.unitAttackMax + i18);
+							} else if (i17 == 1) {
+								if (this.menuType == 5) {
+									i18 = this.menuUnit.sub_f43(null);
+								}
+								str = "" + (this.menuUnit.unitDefence + i18);
+							} else if (i17 == 2) {
+								gameVar.actionIconsFrames[5].drawImageExt(gr, sTileHeight,
+										i1 + i12, 3);
+								str = "" + C_Unit.var_b9b[this.menuUnit.unitTypeId];
 							}
-							str = "" + (this.menuUnit.unitDefence + i18);
-						} else if (i17 == 2) {
-							gameVar.actionIconsFrames[5].drawImageExt(paramGraphics, i16, i1
-									+ i12, 3);
-							str = ""
-									+ C_Unit.var_b9b[this.menuUnit.unitTypeId];
+							E_MainCanvas.drawCharedString(gr, str, n + i11 + 1, i1
+									+ i12, 0, 6);
+							if (i18 > 0) {
+								gameVar.arrowIconsSprite.drawFrameAt(gr, 1, sTileHeight
+										+ i9 - i12 - 1, i1 + i12, 10);
+							} else if (i18 < 0) {
+								gameVar.arrowIconsSprite.drawFrameAt(gr, 2, sTileHeight
+										+ i9 - i12 - 1, i1 + i12, 10);
+							}
+							n += i9 + someXPadding;
 						}
-						E_MainCanvas.drawCharedString(paramGraphics, str, n + i11 + 1,
-								i1 + i12, 0, 6);
-						if (i18 > 0) {
-							gameVar.arrowIconsSprite.drawFrameAt(paramGraphics, 1, i16
-									+ i9 - i12 - 1, i1 + i12, 10);
-						} else if (i18 < 0) {
-							gameVar.arrowIconsSprite.drawFrameAt(paramGraphics, 2, i16
-									+ i9 - i12 - 1, i1 + i12, 10);
+					}
+					i1 += i11;
+				}
+				i1 += someXPadding;
+				gr.setColor(this.var_fbd);
+				gr.drawLine(i6, i1, menuWid - i6 - i6, i1);
+				break;
+			case 8:
+				gameVar.drawMenuBorderRect(gr, 0, 0, this.menuWidth, this.menuHeight);
+				sTileWidth = gameVar.smallTilesImages[0].imageWidth;
+				sTileHeight = gameVar.smallTilesImages[0].imageHeight;
+				i17 = this.var_114d + this.var_113d;
+				i18 = this.var_1145 + this.var_1135;
+				i1 = 4;
+				for (i19 = this.var_113d; i19 < i17; i19++) {
+					n = 4;
+					for (i20 = this.var_1135; i20 < i18; i20++) {
+						i21 = gameVar.tilesProps[this.mapTilesData[i20][i19]];
+						if (this.mapTilesData[i20][i19] >= gameVar.houseTileIdStartIndex) {
+							mapUnitsCount = (this.mapTilesData[i20][i19] - gameVar.houseTileIdStartIndex) / 2;
+							i21 = 2 * mapUnitsCount + 8 + i21 - 8;
 						}
-						n += i9 + var_fc5;
+						gameVar.smallTilesImages[i21].drawImageExt(gr, n, i1);
+						n += sTileWidth;
+					}
+					i1 += sTileHeight;
+				}
+				if ((this.mapUnitsList != null) && (this.var_103d == 0)) {
+					i19 = -this.var_1135 * sTileWidth + 4;
+					i20 = -this.var_113d * sTileHeight + 4;
+					int uInd = 0;
+					mapUnitsCount = gameVar.mapUnitsSprites.size();
+					while (uInd < mapUnitsCount) {
+						C_Unit miniUnit = (C_Unit) gameVar.mapUnitsSprites.elementAt(uInd);
+						if ((miniUnit.positionX >= this.var_1135)
+								&& (miniUnit.positionX < i18)
+								&& (miniUnit.positionY >= this.var_113d)
+								&& (miniUnit.positionY < i17)) {
+							int unitPlayerFrameIndex = gameVar.playersIndexes[miniUnit.playerId] - 1;
+							gameVar.miniIconsSprite
+									.drawFrameAt(
+											gr,
+											unitPlayerFrameIndex,
+											miniUnit.positionX * sTileWidth + i19,
+											miniUnit.positionY * sTileHeight + i20,
+											0);
+						}
+						uInd++;
 					}
 				}
-				i1 += i11;
-			}
-			i1 += var_fc5;
-			paramGraphics.setColor(this.var_fbd);
-			paramGraphics.drawLine(i6, i1, k - i6 - i6, i1);
-			break;
-		case 8:
-			gameVar.sub_d599(paramGraphics, 0, 0, this.someMenuWidth, this.menuHeightMb);
-			i15 = gameVar.smallTilesImages[0].imageWidth;
-			i16 = gameVar.smallTilesImages[0].imageHeight;
-			i17 = this.var_114d + this.var_113d;
-			i18 = this.var_1145 + this.var_1135;
-			i1 = 4;
-			for (i19 = this.var_113d; i19 < i17; i19++) {
-				n = 4;
-				for (i20 = this.var_1135; i20 < i18; i20++) {
-					i21 = gameVar.tilesProps[this.var_1155[i20][i19]];
-					if (this.var_1155[i20][i19] >= gameVar.houseTileIdStartIndex) {
-						i22 = (this.var_1155[i20][i19] - gameVar.houseTileIdStartIndex) / 2;
-						i21 = 2 * i22 + 8 + i21 - 8;
+				if (this.var_103d == 0) {
+					if (this.var_113d > 0) {
+						gameVar.arrowSprite.drawFrameAt(gr, 0, menuWid / 2, 0, 17);
 					}
-					gameVar.smallTilesImages[i21].drawImageExt(paramGraphics, n, i1);
-					n += i15;
-				}
-				i1 += i16;
-			}
-			if ((this.var_115d != null) && (this.var_103d == 0)) {
-				i19 = -this.var_1135 * i15 + 4;
-				i20 = -this.var_113d * i16 + 4;
-				i21 = 0;
-				i22 = gameVar.mapSprites.size();
-				while (i21 < i22) {
-					C_Unit localClass_c_0322;
-					if (((localClass_c_0322 = (C_Unit) gameVar.mapSprites
-							.elementAt(i21)).positionX >= this.var_1135)
-							&& (localClass_c_0322.positionX < i18)
-							&& (localClass_c_0322.positionY >= this.var_113d)
-							&& (localClass_c_0322.positionY < i17)) {
-						gameVar.miniIconsSprite
-								.drawFrameAt(
-										paramGraphics,
-										gameVar.var_356b[localClass_c_0322.var_acb] - 1,
-										localClass_c_0322.positionX * i15 + i19,
-										localClass_c_0322.positionY * i16 + i20,
-										0);
+					if (this.var_113d + this.var_114d < this.var_116d) {
+						gameVar.arrowSprite.drawFrameAt(gr, 1, menuWid / 2,
+								menuHei, 33);
 					}
-					i21++;
+					if (this.var_1135 > 0) {
+						gameVar.sideArrowSprite.drawFrameAt(gr, 0, 0, menuHei / 2,
+								6);
+					}
+					if (this.var_1135 + this.var_1145 < this.var_1165) {
+						gameVar.sideArrowSprite.drawFrameAt(gr, 1, menuWid,
+								menuHei / 2, 10);
+					}
 				}
-			}
-			if (this.var_103d == 0) {
-				if (this.var_113d > 0) {
-					gameVar.arrowSprite.drawFrameAt(paramGraphics, 0, k / 2, 0, 17);
-				}
-				if (this.var_113d + this.var_114d < this.var_116d) {
-					gameVar.arrowSprite.drawFrameAt(paramGraphics, 1, k / 2, m, 33);
-				}
-				if (this.var_1135 > 0) {
-					gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 0, 0, m / 2, 6);
-				}
-				if (this.var_1135 + this.var_1145 < this.var_1165) {
-					gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 1, k, m / 2, 10);
-				}
-			}
-			break;
-		case 14:
-			paramGraphics.setFont(E_MainCanvas.font8);
-			paramGraphics.setColor(I_Game.sub_bf33(16777215, 1645370,
-					this.var_1105, 5));
-			i2 = m / 2;
-			E_MainCanvas.drawString(paramGraphics, this.menuItemsNamesMb[this.activeItemPositionMb],
-					k / 2, (m - E_MainCanvas.font8BaselinePos) / 2, 17);
-			gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 0, 0, i2, 6);
-			gameVar.sideArrowSprite.drawFrameAt(paramGraphics, 1, k, i2, 10);
-			break;
-		case 13:
-			i19 = E_MainCanvas.var_138c;
-			i20 = (this.menuHeightMb - i19) / 2;
-			paramGraphics.setColor(I_Game.sub_bf33(1645370, 16777215,
-					this.var_1105, 5));
-			sub_35f8(paramGraphics, 0, i20, this.someMenuWidth, i19);
-			paramGraphics.setFont(E_MainCanvas.font8);
-			paramGraphics.setColor(16777215);
-			E_MainCanvas.drawString(paramGraphics, this.menuItemsNamesMb[this.activeItemPositionMb],
-					16, i20 + this.var_108d, 20);
-			i21 = this.someMenuWidth - this.var_101d;
-			i22 = this.itemsCountMb - 1;
-		case 7:
-		case 10:
-		case 11:
-			while (i22 >= 0) {
-				if (i22 == this.activeItemPositionMb) {
-					gameVar.smallCircleSprite.drawFrameAt(paramGraphics, 1, i21, 0, 20);
-				} else {
-					gameVar.smallCircleSprite.drawFrameAt(paramGraphics, 0, i21, 0, 20);
-				}
-				this.menuItemsImages[i22].drawImageExt(paramGraphics, i21
-						+ gameVar.smallCircleSprite.frameWidth / 2, this.menuHeightMb / 2, 3);
-				i21 -= this.var_101d;
-				i22--;
-				// continue; //@todo
-
-				paramGraphics.setFont(E_MainCanvas.font8);
-				if (this.var_1095 != -1) {
-					gameVar.portraitsSprite.drawFrameAt(paramGraphics, this.var_1095, -8,
-							m, 36);
-				}
-				k -= this.var_10ad;
-				paramGraphics.setClip(0, 0, k, this.menuHeightMb - 10);
-				i22 = 0;
-				i1 = 0;
-				if (this.var_10bd != null) {
-					paramGraphics.setColor(I_Game.sub_bf33(16777215,
-							this.var_117d, this.var_1105, 5));
-					for (int i23 = 0; i23 < this.var_10bd.length; i23++) {
-						E_MainCanvas.drawString(paramGraphics, this.var_10bd[i23],
-								this.var_10ad + k / 2, i1 + this.var_108d, 17);
+				break;
+			case 14:
+				gr.setFont(E_MainCanvas.font8);
+				gr.setColor(I_Game.sub_bf33(16777215, 1645370, this.var_1105, 5));
+				i2 = menuHei / 2;
+				E_MainCanvas.drawString(gr,
+						this.menuItemsNamesMb[this.activeItemPositionMb],
+						menuWid / 2, (menuHei - E_MainCanvas.font8BaselinePos) / 2,
+						17);
+				gameVar.sideArrowSprite.drawFrameAt(gr, 0, 0, i2, 6);
+				gameVar.sideArrowSprite.drawFrameAt(gr, 1, menuWid, i2, 10);
+				break;
+			case 13:
+				i19 = E_MainCanvas.var_138c;
+				i20 = (this.menuHeight - i19) / 2;
+				gr.setColor(I_Game.sub_bf33(1645370, 16777215, this.var_1105, 5));
+				sub_35f8(gr, 0, i20, this.menuWidth, i19);
+				gr.setFont(E_MainCanvas.font8);
+				gr.setColor(16777215);
+				E_MainCanvas.drawString(gr,
+						this.menuItemsNamesMb[this.activeItemPositionMb], 16, i20
+								+ this.var_108d, 20);
+				i21 = this.menuWidth - this.var_101d;
+				mapUnitsCount = this.menuItemsCount - 1;
+			case 7:
+			case 10:
+			case 11:
+				/*
+				while (mapUnitsCount >= 0) {
+					if (mapUnitsCount == this.activeItemPositionMb) {
+						// gameVar.smallCircleSprite.drawFrameAt(paramGraphics, 1,
+						// i21, 0, 20);//@todo here =(
+					} else {
+						gameVar.smallCircleSprite.drawFrameAt(gr, 0, i21, 0, 20);
+					}
+					this.menuItemsImages[mapUnitsCount].drawImageExt(gr, i21
+							+ gameVar.smallCircleSprite.frameWidth / 2,
+							this.menuHeight / 2, 3);
+					i21 -= this.var_101d;
+					mapUnitsCount--;
+				}*/
+					// continue; //@todo
+	
+					gr.setFont(E_MainCanvas.font8);
+					//show portrait
+					if (this.portraitSpriteIndex != -1) {
+						gameVar.portraitsSprite.drawFrameAt(gr, this.portraitSpriteIndex, -8,
+								menuHei, 36);
+					}
+					menuWid -= this.unitPortraitWidth;
+					gr.setClip(0, 0, menuWid, this.menuHeight - 10);
+					mapUnitsCount = 0;
+					i1 = 0;
+					if (this.var_10bd != null) {
+						gr.setColor(I_Game.sub_bf33(16777215, this.var_117d,
+								this.var_1105, 5));
+						for (int i23 = 0; i23 < this.var_10bd.length; i23++) {
+							E_MainCanvas.drawString(gr, this.var_10bd[i23],
+									this.unitPortraitWidth + menuWid / 2,
+									i1 + this.var_108d, 17);
+							i1 += this.var_101d;
+						}
+						gr.setColor(10463131);
+						gr.drawLine(0, i1, menuWid - 1, i1);
+						mapUnitsCount = i1;
+					}
+					int i23 = i1 + this.var_10f5;
+					gr.setColor(this.var_fbd);
+					int i24 = this.var_109d;
+					int i25 = this.var_109d + this.var_10a5;
+					if (this.var_10b5 > 0) {
+						i24--;
+						i1 -= this.var_101d;
+					} else if (this.var_10b5 < 0) {
+						i25++;
+					}
+					i1 += this.var_10b5 + this.var_10f5;
+					gr.setClip(this.unitPortraitWidth, mapUnitsCount, menuWid, menuHei - mapUnitsCount);
+					int i26 = menuWid;
+					if (this.var_110d) {
+						i26 -= gameVar.arrowSprite.frameWidth;
+					}
+					int i27 = this.unitPortraitWidth + i26 / 2;
+					int i29;
+					int i30;
+					for (int sIt = i24; sIt < i25; sIt++) {
+						i29 = 0;
+						if (i1 < i23) {
+							i29 = i23 - i1;
+						} else if (i1 + this.var_101d > menuHei - this.var_10f5) {
+							i29 = i1 + this.var_101d - menuHei + this.var_10f5;
+						}
+						if ((this.menuType == 11)
+								&& (sIt == this.activeItemPositionMb)) {
+							gr.setColor(5594742);
+							sub_35f8(gr, 0, i1, i26, this.var_101d);
+							i30 = I_Game.sub_bf33(this.var_117d, 16777215,
+									this.var_101d - i29, this.var_101d);
+						} else {
+							i30 = I_Game.sub_bf33(this.var_117d, this.var_fbd,
+									this.var_101d - i29, this.var_101d);
+						}
+						i30 = I_Game.sub_bf33(i30, this.var_117d, this.var_1105, 5);
+						gr.setColor(i30);
+						if (this.var_11bd >= 0) {
+							E_MainCanvas.drawString(gr, this.menuItemsNamesMb[sIt],
+									this.var_11bd, i1 + this.var_108d, 20);
+						} else {
+							E_MainCanvas.drawString(gr, this.menuItemsNamesMb[sIt],
+									i27, i1 + this.var_108d, 17);
+						}
 						i1 += this.var_101d;
 					}
-					paramGraphics.setColor(10463131);
-					paramGraphics.drawLine(0, i1, k - 1, i1);
-					i22 = i1;
-				}
-				int i23 = i1 + this.var_10f5;
-				paramGraphics.setColor(this.var_fbd);
-				int i24 = this.var_109d;
-				int i25 = this.var_109d + this.var_10a5;
-				if (this.var_10b5 > 0) {
-					i24--;
-					i1 -= this.var_101d;
-				} else if (this.var_10b5 < 0) {
-					i25++;
-				}
-				i1 += this.var_10b5 + this.var_10f5;
-				paramGraphics.setClip(this.var_10ad, i22, k, m - i22);
-				int i26 = k;
-				if (this.var_110d) {
-					i26 -= gameVar.arrowSprite.frameWidth;
-				}
-				int i27 = this.var_10ad + i26 / 2;
-				int i29;
-				int i30;
-				for (int i28 = i24; i28 < i25; i28++) {
-					i29 = 0;
-					if (i1 < i23) {
-						i29 = i23 - i1;
-					} else if (i1 + this.var_101d > m - this.var_10f5) {
-						i29 = i1 + this.var_101d - m + this.var_10f5;
-					}
-					if ((this.var_105d == 11) && (i28 == this.activeItemPositionMb)) {
-						paramGraphics.setColor(5594742);
-						sub_35f8(paramGraphics, 0, i1, i26, this.var_101d);
-						i30 = I_Game.sub_bf33(this.var_117d, 16777215,
-								this.var_101d - i29, this.var_101d);
-					} else {
-						i30 = I_Game.sub_bf33(this.var_117d, this.var_fbd,
-								this.var_101d - i29, this.var_101d);
-					}
-					i30 = I_Game.sub_bf33(i30, this.var_117d,
-							this.var_1105, 5);
-					paramGraphics.setColor(i30);
-					if (this.var_11bd >= 0) {
-						E_MainCanvas.drawString(paramGraphics, this.menuItemsNamesMb[i28],
-								this.var_11bd, i1 + this.var_108d, 20);
-					} else {
-						E_MainCanvas.drawString(paramGraphics, this.menuItemsNamesMb[i28],
-								i27, i1 + this.var_108d, 17);
-					}
-					i1 += this.var_101d;
-				}
-				int i28;
-				if (this.var_110d) {
-					i28 = gameVar.arrowSprite.frameHeight;
-					i29 = gameVar.arrowSprite.frameWidth;
-					i30 = gameVar.arrowSprite.frameWidth / 2;
-					int i31 = m - i28 * 2 - 2;
-					int i32 = k - (i29 + i30) / 2;
-					if (i31 > 2) {
-						paramGraphics.setColor(this.var_fbd);
-						sub_35f8(paramGraphics, i32, i28 + 1, i30, i31);
-						int i33;
-						if ((i33 = (i31 - 2) * this.var_10a5 / this.itemsCountMb) < 1) {
-							i33 = 1;
-						}
-						paramGraphics.setColor(2370117);
-						sub_35f8(paramGraphics, i32 + 1, i28 + (i31 - 2)
-								* this.var_109d / this.itemsCountMb + 2, i30 - 2,
-								i33);
-						gameVar.arrowSprite.drawFrameAt(paramGraphics, 0, k - i29, 0,
-								20);
-						gameVar.arrowSprite.drawFrameAt(paramGraphics, 1, k - i29, m,
-								36);
-					} else {
-						if (this.var_109d > 0) {
-							gameVar.arrowSprite.drawFrameAt(paramGraphics, 0,
-									k - i29, 0, 20);
-						}
-						if (this.var_109d + this.var_10a5 < this.itemsCountMb) {
-							gameVar.arrowSprite.drawFrameAt(paramGraphics, 1,
-									k - i29, m, 36);
+					int i28;
+					if (this.var_110d) {
+						i28 = gameVar.arrowSprite.frameHeight;
+						i29 = gameVar.arrowSprite.frameWidth;
+						i30 = gameVar.arrowSprite.frameWidth / 2;
+						int i31 = menuHei - i28 * 2 - 2;
+						int i32 = menuWid - (i29 + i30) / 2;
+						if (i31 > 2) {
+							gr.setColor(this.var_fbd);
+							sub_35f8(gr, i32, i28 + 1, i30, i31);
+							int i33;
+							if ((i33 = (i31 - 2) * this.var_10a5
+									/ this.menuItemsCount) < 1) {
+								i33 = 1;
+							}
+							gr.setColor(2370117);
+							sub_35f8(gr, i32 + 1, i28 + (i31 - 2) * this.var_109d
+									/ this.menuItemsCount + 2, i30 - 2, i33);
+							gameVar.arrowSprite.drawFrameAt(gr, 0, menuWid - i29,
+									0, 20);
+							gameVar.arrowSprite.drawFrameAt(gr, 1, menuWid - i29,
+									menuHei, 36);
+						} else {
+							if (this.var_109d > 0) {
+								gameVar.arrowSprite.drawFrameAt(gr, 0, menuWid
+										- i29, 0, 20);
+							}
+							if (this.var_109d + this.var_10a5 < this.menuItemsCount) {
+								gameVar.arrowSprite.drawFrameAt(gr, 1, menuWid
+										- i29, menuHei, 36);
+							}
 						}
 					}
-				}
-				if (this.var_105d == 7) {
-					paramGraphics.setClip(0, 0, this.someCanWidth, this.someCanHeight);
-					i28 = m;
-					if ((this.var_1065 & 0x2) == 0) {
-						i28 += 5;
+					if (this.menuType == 7) {
+						gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
+						i28 = menuHei;
+						if ((this.someBorderMb & 0x2) == 0) {
+							i28 += 5;
+						}
+						gameVar.arrowSprite.drawFrameAt(gr, 1, menuWid
+								+ this.unitPortraitWidth, i28, 40);
 					}
-					gameVar.arrowSprite.drawFrameAt(paramGraphics, 1, k
-							+ this.var_10ad, i28, 40);
-				}
-			}
 		}
-		paramGraphics.translate(-i, -j);
-		paramGraphics.setClip(0, 0, this.someCanWidth, this.someCanHeight);
-		if ((A_MenuBase.mainCanvas.mainDrawElement == this) && (this.var_fd5 == 2)) {
+		gr.translate(-i, -j);
+		gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
+		if ((A_MenuBase.mainCanvas.mainDrawElement == this)
+				&& (this.var_fd5 == 2)) {
 			if (this.menuActionsMb[0] != false) {
-				gameVar.sub_dbd9(paramGraphics, I_Game.var_3333, 0,
-						gameVar.var_32d3);
+				gameVar.drawActionButton(gr, I_Game.var_3333, 0, gameVar.someGHeight);
 			}
 			if (this.menuActionsMb[1] != false) {
-				gameVar.sub_dbd9(paramGraphics, I_Game.var_333b, 1,
-						gameVar.var_32d3);
+				gameVar.drawActionButton(gr, I_Game.var_333b, 1, gameVar.someGHeight);
 			}
 		}
 	}
@@ -1560,8 +1598,8 @@ public final class D_Menu extends A_MenuBase {
 			j = paramInt2 + 5;
 			for (m = 0; m < i; m++) {
 				k = I_Game.sub_bf33(paramInt7, paramInt6, m, i);
-				paramGraphics.setColor(I_Game.sub_bf33(k, paramInt6,
-						paramInt8, paramInt9));
+				paramGraphics.setColor(I_Game.sub_bf33(k, paramInt6, paramInt8,
+						paramInt9));
 				paramGraphics.fillRect(paramInt1, j, paramInt3, 1);
 				j++;
 			}
@@ -1598,8 +1636,8 @@ public final class D_Menu extends A_MenuBase {
 			int i3 = paramInt2 + paramInt4 - localClass_f_045.frameHeight;
 			for (int i4 = 0; i4 < n; i4++) {
 				if (k != 0) {
-					localClass_f_045.drawFrameAt(paramGraphics, 1, i2, paramInt2,
-							0);
+					localClass_f_045.drawFrameAt(paramGraphics, 1, i2,
+							paramInt2, 0);
 				}
 				if (m != 0) {
 					localClass_f_045.drawFrameAt(paramGraphics, 6, i2, i3, 0);
@@ -1613,8 +1651,8 @@ public final class D_Menu extends A_MenuBase {
 			int i5 = paramInt1 + paramInt3 - localClass_f_045.frameWidth;
 			for (int i6 = 0; i6 < i1; i6++) {
 				if (i != 0) {
-					localClass_f_045.drawFrameAt(paramGraphics, 3, paramInt1, i4,
-							0);
+					localClass_f_045.drawFrameAt(paramGraphics, 3, paramInt1,
+							i4, 0);
 				}
 				if (j != 0) {
 					localClass_f_045.drawFrameAt(paramGraphics, 4, i5, i4, 0);
@@ -1626,10 +1664,12 @@ public final class D_Menu extends A_MenuBase {
 						paramInt2, 0);
 			}
 			if ((j != 0) && (k != 0)) {
-				localClass_f_045.drawFrameAt(paramGraphics, 2, i5, paramInt2, 0);
+				localClass_f_045
+						.drawFrameAt(paramGraphics, 2, i5, paramInt2, 0);
 			}
 			if ((i != 0) && (m != 0)) {
-				localClass_f_045.drawFrameAt(paramGraphics, 5, paramInt1, i3, 0);
+				localClass_f_045
+						.drawFrameAt(paramGraphics, 5, paramInt1, i3, 0);
 			}
 			if ((j != 0) && (m != 0)) {
 				localClass_f_045.drawFrameAt(paramGraphics, 7, i5, i3, 0);

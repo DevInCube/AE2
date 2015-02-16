@@ -11,8 +11,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	
 	public String appPropVersion = "?";
 	public static byte var_32c3 = 32;
-	public int var_32cb;
-	public int var_32d3;
+	public int someGWidth;
+	public int someGHeight;
 	public int viewportWidth;
 	public int viewportHeight;
 	public int unlockedScenarioLevelsCount = 0;
@@ -109,14 +109,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public boolean var_351b = false;
 	public boolean var_3523 = false;
 	public boolean var_352b = true;
-	public Vector mapSprites = new Vector();
+	public Vector mapUnitsSprites = new Vector();
 	public Vector var_353b;
 	public int var_3543;
 	public int var_354b;
-	public long var_3553;
-	public byte var_355b = 2;
+	public long someStartTime5;
+	public byte mapMaxPlayersMb = 2;
 	public byte[] var_3563 = new byte[5];
-	public byte[] var_356b = new byte[4];
+	public byte[] playersIndexes = new byte[4];
 	public byte[] var_3573 = new byte[4];
 	public byte playerId = 0;
 	public short var_3583;
@@ -238,7 +238,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			A_MenuBase.getLangString(49) };
 	public D_Menu someOnlineMenu;
 	public D_Menu onlineMenu;
-	public D_Menu var_392b;
+	public D_Menu newsItemsMenu;
 	public D_Menu deleteMapMenu;
 	public D_Menu mapDeletingMenu;
 	public D_Menu var_3943;
@@ -308,7 +308,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public C_Unit var_3b43;
 	public C_Unit var_3b4b;
 	public C_Unit unitEndTurnMb;
-	public int aState;
+	public int scriptStep;
 	public long var_3b63;
 	public int var_3b6b;
 	public boolean isWaiting = false;
@@ -420,10 +420,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.miniIconsSprite = new F_Sprite("mini_icons");
 		setLoadingProgress(72);
 		this.houseTileIdStartIndex = 37;
-		this.var_32cb = this.someCanWidth;
-		this.var_32d3 = this.someCanHeight;
-		this.viewportWidth = (this.var_32cb >> 1);
-		this.viewportHeight = (this.var_32d3 >> 1);
+		this.someGWidth = this.someCanWidth;
+		this.someGHeight = this.someCanHeight;
+		this.viewportWidth = (this.someGWidth >> 1);
+		this.viewportHeight = (this.someGHeight >> 1);
 		this.introMode = 0;
 		for (int m = 0; m < 12; m++) {
 			skirmishMapsNames[m] = A_MenuBase.getLangString(101 + m);
@@ -549,8 +549,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.logoImage = null;
 		this.glowImage = null;
 		System.gc();
-		this.var_32d3 = (this.someCanHeight - var_32c3);
-		this.viewportHeight = (this.var_32d3 >> 1);
+		this.someGHeight = (this.someCanHeight - var_32c3);
+		this.viewportHeight = (this.someGHeight >> 1);
 		E_MainCanvas.stopMusic();
 		if (this.gameMode2Mb == 1) {
 			return;
@@ -669,13 +669,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				baos);
 		stream.writeByte(this.mapModeCampIf0);
 		stream.writeByte(this.scenarioMapIndex);
-		stream.writeByte(this.var_355b);
+		stream.writeByte(this.mapMaxPlayersMb);
 		stream.writeByte(this.playerId);
-		stream.writeByte(this.var_356b[this.playerId]);
+		stream.writeByte(this.playersIndexes[this.playerId]);
 		stream.writeShort(this.var_3583);
 		stream.writeByte(this.var_3703);
-		stream.writeByte(this.var_355b);
-		for (int i = 0; i < this.var_355b; i++) {
+		stream.writeByte(this.mapMaxPlayersMb);
+		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
 			stream.writeByte(this.var_3573[i]);
 			stream.writeByte(this.var_35b3[i]);
 			stream.writeShort(this.var_35a3[i]);
@@ -687,14 +687,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			stream
 					.writeByte(this.mapTilesIds[this.housesDataArr[i][0]][this.housesDataArr[i][1]]);
 		}
-		stream.writeByte(this.mapSprites.size());
+		stream.writeByte(this.mapUnitsSprites.size());
 		int i = 0;
-		int mapSpritesLength = this.mapSprites.size();
+		int mapSpritesLength = this.mapUnitsSprites.size();
 		while (i < mapSpritesLength) {
-			C_Unit unit = (C_Unit) this.mapSprites
+			C_Unit unit = (C_Unit) this.mapUnitsSprites
 					.elementAt(i);
 			stream.writeByte(unit.unitTypeId);
-			stream.writeByte(unit.var_acb);
+			stream.writeByte(unit.playerId);
 			stream.writeByte(unit.var_b13);
 			stream.writeByte(unit.status);
 			stream.writeByte(unit.unitHealthMb);
@@ -708,12 +708,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				stream.writeByte(unit.var_b7b);
 				stream.writeShort(unit.cost);
 				stream
-						.writeByte(this.playersKings[unit.var_acb] == unit ? 1
+						.writeByte(this.playersKings[unit.playerId] == unit ? 1
 								: 0);
 			}
 			i++;
 		}
-		stream.writeShort((short) this.aState);
+		stream.writeShort((short) this.scriptStep);
 		stream.writeInt((short) (int) this.var_3b63);
 		stream.writeInt(this.var_3b6b);
 		stream.writeByte(this.isWaiting ? 0 : 1);
@@ -727,14 +727,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				new ByteArrayInputStream(data));
 		this.mapModeCampIf0 = stream.readByte();
 		this.scenarioMapIndex = stream.readByte();
-		this.var_355b = stream.readByte();
+		this.mapMaxPlayersMb = stream.readByte();
 		loadMap(this.scenarioMapIndex);
 		this.playerId = stream.readByte();
 		stream.readByte();
 		this.var_3583 = stream.readShort();
 		this.var_3703 = stream.readByte();
-		this.var_355b = stream.readByte();
-		for (int i = 0; i < this.var_355b; i++) {
+		this.mapMaxPlayersMb = stream.readByte();
+		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
 			this.var_3573[i] = stream.readByte();
 			this.var_35b3[i] = stream.readByte();
 			this.var_35a3[i] = stream.readShort();
@@ -746,8 +746,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.mapTilesIds[this.housesDataArr[i][0]][this.housesDataArr[i][1]] = stream
 					.readByte();
 		}
-		this.var_3593 = new C_Unit[this.var_355b][4];
-		this.var_359b = new int[this.var_355b];
+		this.var_3593 = new C_Unit[this.mapMaxPlayersMb][4];
+		this.var_359b = new int[this.mapMaxPlayersMb];
 		sub_87e6();
 		int j = 0;
 		int length =  stream.readByte();
@@ -779,19 +779,19 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				lUnit.cost = kingCost;
 				byte i5 = stream.readByte();
 				if (i5 == 1) {
-					this.playersKings[lUnit.var_acb] = lUnit;
+					this.playersKings[lUnit.playerId] = lUnit;
 				}
 			}
 			j++;
 		}
-		this.aState = stream.readShort();
+		this.scriptStep = stream.readShort();
 		this.var_3b63 = stream.readInt();
 		this.var_3b6b = stream.readInt();
 		this.isWaiting = (stream.readByte() != 0);
 		stream.close();
-		if ((this.scenarioMapIndex == 6) && (this.aState > 32)) {
+		if ((this.scenarioMapIndex == 6) && (this.scriptStep > 32)) {
 			this.startupMessageBox = createDialog(A_MenuBase.getLangString(121 + this.scenarioMapIndex),
-					A_MenuBase.getLangString(138), this.var_32d3, -1);
+					A_MenuBase.getLangString(138), this.someGHeight, -1);
 			this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
 			this.startupMessageBox.setParentMenu(null);
 		}
@@ -799,7 +799,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		int cposy = this.kingsPositions[this.playerId][1];
 		moveCursorToPos(cposx, cposy);
 		sub_b9c5(cposx, cposy);
-		E_MainCanvas.sub_2439(var_33c3[this.var_356b[this.playerId]], 0);
+		E_MainCanvas.sub_2439(var_33c3[this.playersIndexes[this.playerId]], 0);
 	}
 
 	public final void saveToSlotMenuShow(int paramInt, A_MenuBase parentMenu) {
@@ -807,14 +807,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			E_MainCanvas.saveRecordStoreData("save", paramInt, saveMapDataBytes());
 			this.slotsDescriptions[paramInt] = getSlotDescription(this.mapModeCampIf0, this.scenarioMapIndex,
 					this.var_3583);
-			this.slotsCurrentPlayerIds[paramInt] = this.var_356b[this.playerId];
+			this.slotsCurrentPlayerIds[paramInt] = this.playersIndexes[this.playerId];
 			this.slotsMapIndexes[paramInt] = this.scenarioMapIndex;
 			this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[paramInt],
-					this.var_32cb, -1);
+					this.someGWidth, -1);
 			this.var_38c3.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[paramInt]];
 			this.var_38c3.onLoad();
 			D_Menu dialog = createDialog(null, A_MenuBase.getLangString(77),
-					this.var_32d3, 1000); // GAME SAVED
+					this.someGHeight, 1000); // GAME SAVED
 			dialog.parentMenu = parentMenu;
 			A_MenuBase.mainCanvas.showMenu(dialog);
 			return;
@@ -988,12 +988,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			names[j] = this.unitActionsNames[data[j]];
 			images[j] = this.actionIconsFrames[data[j]];
 		}
-		if (this.var_34b3 * 24 <= this.var_32d3 / 2 - 24) {
+		if (this.var_34b3 * 24 <= this.someGHeight / 2 - 24) {
 			this.someGameMenu.sub_1e97(names, images, 0,
-					this.var_32d3 - this.buttonsSprite.frameHeight, 36);
+					this.someGHeight - this.buttonsSprite.frameHeight, 36);
 		} else {
 			this.someGameMenu.sub_1e97(names, images,
-					this.var_32cb, 0, 8);
+					this.someGWidth, 0, 8);
 		}
 		this.someGameMenu.setParentMenu(this);
 		A_MenuBase.mainCanvas.showMenu(this.someGameMenu);
@@ -1005,21 +1005,21 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			slotNames[i] = ("SLOT " + (i + 1) + "/" + 3);
 		}
 		this.var_38bb = new D_Menu((byte) 14, 0);
-		this.var_38bb.setMenuItemsNames(slotNames, this.var_32cb, -1);
+		this.var_38bb.setMenuItemsNames(slotNames, this.someGWidth, -1);
 		this.var_38c3 = new D_Menu((byte) 10, 0);
-		this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[0], this.var_32cb, -1);
+		this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[0], this.someGWidth, -1);
 		if (this.slotsCurrentPlayerIds[0] != -1) {
 			this.var_38c3.titleGradientColor = playerColors[this.slotsCurrentPlayerIds[0]];
 		}
 		D_Menu menu1 = new D_Menu((byte) 15, 15);
-		int j = (this.var_32d3 - this.var_38bb.menuHeightMb - this.var_38c3.menuHeightMb) / 2;
+		int j = (this.someGHeight - this.var_38bb.menuHeight - this.var_38c3.menuHeight) / 2;
 		D_Menu aMenu = new D_Menu((byte) 10, 0);
-		aMenu.createDescDialogMb(null, desc, this.var_32cb, -1);
+		aMenu.createDescDialogMb(null, desc, this.someGWidth, -1);
 		aMenu.menuTitleIcon = image;
 		menu1.addChildMenu(aMenu, 0, 0, 0);
-		j += aMenu.menuHeightMb / 2;
+		j += aMenu.menuHeight / 2;
 		menu1.addChildMenu(this.var_38bb, 0, j, 0);
-		j += this.var_38bb.menuHeightMb;
+		j += this.var_38bb.menuHeight;
 		menu1.addChildMenu(this.var_38c3, 0, j, 20);
 		menu1.updateAllChildrenBoolMb = true;
 		menu1.setMenuActionEnabled((byte) 0, true);
@@ -1048,14 +1048,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3943 = new D_Menu((byte) 15, 15);
 		D_Menu menu1 = new D_Menu((byte) 10, 0);
 		menu1.createDescDialogMb(null,
-				A_MenuBase.getLangString(48), this.var_32cb, -1); // DOWNLOAD
+				A_MenuBase.getLangString(48), this.someGWidth, -1); // DOWNLOAD
 		D_Menu menu2;
 		if (j == 0) {
 			menu2 = new D_Menu((byte) 10, 0);
-			menu2.createDescDialogMb(null, A_MenuBase.getLangString(52), this.var_32cb,
+			menu2.createDescDialogMb(null, A_MenuBase.getLangString(52), this.someGWidth,
 					this.viewportHeight); //EMPTY
 			this.var_3943.addChildMenu((D_Menu) menu2, 0,
-					(this.var_32d3 + menu1.menuHeightMb) / 2, 6);
+					(this.someGHeight + menu1.menuHeight) / 2, 6);
 		} else {
 			String[] itemsNames = new String[j];
 			int[] arrayOfInt2 = new int[j];
@@ -1068,17 +1068,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					A_MenuBase.replaceStringFirst(54,
 							getByteSizeString(this.someSizesMb[arrayOfInt2[0]]))
 							+ "\n"
-							+ A_MenuBase.replaceStringFirst(53, str), this.var_32cb, -1); // Needed: %U KBytes
+							+ A_MenuBase.replaceStringFirst(53, str), this.someGWidth, -1); // Needed: %U KBytes
 			this.downloadItemsMenu = new D_Menu((byte) 11, 0);
 			this.downloadItemsMenu.createMenuListItems(itemsNames, this.viewportWidth,
-					this.viewportHeight, this.var_32cb, this.var_32d3
-							- menu1.menuHeightMb
-							- this.downloadMenu.menuHeightMb, 3, 4);
+					this.viewportHeight, this.someGWidth, this.someGHeight
+							- menu1.menuHeight
+							- this.downloadMenu.menuHeight, 3, 4);
 			this.downloadItemsMenu.var_1195 = arrayOfInt2;
-			int i1 = (this.var_32d3 - this.downloadMenu.menuHeightMb
-					- this.downloadItemsMenu.menuHeightMb + menu1.menuHeightMb) / 2;
+			int i1 = (this.someGHeight - this.downloadMenu.menuHeight
+					- this.downloadItemsMenu.menuHeight + menu1.menuHeight) / 2;
 			this.var_3943.addChildMenu(this.downloadItemsMenu, 0, i1, 20);
-			i1 += this.downloadItemsMenu.menuHeightMb;
+			i1 += this.downloadItemsMenu.menuHeight;
 			this.var_3943.addChildMenu(this.downloadMenu, 0, i1, 20);
 			this.var_3943.updateAllChildrenBoolMb = true;
 			this.var_3943.setMenuActionEnabled((byte) 0, true);
@@ -1096,7 +1096,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			localClass_d_0231.createDescDialogMb(null, A_MenuBase.getLangString(52),
 					this.someCanWidth, -1); //EMPTY
 			localClass_d_0231.sub_193f(0,
-					(this.var_32d3 + delMenu.menuHeightMb) / 2, 6);
+					(this.someGHeight + delMenu.menuHeight) / 2, 6);
 			localClass_d_0231.setParentMenu(menu);
 			this.deleteMapMenu = null;
 			return localClass_d_0231;
@@ -1106,9 +1106,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		localClass_d_0231.menuTitleIcon = this.menuIconsFrames[6];
 		this.deleteMapMenu
 				.createMenuListItems(this.var_38fb, this.someCanWidth / 2,
-						(this.var_32d3 + localClass_d_0231.menuHeightMb) / 2,
-						this.var_32cb, this.var_32d3
-								- localClass_d_0231.menuHeightMb, 3, 4);
+						(this.someGHeight + localClass_d_0231.menuHeight) / 2,
+						this.someGWidth, this.someGHeight
+								- localClass_d_0231.menuHeight, 3, 4);
 		this.deleteMapMenu.setParentMenu(menu);
 		return this.deleteMapMenu;
 	}
@@ -1190,9 +1190,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if ((paramByte == 2) || (paramByte == 3)) {
 				String unitDesc = A_MenuBase.getLangString(184 + this.castleBuyAllUnitsMenu.buyUnits[itemNumber].unitTypeId);
 				this.castleBuyDescMenu.createDescDialogMb(
-								null, unitDesc, this.var_32cb, this.var_32d3
-										- this.castleBuyUnitMenu.menuHeightMb
-										- this.castleBuyAllUnitsMenu.menuHeightMb);
+								null, unitDesc, this.someGWidth, this.someGHeight
+										- this.castleBuyUnitMenu.menuHeight
+										- this.castleBuyAllUnitsMenu.menuHeight);
 				this.castleBuyUnitMenu.menuUnit = this.castleBuyAllUnitsMenu.buyUnits[itemNumber];
 				this.castleBuyDescMenu.onLoad();
 				this.castleBuyUnitMenu.onLoad();
@@ -1229,7 +1229,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							.getSomeHelpString(196 + itemNumber - 1, true);
 				}
 				this.instructionsDescMenu.createDescDialogMb(null, (String) localObject1,
-						this.var_32cb, this.instructionsDescMenu.menuHeightMb);
+						this.someGWidth, this.instructionsDescMenu.menuHeight);
 				this.instructionsDescMenu.onLoad();
 			}
 			return;
@@ -1252,13 +1252,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				D_Menu titleMenu = new D_Menu((byte) 10, 0);
 				titleMenu.menuTitleIcon = this.menuIconsFrames[4];
 				titleMenu.createDescDialogMb(null,
-						A_MenuBase.getLangString(34), this.var_32cb, -1); //SKIRMISH SETUP
+						A_MenuBase.getLangString(34), this.someGWidth, -1); //SKIRMISH SETUP
 				this.playerOptionsMenu.addChildMenu(titleMenu, 0, 0, 20);
 				String[] teamOptionsStrings = new String[this.mapTeamsCount];
 				for (int teamIndex = 0; teamIndex < this.mapTeamsCount; teamIndex++) {
 					teamOptionsStrings[teamIndex] = A_MenuBase.replaceStringFirst(38, "" + (teamIndex + 1));
 				}
-				int titleMenuHeight = titleMenu.menuHeightMb;
+				int titleMenuHeight = titleMenu.menuHeight;
 				D_Menu[] menuList = new D_Menu[this.mapTeamsCount];
 				this.choosePlayerMenuList = new D_Menu[this.mapTeamsCount];
 				this.chooseTeamMenuList = new D_Menu[this.mapTeamsCount];
@@ -1269,20 +1269,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.chooseTeamMenuList[playerIndex]
 							.setMenuItemsNames(teamOptionsStrings, this.someCanWidthDiv2, -1);
 					this.chooseTeamMenuList[playerIndex].activeItemPositionMb = playerIndex;
-					int someMaxWidth = Math.max(this.choosePlayerMenuList[playerIndex].someMenuWidth,
-							this.chooseTeamMenuList[playerIndex].someMenuWidth);
+					int someMaxWidth = Math.max(this.choosePlayerMenuList[playerIndex].menuWidth,
+							this.chooseTeamMenuList[playerIndex].menuWidth);
 					int someWidth = this.someCanWidth - someMaxWidth;
-					this.choosePlayerMenuList[playerIndex].someMenuWidth = someMaxWidth;
-					this.chooseTeamMenuList[playerIndex].someMenuWidth = someMaxWidth;
+					this.choosePlayerMenuList[playerIndex].menuWidth = someMaxWidth;
+					this.chooseTeamMenuList[playerIndex].menuWidth = someMaxWidth;
 					this.playerOptionsMenu.addChildMenu(this.choosePlayerMenuList[playerIndex], someWidth, titleMenuHeight, 20);
-					titleMenuHeight += this.choosePlayerMenuList[playerIndex].menuHeightMb;
+					titleMenuHeight += this.choosePlayerMenuList[playerIndex].menuHeight;
 					this.playerOptionsMenu.addChildMenu(this.chooseTeamMenuList[playerIndex], someWidth, titleMenuHeight, 20);
-					titleMenuHeight += this.chooseTeamMenuList[playerIndex].menuHeightMb;
+					titleMenuHeight += this.chooseTeamMenuList[playerIndex].menuHeight;
 					menuList[playerIndex] = new D_Menu((byte) 10, 8);
 					menuList[playerIndex].createDescDialogMb(null,
 							A_MenuBase.getLangString(this.somePlayerIds[playerIndex] - 1 + 89),
-							someWidth, this.choosePlayerMenuList[playerIndex].menuHeightMb
-									+ this.chooseTeamMenuList[playerIndex].menuHeightMb); //player name color
+							someWidth, this.choosePlayerMenuList[playerIndex].menuHeight
+									+ this.chooseTeamMenuList[playerIndex].menuHeight); //player name color
 					menuList[playerIndex].titleGradientColor = playerColors[this.somePlayerIds[playerIndex]];
 					this.playerOptionsMenu.addChildMenu(menuList[playerIndex], 0, titleMenuHeight, 36);
 				}
@@ -1297,9 +1297,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					skirmishStartMoneyValues[moneyIndex] = ("" + skirmishStartMoneyEnum[moneyIndex]);
 				}
 				this.chooseMoneyItemsMenu.setMenuItemsNames(skirmishStartMoneyValues, this.viewportWidth,
-						chooseMoneyMenu.menuHeightMb);
+						chooseMoneyMenu.menuHeight);
 				this.playerOptionsMenu.addChildMenu(this.chooseMoneyItemsMenu, this.someCanWidthDiv2, titleMenuHeight, 20);
-				titleMenuHeight += chooseMoneyMenu.menuHeightMb;
+				titleMenuHeight += chooseMoneyMenu.menuHeight;
 				D_Menu chooseUnitCapMenu = new D_Menu((byte) 10, 8);
 				chooseUnitCapMenu.createDescDialogMb(
 						null, A_MenuBase.getLangString(41), this.viewportWidth, -1);//Unit cap
@@ -1310,7 +1310,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					skirmishUnitsCapValues[capIndex] = ("" + skirmishStartUnitsEnum[capIndex]);
 				}
 				this.chooseUnitCapItemsMenu.setMenuItemsNames(skirmishUnitsCapValues, this.viewportWidth,
-						chooseUnitCapMenu.menuHeightMb);
+						chooseUnitCapMenu.menuHeight);
 				this.playerOptionsMenu.addChildMenu(this.chooseUnitCapItemsMenu, this.someCanWidthDiv2, titleMenuHeight, 20);
 				this.playerOptionsMenu.setParentMenu(menu);
 				this.playerOptionsMenu.setMenuActionEnabled((byte) 0, true); 
@@ -1345,7 +1345,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if ((j < 2) || (n < 2)) {
 					//2 players and 2 teams minimum are required to start a skirmish game.
 					D_Menu infoMenu = createDialog(null,
-							A_MenuBase.getLangString(39), this.var_32d3, 2000); 
+							A_MenuBase.getLangString(39), this.someGHeight, 2000); 
 					infoMenu.setParentMenu(this.playerOptionsMenu);
 					A_MenuBase.mainCanvas.showMenu(infoMenu);
 					return;
@@ -1407,12 +1407,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.skirmishSetupMenu = new D_Menu((byte) 15, 15);
 				D_Menu settingsMenuMb = new D_Menu((byte) 10, 0);
 				settingsMenuMb.menuTitleIcon = this.menuIconsFrames[4]; //castle skirmish
-				settingsMenuMb.createDescDialogMb(null, this.mapName, this.var_32cb,
+				settingsMenuMb.createDescDialogMb(null, this.mapName, this.someGWidth,
 						-1);
 				D_Menu menu11 = new D_Menu((byte) 8, 0);
-				menu11.sub_17fa(
-						this.someCanWidth, this.var_32d3
-								- settingsMenuMb.menuHeightMb
+				menu11.initMapPreviewMenu(
+						this.someCanWidth, this.someGHeight
+								- settingsMenuMb.menuHeight
 								- this.buttonsSprite.frameHeight,
 						(byte[][]) localObject61, null);
 				this.skirmishSetupMenu
@@ -1420,7 +1420,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								menu11,
 								this.viewportWidth,
 								this.viewportHeight
-										+ (settingsMenuMb.menuHeightMb - this.buttonsSprite.frameHeight)
+										+ (settingsMenuMb.menuHeight - this.buttonsSprite.frameHeight)
 										/ 2, 3);
 				this.skirmishSetupMenu.addChildMenu(settingsMenuMb, 0, 0, 0);
 				this.skirmishSetupMenu.setParentMenu(menu);
@@ -1450,7 +1450,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						if (this.gameMode2Mb == 1) {
 							if ((this.activeUnitState != 11) && (this.activeUnitState != 14)) {
 								E_MainCanvas.playMusicLooped(
-										var_33c3[this.var_356b[this.playerId]],
+										var_33c3[this.playersIndexes[this.playerId]],
 										0);
 							}
 						} else if (this.gameMode2Mb == 0) {
@@ -1472,7 +1472,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					saveToSlotMenuShow(slotIndex, menu);
 				} else {
 					this.warningDialog = createDialog(null, A_MenuBase.getLangString(88),
-							this.var_32d3, -1); //Overwriting the current saved game, are you sure?
+							this.someGHeight, -1); //Overwriting the current saved game, are you sure?
 					this.warningDialog.setMenuActionEnabled((byte) 0, true);
 					this.warningDialog.setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu(this.warningDialog);
@@ -1514,7 +1514,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		} else if (menu == this.var_38bb) {
 			if ((paramByte == 2) || (paramByte == 3)) {
 				this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[itemNumber],
-						this.var_32cb, -1);
+						this.someGWidth, -1);
 				if (this.slotsCurrentPlayerIds[itemNumber] == -1) {
 					this.var_38c3.titleGradientColor = 2370117; //#242A45 dark blue
 				} else {
@@ -1531,7 +1531,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						startRetrievingData(0, "news", A_MenuBase.getLangString(0), menu);
 						return;
 					}
-					this.var_392b = sub_14c01(this.var_3c13, menu);
+					this.newsItemsMenu = sub_14c01(this.var_3c13, menu);
 					return;
 				}
 				if (itemName.equals(this.onlineMenuItemsNames[1])) { //download maps
@@ -1542,10 +1542,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							.createMenuListItems(
 									this.downloadMenuItemsNames,
 									this.someCanWidth / 2,
-									(this.var_32d3 + onlineMenuTitle.menuHeightMb) / 2,
-									this.var_32cb,
-									this.var_32d3
-											- onlineMenuTitle.menuHeightMb,
+									(this.someGHeight + onlineMenuTitle.menuHeight) / 2,
+									this.someGWidth,
+									this.someGHeight
+											- onlineMenuTitle.menuHeight,
 									3, 0);
 					this.onlineMenu.setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu(this.onlineMenu);
@@ -1569,7 +1569,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			} else if (paramByte == 1) {
 				this.onlineMenu = null;
 			}
-		} else if (menu == this.var_392b) {
+		} else if (menu == this.newsItemsMenu) {
 			if (paramByte == 0) {
 				if (this.var_3c23[itemNumber] == null) {
 					this.var_3c03 = itemNumber;
@@ -1577,13 +1577,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							A_MenuBase.getLangString(0), menu);
 				} else {
 					D_Menu menu21 = createDialog(this.var_3c13[itemNumber],
-							this.var_3c23[itemNumber], this.var_32d3,
-							this.var_32d3 / 2, -1);
+							this.var_3c23[itemNumber], this.someGHeight,
+							this.someGHeight / 2, -1);
 					menu21.setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu((A_MenuBase) menu21);
 				}
 			} else if (paramByte == 1) {
-				this.var_392b = null;
+				this.newsItemsMenu = null;
 			}
 		} else if (menu == this.var_3943) {
 			if (paramByte == 0) {
@@ -1593,7 +1593,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							A_MenuBase.getLangString(0), menu);
 				} else {
 					D_Menu menu31 = createDialog(null, A_MenuBase.getLangString(55),
-							this.var_32d3, -1); //You do not have enough memory
+							this.someGHeight, -1); //You do not have enough memory
 					menu31.setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu((A_MenuBase) menu31);
 				}
@@ -1615,14 +1615,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 										+ "\n"
 										+ A_MenuBase.replaceStringFirst(53,
 												(String) parMenu),
-								this.var_32cb, -1);
+								this.someGWidth, -1);
 				this.downloadMenu.onLoad();
 			}
 		} else if (menu == this.deleteMapMenu) {
 			if (paramByte == 0) {
 				if (this.var_3903[itemNumber] + skirmishMapsNames.length == this.scenarioMapIndex) {
 					D_Menu menu41 = createDialog(null, A_MenuBase.getLangString(56),
-							this.var_32d3, -1); //You cannot delete the level you are currently playing.
+							this.someGHeight, -1); //You cannot delete the level you are currently playing.
 					menu41.setParentMenu(menu);
 					A_MenuBase.mainCanvas.showMenu((A_MenuBase) menu41);
 				} else {
@@ -1630,7 +1630,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.deletingMapName = itemName;
 					this.mapDeletingMenu = createDialog(null,
 							A_MenuBase.replaceStringFirst(50, itemName),
-							this.var_32d3, this.viewportHeight, -1); //Deleting skirmish map '%U'.
+							this.someGHeight, this.viewportHeight, -1); //Deleting skirmish map '%U'.
 					this.mapDeletingMenu.setParentMenu(menu);
 					this.mapDeletingMenu.setMenuActionEnabled((byte) 0, true);
 					A_MenuBase.mainCanvas.showMenu(this.mapDeletingMenu);
@@ -1643,7 +1643,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				sub_15429(this.var_395b);
 				parMenu = sub_5fed(this.deleteMapMenu.parentMenu);
 				D_Menu menuOk = createDialog(null,
-						A_MenuBase.replaceStringFirst(51, this.deletingMapName), this.var_32d3,
+						A_MenuBase.replaceStringFirst(51, this.deletingMapName), this.someGHeight,
 						-1); //Map '%U' deleted.
 				menuOk.setParentMenu((A_MenuBase) parMenu);
 				A_MenuBase.mainCanvas.showMenu((A_MenuBase) menuOk);
@@ -1651,7 +1651,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.mapDeletingMenu = null;
 			this.deletingMapName = null;
 		}
-		if (menu.var_105d == 7) {
+		if (menu.menuType == 7) {
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
 		}
@@ -1665,7 +1665,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				return;
 			}
 			this.warningEndGameMenu = createDialog(null, A_MenuBase.getLangString(87),
-					this.var_32d3, -1); //This will end your current game, are you sure?
+					this.someGHeight, -1); //This will end your current game, are you sure?
 			this.warningEndGameMenu.setMenuActionEnabled((byte) 0, true);
 			this.warningEndGameMenu.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.warningEndGameMenu);
@@ -1710,9 +1710,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					.createMenuListItems(
 							scenMapNames,
 							this.someCanWidth / 2,
-							(this.var_32d3 + selLevelMenuTitle.menuHeightMb) / 2,
-							this.var_32cb, this.var_32d3
-									- selLevelMenuTitle.menuHeightMb,
+							(this.someGHeight + selLevelMenuTitle.menuHeight) / 2,
+							this.someGWidth, this.someGHeight
+									- selLevelMenuTitle.menuHeight,
 							3, 4);
 			this.selectLevelMenu.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.selectLevelMenu);
@@ -1735,7 +1735,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_3713 = new D_Menu((byte) 15, 15);
 			titleMenu = new D_Menu((byte) 10, 0);
 			titleMenu.createDescDialogMb(null,
-					itemName, this.var_32cb, -1);
+					itemName, this.someGWidth, -1);
 			titleMenu.menuTitleIcon = this.menuIconsFrames[4];
 			this.var_3303 = new boolean[12];
 			for (int i2 = this.unlockedScenarioLevelsCount; i2 <= 7; i2++) {
@@ -1754,11 +1754,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			System.arraycopy(this.var_38fb, 0, arrayOfString2, 12,
 					this.var_38f3);
 			this.var_370b = new D_Menu((byte) 0, 0);
-			this.var_370b.createMenuListItems(arrayOfString2, 0, 0, this.var_32cb,
-					this.var_32d3 - titleMenu.menuHeightMb
+			this.var_370b.createMenuListItems(arrayOfString2, 0, 0, this.someGWidth,
+					this.someGHeight - titleMenu.menuHeight
 							- this.buttonsSprite.frameHeight * 2, 3, 4);
 			this.var_3713.addChildMenu(this.var_370b, this.viewportWidth,
-					(this.var_32d3 + titleMenu.menuHeightMb) / 2, 3);
+					(this.someGHeight + titleMenu.menuHeight) / 2, 3);
 			this.var_3713.addChildMenu(titleMenu, 0, 0, 0);
 			this.var_3713.updateAllChildrenBoolMb = true;
 			this.var_3713.setMenuActionEnabled((byte) 0, true);
@@ -1771,8 +1771,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			titleMenu = this.someOnlineMenu.createTitleMenu(itemName);
 			titleMenu.menuTitleIcon = this.menuIconsFrames[6];
 			this.someOnlineMenu.createMenuListItems(this.onlineMenuItemsNames, this.someCanWidth / 2,
-					(this.var_32d3 + titleMenu.menuHeightMb) / 2,
-					this.var_32cb, this.var_32d3 - titleMenu.menuHeightMb,
+					(this.someGHeight + titleMenu.menuHeight) / 2,
+					this.someGWidth, this.someGHeight - titleMenu.menuHeight,
 					3, 0);
 			this.someOnlineMenu.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.someOnlineMenu);
@@ -1782,9 +1782,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.settingsMenu = new D_Menu((byte) 15, 15);
 			titleMenu = new D_Menu((byte) 10, 0);
 			titleMenu.menuTitleIcon = this.menuIconsFrames[5];
-			titleMenu.createDescDialogMb(null, itemName, this.var_32cb, -1);
+			titleMenu.createDescDialogMb(null, itemName, this.someGWidth, -1);
 			this.settingsMenu.addChildMenu(titleMenu, 0, 0, 20);
-			int mHeight = titleMenu.menuHeightMb;
+			int mHeight = titleMenu.menuHeight;
 			D_Menu[] settingsOptionsMenuList = new D_Menu[4];
 			this.settingsMenuList = new D_Menu[4];
 			for (int setIt = 0; setIt < 4; setIt++) {
@@ -1808,11 +1808,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 				this.settingsMenuList[setIt] = new D_Menu((byte) 14, i10);
 				this.settingsMenuList[setIt].setMenuItemsNames(this.onOffValuesNames, this.viewportWidth,
-						settingsOptionsMenuList[setIt].menuHeightMb);
+						settingsOptionsMenuList[setIt].menuHeight);
 				this.settingsMenuList[setIt].activeItemPositionMb = (E_MainCanvas.settings[setIt] != false ? 0
 						: 1);
 				this.settingsMenu.addChildMenu(this.settingsMenuList[setIt], this.someCanWidthDiv2, mHeight, 20);
-				mHeight += settingsOptionsMenuList[setIt].menuHeightMb;
+				mHeight += settingsOptionsMenuList[setIt].menuHeight;
 			}
 			this.settingsMenu.var_111d = 2;
 			this.settingsMenu.setParentMenu(menu);
@@ -1822,7 +1822,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (itemName.equals(A_MenuBase.getLangString(9))) { //INSTRUCTIONS
 			this.instructionsMenu = new D_Menu((byte) 15, 15);
 			titleMenu = new D_Menu((byte) 10, 0);
-			titleMenu.createDescDialogMb(null, itemName, this.var_32cb, -1);
+			titleMenu.createDescDialogMb(null, itemName, this.someGWidth, -1);
 			titleMenu.menuTitleIcon = this.menuIconsFrames[7];
 			String[] instrStrings = new String[20];
 			for (int i5 = 0; i5 <= 19; i5++) {
@@ -1835,15 +1835,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 			this.instructionsItemsMenu = new D_Menu((byte) 14, 2);
-			this.instructionsItemsMenu.setMenuItemsNames(instrStrings, this.var_32cb, -1);
+			this.instructionsItemsMenu.setMenuItemsNames(instrStrings, this.someGWidth, -1);
 			this.instructionsDescMenu = new D_Menu((byte) 10, 1);
 			this.instructionsDescMenu.createDescDialogMb(null, A_MenuBase.getLangString(15),
-					this.var_32cb, this.var_32d3 - titleMenu.menuHeightMb
-							- this.instructionsItemsMenu.menuHeightMb - this.buttonsSprite.frameHeight
+					this.someGWidth, this.someGHeight - titleMenu.menuHeight
+							- this.instructionsItemsMenu.menuHeight - this.buttonsSprite.frameHeight
 							* 2);
-			int height = titleMenu.menuHeightMb + this.buttonsSprite.frameHeight;
+			int height = titleMenu.menuHeight + this.buttonsSprite.frameHeight;
 			this.instructionsMenu.addChildMenu(this.instructionsItemsMenu, this.viewportWidth, height, 17);
-			height += this.instructionsItemsMenu.menuHeightMb;
+			height += this.instructionsItemsMenu.menuHeight;
 			this.instructionsMenu.addChildMenu(this.instructionsDescMenu, this.viewportWidth, height, 17);
 			this.instructionsMenu.addChildMenu(titleMenu, 0, 0, 0);
 			this.instructionsMenu.setParentMenu(menu);
@@ -1855,18 +1855,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (itemName.equals(A_MenuBase.getLangString(10))) { //ABOUT
 			titleMenu = new D_Menu((byte) 15, 15);
 			D_Menu titMenu = new D_Menu((byte) 10, 0);
-			titMenu.createDescDialogMb(null, itemName, this.var_32cb, -1);
+			titMenu.createDescDialogMb(null, itemName, this.someGWidth, -1);
 			titMenu.menuTitleIcon = this.menuIconsFrames[8];
 			aboutMenu = new D_Menu((byte) 10, 0);
 			String str = A_MenuBase.replaceStringFirst(16, this.appPropVersion);
-			aboutMenu.createDescDialogMb(null, str, this.var_32cb, this.var_32d3
-					- ((D_Menu) titMenu).menuHeightMb
+			aboutMenu.createDescDialogMb(null, str, this.someGWidth, this.someGHeight
+					- ((D_Menu) titMenu).menuHeight
 					- this.buttonsSprite.frameHeight * 2);
 			titleMenu
 					.addChildMenu(
 							aboutMenu,
 							0,
-							(this.var_32d3 + ((D_Menu) titMenu).menuHeightMb) / 2,
+							(this.someGHeight + ((D_Menu) titMenu).menuHeight) / 2,
 							6);
 			titleMenu.addChildMenu(titMenu, 0, 0, 0);
 			titleMenu.setParentMenu(menu);
@@ -1877,14 +1877,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (itemName.equals(A_MenuBase.getLangString(11))) { //Exit
 			//Exiting game, are you sure?
 			this.mainMenuMb = createDialog(null, A_MenuBase.getLangString(86),
-					this.var_32d3, -1);
+					this.someGHeight, -1);
 			this.mainMenuMb.setMenuActionEnabled((byte) 0, true);
 			this.mainMenuMb.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.mainMenuMb);
 			return;
 		}
 		if (itemName.equals(A_MenuBase.getLangString(60))) { //MAIN MENU
-			showPlayMenu(this.var_3383, this.viewportHeight, this.var_32d3,
+			showPlayMenu(this.var_3383, this.viewportHeight, this.someGHeight,
 					menu);
 			return;
 		}
@@ -1899,12 +1899,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_34cb = this.activeUnitState;
 			this.activeUnitState = 6;
 			this.var_369b = true;
-			this.var_34f3 = this.activeUnit.sub_15b5(this.activeUnit.positionX,
+			this.var_34f3 = this.activeUnit.getActiveUnitsInAttackRange(this.activeUnit.positionX,
 					this.activeUnit.positionY, (byte) 0);
 			this.var_34eb = 0;
 			this.var_351b = true;
 			this.var_3523 = true;
-			this.activeUnit.sub_1359(this.someMapData, this.activeUnit.positionX,
+			this.activeUnit.fillAttackRangeData(this.someMapData, this.activeUnit.positionX,
 					this.activeUnit.positionY);
 			this.cursorSprite.setFrameSequence(cursorFrameSequences[1]);
 			moveCursorToPos(this.var_34f3[this.var_34eb].positionX,
@@ -1916,7 +1916,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (itemName.equals(A_MenuBase.getLangString(63))) { //BUY
 			this.castleBuyMenu = new D_Menu((byte) 15, 15);
-			this.castleBuyMenu.var_11b5 = this.var_32d3;
+			this.castleBuyMenu.var_11b5 = this.someGHeight;
 			this.castleBuyUnitMenu = new D_Menu((byte) 2, 2);
 			this.castleBuyAllUnitsMenu = new D_Menu((byte) 3, 1);
 			this.castleBuyDescMenu = new D_Menu((byte) 10, 3);
@@ -1924,11 +1924,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.castleBuyUnitMenu.menuUnit = this.castleBuyAllUnitsMenu.buyUnits[0];
 			this.castleBuyDescMenu.createDescDialogMb(null, A_MenuBase
 					.getLangString(184 + this.castleBuyAllUnitsMenu.buyUnits[0].unitTypeId),
-					this.var_32cb, this.var_32d3 - this.castleBuyUnitMenu.menuHeightMb
-							- this.castleBuyAllUnitsMenu.menuHeightMb);
+					this.someGWidth, this.someGHeight - this.castleBuyUnitMenu.menuHeight
+							- this.castleBuyAllUnitsMenu.menuHeight);
 			this.castleBuyMenu.addChildMenu(this.castleBuyUnitMenu, 0, 0, 0);
-			this.castleBuyMenu.addChildMenu(this.castleBuyDescMenu, 0, this.castleBuyUnitMenu.menuHeightMb, 0);
-			this.castleBuyMenu.addChildMenu(this.castleBuyAllUnitsMenu, 0, this.var_32d3, 32);
+			this.castleBuyMenu.addChildMenu(this.castleBuyDescMenu, 0, this.castleBuyUnitMenu.menuHeight, 0);
+			this.castleBuyMenu.addChildMenu(this.castleBuyAllUnitsMenu, 0, this.someGHeight, 32);
 			this.castleBuyMenu.updateAllChildrenBoolMb = true;
 			this.castleBuyMenu.setParentMenu(this);
 			this.castleBuyMenu.setMenuActionEnabled((byte) 0, true);
@@ -1938,7 +1938,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (itemName.equals(A_MenuBase.getLangString(64))) {
 			this.activeUnit.endMove();
 			clearActiveUnit();
-			this.var_3753 = sub_dc52(this.var_34ab, this.var_34b3, (byte) 0);
+			this.var_3753 = getSomeUnit(this.var_34ab, this.var_34b3, (byte) 0);
 			this.activeUnitState = 0;
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
@@ -1953,7 +1953,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			repairDestroyedHouse(repairedHouseId, this.activeUnit.positionX,
 					this.activeUnit.positionY);
 			A_MenuBase.mainCanvas.showMenu(createDialog(null,
-					A_MenuBase.getLangString(74), this.var_32d3, 500)); //REPAIRED!
+					A_MenuBase.getLangString(74), this.someGHeight, 500)); //REPAIRED!
 			E_MainCanvas.playMusicLooped(9, 1);
 			this.activeUnit.endMove();
 			this.activeUnitState = 0;
@@ -1963,52 +1963,51 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (sub_e0c8(this.activeUnit.positionX, this.activeUnit.positionY,
 					this.activeUnit)) {
 				sub_e1a9(this.activeUnit.positionX, this.activeUnit.positionY,
-						this.var_356b[this.activeUnit.var_acb]);
+						this.playersIndexes[this.activeUnit.playerId]);
 				A_MenuBase.mainCanvas.showMenu(createDialog(null,
-						A_MenuBase.getLangString(73), this.var_32d3, 1000));
+						A_MenuBase.getLangString(73), this.someGHeight, 1000));
 				this.activeUnitState = 9;
 				E_MainCanvas.playMusicLooped(9, 1);
-				this.var_3553 = this.time;
+				this.someStartTime5 = this.time;
 			}
 			this.activeUnit.endMove();
 			return;
 		}
 		if (itemName.equals(A_MenuBase.getLangString(69))) {
 			this.activeUnitState = 7;
-			this.var_34f3 = this.activeUnit.sub_15b5(this.activeUnit.positionX,
+			this.var_34f3 = this.activeUnit.getActiveUnitsInAttackRange(this.activeUnit.positionX,
 					this.activeUnit.positionY, (byte) 1);
 			this.var_351b = true;
 			this.var_3523 = true;
-			this.activeUnit.sub_1359(this.someMapData, this.activeUnit.positionX,
+			this.activeUnit.fillAttackRangeData(this.someMapData, this.activeUnit.positionX,
 					this.activeUnit.positionY);
 			this.canCancelMb = true;
 			A_MenuBase.mainCanvas.showMenu(this);
 			return;
 		}
-		if (itemName.equals(A_MenuBase.getLangString(70))) {
-			D_Menu localClass_d_0232 = new D_Menu((byte) 15, 15);
-			D_Menu localObject41;
-			(localObject41 = new D_Menu((byte) 10, 0)).createDescDialogMb(null,
-					this.mapName, this.var_32cb, -1);
-			(aboutMenu = new D_Menu((byte) 8, 0)).sub_17fa(
-					this.var_32cb, this.var_32d3
-							- ((D_Menu) localObject41).menuHeightMb
+		if (itemName.equals(A_MenuBase.getLangString(70))) { //MAP
+			D_Menu mapMenu = new D_Menu((byte) 15, 15);
+			D_Menu mapTitleMenu = new D_Menu((byte) 10, 0);
+			mapTitleMenu.createDescDialogMb(null, this.mapName, this.someGWidth, -1);
+			D_Menu mapPreviewMenu = new D_Menu((byte) 8, 0);
+			mapPreviewMenu.initMapPreviewMenu(
+					this.someGWidth, this.someGHeight
+							- mapTitleMenu.menuHeight
 							- this.buttonsSprite.frameHeight, this.mapTilesIds,
-					this.mapSprites);
-			localClass_d_0232
-					.addChildMenu(
-							aboutMenu,
+					this.mapUnitsSprites);
+			mapMenu.addChildMenu(
+							mapPreviewMenu,
 							this.viewportWidth,
 							this.viewportHeight
-									+ (((D_Menu) localObject41).menuHeightMb - this.buttonsSprite.frameHeight)
+									+ (mapTitleMenu.menuHeight - this.buttonsSprite.frameHeight)
 									/ 2, 3);
-			localClass_d_0232.addChildMenu((D_Menu) localObject41, 0, 0, 0);
-			localClass_d_0232.setParentMenu(menu);
-			localClass_d_0232.updateAllChildrenBoolMb = true;
-			A_MenuBase.mainCanvas.showMenu(localClass_d_0232);
+			mapMenu.addChildMenu(mapTitleMenu, 0, 0, 0);
+			mapMenu.setParentMenu(menu);
+			mapMenu.updateAllChildrenBoolMb = true;
+			A_MenuBase.mainCanvas.showMenu(mapMenu);
 			return;
 		}
-		if (itemName.equals(A_MenuBase.getLangString(71))) {
+		if (itemName.equals(A_MenuBase.getLangString(71))) { //OBJECTIVE
 			this.startupMessageBox.setMenuActionEnabled((byte) 0, false);
 			this.startupMessageBox.setParentMenu(menu);
 			A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
@@ -2020,8 +2019,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_35a3[this.playerId] -= paramClass_c_032.cost;
 		paramClass_c_032.unitHealthMb = 100;
 		paramClass_c_032.setUnitPosition(paramInt1, paramInt2);
-		if (!this.mapSprites.contains(paramClass_c_032)) {
-			this.mapSprites.addElement(paramClass_c_032);
+		if (!this.mapUnitsSprites.contains(paramClass_c_032)) {
+			this.mapUnitsSprites.addElement(paramClass_c_032);
 		}
 		this.var_397b = true;
 		return paramClass_c_032;
@@ -2040,7 +2039,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final void sub_87e6() {
-		this.mapSprites = new Vector();
+		this.mapUnitsSprites = new Vector();
 		this.activeUnit = null;
 		this.var_34f3 = null;
 		this.var_39b3 = null;
@@ -2062,12 +2061,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3583 = 0;
 		this.playerId = 0;
 		this.playerId = 0;
-		this.aState = 0;
+		this.scriptStep = 0;
 		sub_87e6();
 		this.playersKings = null;
 		this.mapTilesIds = ((byte[][]) null);
 		this.someMapData = ((byte[][]) null);
-		this.var_355b = 0;
+		this.mapMaxPlayersMb = 0;
 		for (int i = 0; i < 5; i++) {
 			this.var_3563[i] = -1;
 		}
@@ -2105,9 +2104,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					if (getTileType(i, j) == 9) { //castle
 						if ((this.mapModeCampIf0 == 1) && (m != 0)
 								&& (this.var_3563[m] == -1)) {
-							this.var_356b[this.var_355b] = ((byte) m);
-							this.var_3563[m] = this.var_355b;
-							this.var_355b = ((byte) (this.var_355b + 1));
+							this.playersIndexes[this.mapMaxPlayersMb] = ((byte) m);
+							this.var_3563[m] = this.mapMaxPlayersMb;
+							this.mapMaxPlayersMb = ((byte) (this.mapMaxPlayersMb + 1));
 						}
 						mapCastlesPositions[this.mapCastlesCount][0] = ((byte) i);
 						mapCastlesPositions[this.mapCastlesCount][1] = ((byte) j);
@@ -2126,17 +2125,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_340b = (this.mapWidth * 24);
 		this.var_3413 = (this.mapHeight * 24);
 		if (this.mapModeCampIf0 == 1) {
-			for (short i = 0; i < this.var_355b; i = (short) (i + 1)) {
+			for (short i = 0; i < this.mapMaxPlayersMb; i = (short) (i + 1)) {
 				this.var_35a3[i] = this.mapStartMoney;
 			}
 		}
-		this.var_355b = 2;
+		this.mapMaxPlayersMb = 2;
 		this.var_35a3[0] = 0;
 		this.var_35a3[1] = 0;
 		this.var_3563[1] = 0;
 		this.var_3563[2] = 1;
-		this.var_356b[0] = 1;
-		this.var_356b[1] = 2;
+		this.playersIndexes[0] = 1;
+		this.playersIndexes[1] = 2;
 		this.var_3573[0] = 0;
 		this.var_3573[1] = 1;
 		this.var_35b3[0] = 1;
@@ -2151,9 +2150,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		int m1 = dis.readInt();
 		dis.skip(m1 * 4);
 		int n = dis.readInt();
-		this.playersKings = new C_Unit[this.var_355b];
-		this.var_3593 = new C_Unit[this.var_355b][4];
-		this.var_359b = new int[this.var_355b];
+		this.playersKings = new C_Unit[this.mapMaxPlayersMb];
+		this.var_3593 = new C_Unit[this.mapMaxPlayersMb][4];
+		this.var_359b = new int[this.mapMaxPlayersMb];
 		for (short i = 0; i < n; i = (short) (i + 1)) {
 			int i1 = dis.readByte();
 			int posX = dis.readShort() / 24;
@@ -2170,10 +2169,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		dis.close();
 		if (this.mapModeCampIf0 == 0) {
 			this.startupMessageBox = createDialog(A_MenuBase.getLangString(121 + this.scenarioMapIndex),
-					A_MenuBase.getLangString(129 + this.scenarioMapIndex), this.var_32d3, -1);
+					A_MenuBase.getLangString(129 + this.scenarioMapIndex), this.someGHeight, -1);
 		} else {
 			this.startupMessageBox = createDialog(A_MenuBase.getLangString(71), 
-					A_MenuBase.getLangString(137), this.var_32d3, -1); //OBJECTIVE
+					A_MenuBase.getLangString(137), this.someGHeight, -1); //OBJECTIVE
 		}
 		this.var_3b7b = false;
 		this.var_3b4b = null;
@@ -2192,9 +2191,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 		}
 		if (this.mapModeCampIf0 == 1) {
-			this.aState = 100;
+			this.scriptStep = 100;
 			this.var_3783 = true;
-			for (short i = 0; i < this.var_355b; i = (short) (i + 1)) {
+			for (short i = 0; i < this.mapMaxPlayersMb; i = (short) (i + 1)) {
 				if (this.var_35b3[i] != 2) {
 					this.playerId = ((byte) i);
 					break;
@@ -2266,7 +2265,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if ((paramByte == 1)
 				&& (getTileType(this.activeUnit.positionX, this.activeUnit.positionY) == 9)
 				&& (sub_e312(this.activeUnit.positionX, this.activeUnit.positionY,
-						unit.var_acb))) {
+						unit.playerId))) {
 			arrayOfByte[(i++)] = 0;
 		}
 		arrayOfByte[(i++)] = 2;
@@ -2277,11 +2276,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (((paramByte == 1) || (unit.unitTypeId != 7))
 				&& (unit.charsData.length > 0)
-				&& (unit.sub_15b5(unit.positionX,
+				&& (unit.getActiveUnitsInAttackRange(unit.positionX,
 						unit.positionY, (byte) 0).length > 0)) {
 			arrayOfByte[(i++)] = 3;
 		}
-		C_Unit[] lUnit = unit.sub_15b5(
+		C_Unit[] lUnit = unit.getActiveUnitsInAttackRange(
 				unit.positionX, unit.positionY,
 				(byte) 1);
 		if ((unit.hasProperty((short) 32))
@@ -2392,7 +2391,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.var_36db != -1) {
 			if (E_MainCanvas.settings[2] != false) {
 				D_Menu localClass_d_0231;
-				(localClass_d_0231 = sub_10bb9(
+				(localClass_d_0231 = showUnitDialogMsg(
 						A_MenuBase.getSomeHelpString(196 + this.var_36db, true),
 						(byte) -1, (byte) 2)).var_117d = 7831691;
 				localClass_d_0231.titleGradientColor = 7831691;
@@ -2438,7 +2437,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_37fb = 0;
 					}
 					this.var_372b = 0;
-					this.var_3553 = this.time;
+					this.someStartTime5 = this.time;
 				} else {
 					sub_144b2(this.attackerUnitMb, this.attackedUnitMb);
 					this.var_3a83 = null;
@@ -2535,24 +2534,24 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						D_Menu localClass_d_0233 = createDialog(
 								A_MenuBase.getLangString(75),
 								A_MenuBase.replaceStringFirst(76, (String) localObject1),
-								this.var_32d3, 1500);
+								this.someGHeight, 1500);
 						A_MenuBase.mainCanvas.showMenu(localClass_d_0233);
-						localClass_d_0233.titleGradientColor = playerColors[this.var_356b[this.playerId]];
+						localClass_d_0233.titleGradientColor = playerColors[this.playersIndexes[this.playerId]];
 						E_MainCanvas.sub_2439(
-								var_33c3[this.var_356b[this.playerId]], 0);
+								var_33c3[this.playersIndexes[this.playerId]], 0);
 					}
 				} else {
-					for (int i = this.mapSprites.size() - 1; i >= 0; i--) {
-						C_Unit localObject11 = (C_Unit) this.mapSprites
+					for (int i = this.mapUnitsSprites.size() - 1; i >= 0; i--) {
+						C_Unit localObject11 = (C_Unit) this.mapUnitsSprites
 								.elementAt(i);
 						if ((localObject11.var_b13 != 3)
-								&& (this.playerId == ((C_Unit) localObject11).var_acb)
+								&& (this.playerId == ((C_Unit) localObject11).playerId)
 								&& ((getTileType(
 										((C_Unit) localObject11).positionX,
 										((C_Unit) localObject11).positionY) == 7) || (sub_e2b4(
 										((C_Unit) localObject11).positionX,
 										((C_Unit) localObject11).positionY,
-										this.var_3573[localObject11.var_acb])))
+										this.var_3573[localObject11.playerId])))
 								&& (((C_Unit) localObject11).unitHealthMb < 100)) {
 							int i5;
 							if ((i5 = 100 - ((C_Unit) localObject11).unitHealthMb) > 20) {
@@ -2581,9 +2580,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if ((!this.var_364b)
 						&& (this.var_372b == 0)
 						&& ((this.mapModeCampIf0 == 1)
-								|| (this.time - this.var_3553 >= 3000L) || (A_MenuBase.mainCanvas
+								|| (this.time - this.someStartTime5 >= 3000L) || (A_MenuBase.mainCanvas
 								.isActionPressed()))) {
-					this.var_32d3 = this.someCanHeight;
+					this.someGHeight = this.someCanHeight;
 					this.viewportHeight = this.someCanHeightDiv2;
 					showPlayMenu(this.var_337b, this.someCanHeightDiv2, this.someCanHeight, null);
 					this.var_372b = 1;
@@ -2616,7 +2615,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.waveImageAmplitude = 0;
 					} else if (this.var_3b93 == 2) {
 						if (this.activeUnitState == 14) {
-							this.var_32d3 = this.someCanHeight;
+							this.someGHeight = this.someCanHeight;
 							this.viewportHeight = this.someCanHeightDiv2;
 							showPlayMenu(this.var_337b, this.someCanHeightDiv2, this.someCanHeight,
 									null);
@@ -2707,7 +2706,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								D_Menu localClass_d_0232;
 								(localClass_d_0232 = createDialog(null,
 										A_MenuBase.getLangString(280),
-										this.var_32d3, 2000)).sub_193f(
+										this.someGHeight, 2000)).sub_193f(
 										this.viewportWidth, 2, 17);
 								A_MenuBase.mainCanvas.showMenu(localClass_d_0232);
 								this.var_3873 = 1;
@@ -2786,8 +2785,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									this.dyingUnit.status = 0;
 									this.dyingUnit.calcStatusEffect();
 								}
-								if ((this.dyingUnit.unitTypeId == 9)
-										&& (this.dyingUnit.cost < 1000)) {
+								if ((this.dyingUnit.unitTypeId == 9) && (this.dyingUnit.cost < 1000)) {
 									this.dyingUnit.cost += 200;
 								}
 							}
@@ -2851,7 +2849,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 														A_MenuBase.getLangString(80)
 																+ "\n"
 																+ localClass_c_032.unitName,
-														this.var_32cb, 2000));
+														this.someGWidth, 2000));
 									}
 								}
 							}
@@ -2904,7 +2902,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 											this.var_34f3[this.var_34eb].positionX,
 											this.var_34f3[this.var_34eb].positionY);
 									if (this.var_369b) {
-										this.var_3753 = sub_dc52(this.var_34ab,
+										this.var_3753 = getSomeUnit(this.var_34ab,
 												this.var_34b3, (byte) 0);
 										this.var_3983 = true;
 									}
@@ -2978,7 +2976,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 																	this.var_34b3);
 												}
 											} else {
-												this.var_3753 = sub_dc52(
+												this.var_3753 = getSomeUnit(
 														this.var_34ab,
 														this.var_34b3, (byte) 0);
 											}
@@ -2989,12 +2987,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									if (((this.activeUnitState == 1) || (this.activeUnitState == 0))
 											&& (A_MenuBase.mainCanvas
 													.invertActionCode(256))) {
-										if ((localClass_c_032 = sub_dc52(
+										if ((localClass_c_032 = getSomeUnit(
 												this.var_34ab, this.var_34b3,
 												(byte) 0)) != null) {
 											D_Menu localObject41 = new D_Menu(
 													(byte) 15, 15);
-											localObject41.var_11b5 = this.var_32d3;
+											localObject41.var_11b5 = this.someGHeight;
 											i7 = 0;
 											D_Menu localClass_d_0234 = new D_Menu(
 													(byte) 5, 2);
@@ -3029,9 +3027,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 													.createDescDialogMb(
 															null,
 															str,
-															this.var_32cb,
-															this.var_32d3
-																	- localClass_d_0234.menuHeightMb);
+															this.someGWidth,
+															this.someGHeight
+																	- localClass_d_0234.menuHeight);
 											((D_Menu) localObject41)
 													.addChildMenu(
 															localClass_d_0234,
@@ -3040,7 +3038,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 													.addChildMenu(
 															localClass_d_0235,
 															0,
-															localClass_d_0234.menuHeightMb,
+															localClass_d_0234.menuHeight,
 															0);
 											((D_Menu) localObject41).updateAllChildrenBoolMb = true;
 											((D_Menu) localObject41)
@@ -3053,7 +3051,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									if (this.activeUnitState == 1) {
 										if ((A_MenuBase.mainCanvas.invertActionCode(16))
 												&& (this.activeUnit != null)) {
-											localClass_c_032 = sub_dc52(
+											localClass_c_032 = getSomeUnit(
 													this.var_34ab,
 													this.var_34b3, (byte) 0);
 											if ((this.someMapData[this.var_34ab][this.var_34b3] > 0)
@@ -3108,13 +3106,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												this.var_351b = false;
 												this.var_3523 = false;
 											} else {
-												this.activeUnit = sub_dc52(
+												this.activeUnit = getSomeUnit(
 														this.var_34ab,
 														this.var_34b3, (byte) 0);
 												if (this.activeUnit != null) {
 													fillArrayWithValue(this.someMapData, 0);
 													this.activeUnit
-															.sub_14e8(this.someMapData);
+															.showWhereUnitCanAttack(this.someMapData);
 													this.var_3523 = true;
 													this.var_351b = true;
 													this.alphaWindowWTF = 12;
@@ -3125,12 +3123,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												.invertActionCode(16))
 												|| (A_MenuBase.mainCanvas
 														.invertActionCode(var_3333))) {
-											this.activeUnit = sub_dc52(
+											this.activeUnit = getSomeUnit(
 													this.var_34ab,
 													this.var_34b3, (byte) 0);
 											if ((this.activeUnit != null)
 													&& (this.activeUnit.var_b13 == 0)
-													&& (this.activeUnit.var_acb == this.playerId)) {
+													&& (this.activeUnit.playerId == this.playerId)) {
 												byte[] localObject21 = sub_9267(
 														this.activeUnit, (byte) 1);
 												if (localObject21.length > 1) {
@@ -3157,7 +3155,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 														(byte) 11, 0);
 												this.someGameMenu.createMenuListItems(
 														this.gameMenuItemsNames, 2, 2,
-														-1, this.var_32d3, 20,
+														-1, this.someGHeight, 20,
 														0);
 												this.someGameMenu.setParentMenu(this);
 												A_MenuBase.mainCanvas
@@ -3175,9 +3173,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 		}
 		int i = 0;
-		int j = this.mapSprites.size();
+		int j = this.mapUnitsSprites.size();
 		while (i < j) {
-			((C_Unit) this.mapSprites.elementAt(i)).unitUpdate();
+			((C_Unit) this.mapUnitsSprites.elementAt(i)).unitUpdate();
 			i++;
 		}
 		if (this.time - this.var_36a3 >= 300L) {
@@ -3271,28 +3269,28 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final int sub_b88e(int paramInt) {
 		int i;
-		if (this.var_340b > this.var_32cb) {
+		if (this.var_340b > this.someGWidth) {
 			if ((i = this.viewportWidth - paramInt) > 0) {
 				i = 0;
-			} else if (i < this.var_32cb - this.var_340b) {
-				i = this.var_32cb - this.var_340b;
+			} else if (i < this.someGWidth - this.var_340b) {
+				i = this.someGWidth - this.var_340b;
 			}
 		} else {
-			i = (this.var_32cb - this.var_340b) / 2;
+			i = (this.someGWidth - this.var_340b) / 2;
 		}
 		return i;
 	}
 
 	public final int sub_b913(int paramInt) {
 		int i;
-		if (this.var_3413 > this.var_32d3) {
+		if (this.var_3413 > this.someGHeight) {
 			if ((i = this.viewportHeight - paramInt) > 0) {
 				i = 0;
-			} else if (i < this.var_32d3 - this.var_3413) {
-				i = this.var_32d3 - this.var_3413;
+			} else if (i < this.someGHeight - this.var_3413) {
+				i = this.someGHeight - this.var_3413;
 			}
 		} else {
-			i = (this.var_32d3 - this.var_3413) / 2;
+			i = (this.someGHeight - this.var_3413) / 2;
 		}
 		return i;
 	}
@@ -3351,7 +3349,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_34ab = px;
 		this.var_34b3 = py;
 		this.cursorSprite.setSpritePosition(px * 24, py * 24);
-		this.var_3753 = sub_dc52(this.var_34ab, this.var_34b3, (byte) 0);
+		this.var_3753 = getSomeUnit(this.var_34ab, this.var_34b3, (byte) 0);
 		this.var_3983 = true;
 	}
 
@@ -3361,9 +3359,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if ((j = -this.var_3423 / 24) < 0) {
 			j = 0;
 		}
-		int k = (this.var_32cb - this.var_341b - 1) / 24;
+		int k = (this.someGWidth - this.var_341b - 1) / 24;
 		int m;
-		if ((m = (this.var_32d3 - this.var_3423 - 1) / 24) >= this.mapHeight) {
+		if ((m = (this.someGHeight - this.var_3423 - 1) / 24) >= this.mapHeight) {
 			m = this.mapHeight - 1;
 		}
 		int n;
@@ -3398,8 +3396,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 					paramGraphics.drawImage(this.alphaMappedTilesImages[i3][i7], i1, i2, 0);
 					if (this.alphaWindowWTF != 0) {
-						paramGraphics.setClip(0, 0, this.var_32cb,
-								this.var_32d3);
+						paramGraphics.setClip(0, 0, this.someGWidth,
+								this.someGHeight);
 					}
 				}
 				int i6;
@@ -3604,7 +3602,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			j += this.var_39db;
 		}
 		if (!this.var_3a0b) {
-			sub_dbd9(gr, var_3333, 2, this.someCanHeight);
+			drawActionButton(gr, var_3333, 2, this.someCanHeight);
 		}
 	}
 
@@ -3759,11 +3757,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 		} else {
-			gr.setClip(0, 0, this.var_32cb, this.var_32d3);
-			if ((this.var_340b < this.var_32cb)
-					|| (this.var_3413 < this.var_32d3)) {
+			gr.setClip(0, 0, this.someGWidth, this.someGHeight);
+			if ((this.var_340b < this.someGWidth)
+					|| (this.var_3413 < this.someGHeight)) {
 				gr.setColor(0);
-				gr.fillRect(0, 0, this.var_32cb, this.var_32d3);
+				gr.fillRect(0, 0, this.someGWidth, this.someGHeight);
 			}
 			if (this.var_3bc3) {
 				int j = E_MainCanvas.getRandom() % 10;
@@ -3775,24 +3773,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				sub_bbf2(gr);
 			}
 			int j = 0;
-			m = this.mapSprites.size();
+			m = this.mapUnitsSprites.size();
 			while (j < m) {
-				C_Unit localClass_c_032;
-				if ((localClass_c_032 = (C_Unit) this.mapSprites
-						.elementAt(j)).var_b13 == 3) {
+				C_Unit unit3 = (C_Unit) this.mapUnitsSprites.elementAt(j);
+				if (unit3.var_b13 == 3) {
 					this.tombstoneSprite.drawImageExt(gr, this.var_341b
-							+ localClass_c_032.posXPixel, this.var_3423
-							+ localClass_c_032.posYPixel);
-				} else if (localClass_c_032 != this.activeUnit) {
-					localClass_c_032.sub_252e(gr, this.var_341b,
+							+ unit3.posXPixel, this.var_3423
+							+ unit3.posYPixel);
+				} else if (unit3 != this.activeUnit) {
+					unit3.sub_252e(gr, this.var_341b,
 							this.var_3423);
 				}
 				j++;
 			}
 			j = 0;
-			m = this.mapSprites.size();
+			m = this.mapUnitsSprites.size();
 			while (j < m) {
-				((C_Unit) this.mapSprites.elementAt(j)).sub_26ca(
+				((C_Unit) this.mapUnitsSprites.elementAt(j)).sub_26ca(
 						gr, this.var_341b, this.var_3423);
 				j++;
 			}
@@ -3829,8 +3826,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 					}
 					if (i2 == i3 - 1) {
-						gr.setClip(0, 0, this.var_32cb,
-								this.var_32d3);
+						gr.setClip(0, 0, this.someGWidth,
+								this.someGHeight);
 						this.var_3453.drawCurrentFrame(gr, i6, i7, 3);
 					} else if ((arrayOfShort2 = (short[]) this.var_353b
 							.elementAt(i2 + 1))[0] == arrayOfShort1[0] + 1) {
@@ -3871,7 +3868,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
 			k = this.someCanHeight - var_32c3;
 			if (this.var_378b > 0) {
-				D_Menu.sub_5602(gr, 0, k, this.var_32cb,
+				D_Menu.sub_5602(gr, 0, k, this.someGWidth,
 						var_32c3, 14);
 				gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
 			}
@@ -3882,7 +3879,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (this.var_397b) {
 				this.var_397b = false;
 				D_Menu.sub_562e(gr, 0, k, i2 + 1, var_32c3, 0,
-						2370117, playerColors[this.var_356b[this.playerId]],
+						2370117, playerColors[this.playersIndexes[this.playerId]],
 						this.var_378b, var_32c3);
 				i3 = this.someCanHeight - var_32c3 / 2 + this.var_378b;
 				if (this.mapModeCampIf0 == 1) {
@@ -3890,13 +3887,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.hudIcons2Sprite.drawFrameAt(gr, 0, i4, i3, 6);
 					E_MainCanvas.drawCharedString(
 							gr,
-							sub_e3c8(-1, -1, this.playerId)
-									- sub_e3c8(10, -1, this.playerId) + "/"
+							countSomeUnits(-1, -1, this.playerId)
+									- countSomeUnits(10, -1, this.playerId) + "/"
 									+ this.mapStartUnitCap, i4 + this.hudIcons2Sprite.frameWidth
 									+ 1, i3, 1, 6);
 				}
 				i4 = 10;
-				if (this.var_32cb <= 120) {
+				if (this.someGWidth <= 120) {
 					i4 = 4;
 				}
 				this.hudIcons2Sprite.drawFrameAt(gr, 1, i4, i3, 6);
@@ -3912,7 +3909,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (this.var_3983) {
 				this.var_3983 = false;
 				if (m > 0) {
-					sub_d599(gr, i2, k, i1, var_32c3);
+					drawMenuBorderRect(gr, i2, k, i1, var_32c3);
 				}
 				i3 = i2 + m;
 				i4 = k + m;
@@ -3930,25 +3927,25 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if ((this.activeUnitState == 6)
 					&& (this.var_34f3[this.var_34eb].var_b13 != 4)) {
 				i3 = 0;
-				if (this.var_34b3 * 24 <= this.var_32d3 / 2 - 24) {
-					i3 = this.var_32d3 - this.buttonsSprite.frameHeight - this.var_3a43
+				if (this.var_34b3 * 24 <= this.someGHeight / 2 - 24) {
+					i3 = this.someGHeight - this.buttonsSprite.frameHeight - this.var_3a43
 							+ 2;
 				}
-				sub_d5f9(gr, this.activeUnit,
+				drawAttackStatMenu(gr, this.activeUnit,
 						this.var_34f3[this.var_34eb], i3);
 			}
 		}
 		if (sub_4789()) {
 			if (this.canCancelMb) {
-				sub_dbd9(gr, var_333b, 1, this.var_32d3);
+				drawActionButton(gr, var_333b, 1, this.someGHeight);
 			}
 			if (this.canApplyMb) {
-				sub_dbd9(gr, var_3333, 0, this.var_32d3);
+				drawActionButton(gr, var_3333, 0, this.someGHeight);
 			}
 			if ((this.gameMode2Mb == 1)
 					&& ((this.var_35b3[this.playerId] == 0) || (this.activeUnitState == 0))
 					&& (this.activeUnitState != 11)) {
-				sub_dbd9(gr, var_3333, 3, this.var_32d3);
+				drawActionButton(gr, var_3333, 3, this.someGHeight);
 			}
 		}
 		if ((this.var_3803) || (this.var_380b)) {
@@ -3958,108 +3955,104 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final void sub_d599(Graphics paramGraphics, int paramInt1,
-			int paramInt2, int paramInt3, int paramInt4) {
-		paramGraphics.setColor(4344163);
-		paramGraphics.fillRect(paramInt1, paramInt2, paramInt3, paramInt4);
-		paramGraphics.setColor(11384493);
-		paramGraphics.fillRect(paramInt1 + 1, paramInt2 + 1, paramInt3 - 2,
-				paramInt4 - 2);
-		paramGraphics.setColor(4344163);
-		paramGraphics.fillRect(paramInt1 + 3, paramInt2 + 3, paramInt3 - 6,
-				paramInt4 - 6);
+	public final void drawMenuBorderRect(Graphics gr, int inX, int inY, int inW, int inH) {
+		gr.setColor(4344163); //#424963 dark gray blue
+		gr.fillRect(inX, inY, inW, inH);
+		gr.setColor(11384493); //#ADB6AD light green blue
+		gr.fillRect(inX + 1, inY + 1, inW - 2, inH - 2);
+		gr.setColor(4344163); //#424963 dark gray blue
+		gr.fillRect(inX + 3, inY + 3, inW - 6, inH - 6);
 	}
 
-	public final void sub_d5f9(Graphics paramGraphics,
-			C_Unit paramClass_c_0321, C_Unit paramClass_c_0322,
-			int paramInt) {
+	public final void drawAttackStatMenu(Graphics gr, C_Unit unit1, C_Unit unit2, int paramInt) {
 		int i = this.var_3a43 - 2;
-		paramGraphics.setColor(11384493);
-		paramGraphics.fillRect(0, paramInt, this.var_32cb, i);
-		paramGraphics.setColor(0);
-		paramGraphics.fillRect(0, i + paramInt, this.var_32cb, 2);
+		gr.setColor(11384493); //#ADB6AD light green blue
+		gr.fillRect(0, paramInt, this.someGWidth, i);
+		gr.setColor(0); //black
+		gr.fillRect(0, i + paramInt, this.someGWidth, 2);
 		int k = 0;
-		int n;
-		int i1 = (n = i / 2) + paramInt;
-		for (int i4 = 0; i4 < 3; i4++) {
-			this.hudIconsSprite.drawFrameAt(paramGraphics, i4, k + 1, i1, 6);
+		int n = i / 2;
+		int i1 = n + paramInt;
+		// draw hud icons
+		for (int it = 0; it < 3; it++) {
+			this.hudIconsSprite.drawFrameAt(gr, it, k + 1, i1, 6);
 			k += this.hudIconsSprite.frameWidth + 2;
 			int m = paramInt + 1;
 			int i2;
-			if (i4 == 0) {
+			if (it == 0) {
 				if (this.someCanWidth <= 132) {
 					i2 = 56;
 				} else {
-					i2 = 61 * this.var_32cb / 176;
+					i2 = 61 * this.someGWidth / 176;
 				}
-			} else if (i4 == 1) {
+			} else if (it == 1) {
 				if (this.someCanWidth <= 132) {
 					i2 = 28;
 				} else {
-					i2 = 47 * this.var_32cb / 176;
+					i2 = 47 * this.someGWidth / 176;
 				}
 			} else {
-				i2 = this.var_32cb - k;
+				i2 = this.someGWidth - k;
 			}
-			for (int i5 = 0; i5 < 2; i5++) {
-				C_Unit localClass_c_0321;
-				C_Unit localClass_c_0322;
-				if (i5 == 0) {
-					localClass_c_0321 = paramClass_c_0321;
-					localClass_c_0322 = paramClass_c_0322;
+			for (int it2 = 0; it2 < 2; it2++) {
+				C_Unit u1;
+				C_Unit u2;
+				if (it2 == 0) {
+					u1 = unit1;
+					u2 = unit2;
 				} else {
-					localClass_c_0321 = paramClass_c_0322;
-					localClass_c_0322 = paramClass_c_0321;
+					u1 = unit2;
+					u2 = unit1;
 				}
 				int i3 = i / 2 - 2;
-				paramGraphics.setColor(2172994);
-				paramGraphics.fillRect(k, m, i2, i3);
+				gr.setColor(2172994); //#212842 dark blue
+				gr.fillRect(k, m, i2, i3); // value line rect
 				int i6 = k + 1;
-				if ((i4 == 0) || (this.someCanWidth > 132)) {
-					paramGraphics
-							.setColor(playerColors[this.var_356b[localClass_c_0321.var_acb]]);
-					paramGraphics.fillRect(i6, m + 1, 3, i3 - 2);
+				if ((it == 0) || (this.someCanWidth > 132)) {
+					gr
+							.setColor(playerColors[this.playersIndexes[u1.playerId]]);
+					gr.fillRect(i6, m + 1, 3, i3 - 2);
 					i6 += 4;
 				}
 				int i7 = 0;
 				String str = null;
-				if (i4 == 0) {
-					if ((i5 == 0)
-							|| (paramClass_c_0322.sub_1134(paramClass_c_0321,
-									paramClass_c_0321.positionX,
-									paramClass_c_0321.positionY))) {
-						i7 = localClass_c_0321.sub_e5f(localClass_c_0322);
-						str = localClass_c_0321.unitAttackMin + i7 + "-"
-								+ (localClass_c_0321.unitAttackMax + i7);
+				if (it == 0) {
+					if ((it2 == 0)
+							|| (unit2.sub_1134(unit1,
+									unit1.positionX,
+									unit1.positionY))) {
+						i7 = u1.sub_e5f(u2);
+						str = u1.unitAttackMin + i7 + "-"
+								+ (u1.unitAttackMax + i7);
 					} else {
 						str = "0-0";
 					}
-				} else if (i4 == 1) {
-					i7 = localClass_c_0321.sub_f43(localClass_c_0322);
-					str = "" + (localClass_c_0321.unitDefence + i7);
+				} else if (it == 1) {
+					i7 = u1.sub_f43(u2);
+					str = "" + (u1.unitDefence + i7);
 				} else {
-					str = "" + localClass_c_0321.level;
+					str = "" + u1.level;
 				}
-				E_MainCanvas.drawCharedString(paramGraphics, str, i6, m + 1, 0);
+				E_MainCanvas.drawCharedString(gr, str, i6, m + 1, 0);
 				if (i7 > 0) {
-					this.arrowIconsSprite.drawFrameAt(paramGraphics, 1, i6 + 1
+					this.arrowIconsSprite.drawFrameAt(gr, 1, i6 + 1
 							+ E_MainCanvas.getCharedStringWidth((byte) 0, str), m + i3 / 2,
 							6);
 				} else if (i7 < 0) {
-					this.arrowIconsSprite.drawFrameAt(paramGraphics, 2, i6 + 1
+					this.arrowIconsSprite.drawFrameAt(gr, 2, i6 + 1
 							+ E_MainCanvas.getCharedStringWidth((byte) 0, str), m + i3 / 2,
 							6);
 				}
 				int i8 = k + i2 - 2;
-				if ((i4 == 0) && ((localClass_c_0321.status & 0x2) != 0)) {
+				if ((it == 0) && ((u1.status & 0x2) != 0)) {
 					this.statusSprite
-							.drawFrameAt(paramGraphics, 1, i8, m + i3 / 2, 10);
+							.drawFrameAt(gr, 1, i8, m + i3 / 2, 10);
 					i8 -= this.statusSprite.frameWidth;
 				}
-				if (((i4 == 0) || (i4 == 1))
-						&& ((localClass_c_0321.status & 0x1) != 0)) {
+				if (((it == 0) || (it == 1))
+						&& ((u1.status & 0x1) != 0)) {
 					this.statusSprite
-							.drawFrameAt(paramGraphics, 0, i8, m + i3 / 2, 10);
+							.drawFrameAt(gr, 0, i8, m + i3 / 2, 10);
 				}
 				m += n;
 			}
@@ -4067,24 +4060,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final void sub_dbd9(Graphics paramGraphics, int paramInt1,
-			int paramInt2, int paramInt3) {
-		int i = 0;
+	public final void drawActionButton(Graphics gr, int btn1024or2048, int frameInd, int inY) {
+		int pX = 0;
 		int j = 0;
-		if (paramInt1 == 1024) {
+		if (btn1024or2048 == 1024) {
 			j = 36;
-		} else if (paramInt1 == 2048) {
-			i = this.someCanWidth;
+		} else if (btn1024or2048 == 2048) {
+			pX = this.someCanWidth;
 			j = 40;
 		}
-		this.buttonsSprite.drawFrameAt(paramGraphics, paramInt2, i, paramInt3, j);
+		this.buttonsSprite.drawFrameAt(gr, frameInd, pX, inY, j);
 	}
 
-	public final C_Unit sub_dc52(int inX, int inY, byte paramByte) {
+	public final C_Unit getSomeUnit(int inX, int inY, byte paramByte) {
 		int it = 0;
-		int count = this.mapSprites.size();
+		int count = this.mapUnitsSprites.size();
 		while (it < count) {
-			C_Unit unit = (C_Unit) this.mapSprites.elementAt(it);;
+			C_Unit unit = (C_Unit) this.mapUnitsSprites.elementAt(it);;
 			int i;
 			int j;
 			if (unit.var_b13 == 1) {
@@ -4115,42 +4107,41 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_354b = 0;
 		this.var_378b = 0;
 		this.activeUnitState = 8;
-		this.var_3553 = this.time;
+		this.someStartTime5 = this.time;
 	}
 
 	public final void sub_ddbb() {
 		this.kingsPositions[this.playerId][0] = ((byte) this.var_34ab);
 		this.kingsPositions[this.playerId][1] = ((byte) this.var_34b3);
 		this.var_3583 = ((short) (this.var_3583 + 1));
-		this.playerId = ((byte) ((this.playerId + 1) % this.var_355b));
+		this.playerId = ((byte) ((this.playerId + 1) % this.mapMaxPlayersMb));
 		if (this.var_35b3[this.playerId] == 2) {
 			sub_ddbb();
 			return;
 		}
-		for (int i = this.mapSprites.size() - 1; i >= 0; i--) {
-			C_Unit localClass_c_032;
-			if ((localClass_c_032 = (C_Unit) this.mapSprites.elementAt(i)).var_b13 == 3) {
-				if (localClass_c_032.unitTypeId != 9) {
-					C_Unit tmp121_120 = localClass_c_032;
-					if ((tmp121_120.var_b5b = (byte) (tmp121_120.var_b5b - 1)) <= 0) {
-						localClass_c_032.removeFromMap();
+		for (int i = this.mapUnitsSprites.size() - 1; i >= 0; i--) {
+			C_Unit aunit = (C_Unit) this.mapUnitsSprites.elementAt(i);
+			if (aunit.var_b13 == 3) {
+				if (aunit.unitTypeId != 9) {
+					C_Unit tempUnit = aunit;
+					tempUnit.var_b5b = (byte) (tempUnit.var_b5b - 1);
+					if (tempUnit.var_b5b <= 0) {
+						aunit.removeFromMap();
 					}
 				}
 			} else {
-				localClass_c_032.var_b13 = 0;
-				if (((localClass_c_032.status & 0x1) != 0)
-						&& (localClass_c_032.var_b63 == this.playerId)) {
-					localClass_c_032.sub_11e5((byte) 1);
+				aunit.var_b13 = 0;
+				if (((aunit.status & 0x1) != 0) && (aunit.var_b63 == this.playerId)) {
+					aunit.applyWispStatusMb((byte) 1);
 				}
-				if (localClass_c_032.var_acb == this.playerId) {
-					localClass_c_032.sub_11e5((byte) 2);
+				if (aunit.playerId == this.playerId) {
+					aunit.applyWispStatusMb((byte) 2);
 				}
-				localClass_c_032.var_b93 = 0;
+				aunit.var_b93 = 0;
 			}
 		}
 		this.var_3a5b = 0;
-		int i;
-		for (i = 0; i < this.mapTilesIds.length; i++) {
+		for (int i = 0; i < this.mapTilesIds.length; i++) {
 			for (int j = 0; j < this.mapTilesIds[i].length; j++) {
 				if (sub_e312(i, j, this.playerId)) {
 					if (getTileType(i, j) == 8) {
@@ -4162,7 +4153,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 		}
 		this.var_35a3[this.playerId] += this.var_3a5b;
-		for (i = 0; i < this.housesDataArr.length; i++) {
+		for (int i = 0; i < this.housesDataArr.length; i++) {
 			this.var_3acb[i] = 0;
 		}
 		if (this.var_35b3[this.playerId] == 1) {
@@ -4176,7 +4167,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		} else {
 			C_Unit.var_a7b = C_Unit.var_a73;
 		}
-		if ((sub_e3c8(-1, 0, this.playerId) <= 0)
+		if ((countSomeUnits(-1, 0, this.playerId) <= 0)
 				&& (sub_e353(this.playerId) == 0)) {
 			sub_ddbb();
 		}
@@ -4196,7 +4187,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				&& (this.mapTilesIds[unit.positionX][unit.positionY] >= this.houseTileIdStartIndex)
 				&& (!sub_e2b4(unit.positionX,
 						unit.positionY,
-						this.var_3573[unit.var_acb]))) {
+						this.var_3573[unit.playerId]))) {
 			return true;
 		}
 		// 16 - occupy town
@@ -4204,7 +4195,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				&& (getTileType(unit.positionX, unit.positionY) == 9)
 				&& (!sub_e2b4(unit.positionX,
 						unit.positionY,
-						this.var_3573[unit.var_acb]));
+						this.var_3573[unit.playerId]));
 	}
 
 	public final void repairDestroyedHouse(byte paramByte, int inX, int inY) {
@@ -4246,7 +4237,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final boolean sub_e312(int paramInt1, int paramInt2, int paramInt3) {
-		return sub_e206(paramInt1, paramInt2) == this.var_356b[paramInt3];
+		return sub_e206(paramInt1, paramInt2) == this.playersIndexes[paramInt3];
 	}
 
 	public final int sub_e353(int paramInt) {
@@ -4259,14 +4250,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return i;
 	}
 
-	public final int sub_e3c8(int paramInt1, int paramInt2, byte paramByte) {
+	public final int countSomeUnits(int unitType, int paramInt2, byte inPlayer) {
 		int i = 0;
 		int it = 0;
-		int length = this.mapSprites.size();
+		int length = this.mapUnitsSprites.size();
 		while (it < length) {
-			C_Unit unit = (C_Unit) this.mapSprites.elementAt(it);
-			if (((paramInt1 == -1) || (unit.unitTypeId == paramInt1))
-					&& (((paramInt2 == -1) && (unit.var_b13 != 3)) || ((paramInt2 == unit.var_b13) && ((paramByte == -1) || (unit.var_acb == paramByte))))) {
+			C_Unit unit = (C_Unit) this.mapUnitsSprites.elementAt(it);
+			if (((unitType == -1) || (unit.unitTypeId == unitType))
+					&& (((paramInt2 == -1) && (unit.var_b13 != 3)) || ((paramInt2 == unit.var_b13) && ((inPlayer == -1) || (unit.playerId == inPlayer))))) {
 				i++;
 			}
 			it++;
@@ -4274,16 +4265,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return i;
 	}
 
-	public final C_Unit[] sub_e4c7(int paramInt1, int paramInt2,
-			byte paramByte) {
+	public final C_Unit[] sub_e4c7(int uType, int paramInt2, byte uPlayer) {
 		Vector localVector = new Vector();
 		int i = 0;
-		int j = this.mapSprites.size();
+		int j = this.mapUnitsSprites.size();
 		while (i < j) {
-			C_Unit unit = (C_Unit) this.mapSprites
+			C_Unit unit = (C_Unit) this.mapUnitsSprites
 					.elementAt(i);
-			if (((paramInt1 == -1) || (unit.unitTypeId == paramInt1))
-					&& (((paramInt2 == -1) && (unit.var_b13 != 3)) || ((paramInt2 == unit.var_b13) && ((paramByte == -1) || (unit.var_acb == paramByte))))) {
+			if (((uType == -1) || (unit.unitTypeId == uType))
+					&& (((paramInt2 == -1) && (unit.var_b13 != 3)) || ((paramInt2 == unit.var_b13) && ((uPlayer == -1) || (unit.playerId == uPlayer))))) {
 				localVector.addElement(unit);
 			}
 			i++;
@@ -4363,8 +4353,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final boolean sub_e943(byte paramByte, int paramInt1, int paramInt2) {
-		if ((this.mapStartUnitCap > sub_e3c8(-1, -1, this.playerId)
-				- sub_e3c8(10, -1, this.playerId))
+		if ((this.mapStartUnitCap > countSomeUnits(-1, -1, this.playerId)
+				- countSomeUnits(10, -1, this.playerId))
 				&& (paramByte <= this.var_3703)
 				&& (C_Unit.var_bcb[paramByte] <= this.var_35a3[this.playerId])
 				&& (C_Unit.var_bcb[paramByte] > 0)) {
@@ -4378,8 +4368,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final boolean sub_e9d0(C_Unit unit, int paramInt1,
 			int paramInt2) {
-		if ((this.mapStartUnitCap > sub_e3c8(-1, -1, this.playerId)
-				- sub_e3c8(10, -1, this.playerId))
+		if ((this.mapStartUnitCap > countSomeUnits(-1, -1, this.playerId)
+				- countSomeUnits(10, -1, this.playerId))
 				&& ((unit.unitTypeId <= this.var_3703) || (unit.unitTypeId == 9))
 				&& (unit.cost <= this.var_35a3[this.playerId])) {
 			fillArrayWithValue(this.someMapData, 0);
@@ -4419,7 +4409,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final void sub_ebb9() throws Exception {
 		if (A_MenuBase.mainCanvas.invertActionCode(var_3333)) {
-			showPlayMenu(this.var_3383, this.viewportHeight, this.var_32d3, this);
+			showPlayMenu(this.var_3383, this.viewportHeight, this.someGHeight, this);
 			A_MenuBase.mainCanvas.clearActions();
 			return;
 		}
@@ -4429,7 +4419,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.var_3a6b == 4) {
 			if ((this.var_3a83 != null) || (this.var_3a8b != null)) {
 				this.var_3a6b = 5;
-				this.activeUnit.sub_1359(this.someMapData, this.activeUnit.positionX,
+				this.activeUnit.fillAttackRangeData(this.someMapData, this.activeUnit.positionX,
 						this.activeUnit.positionY);
 				this.var_3523 = true;
 				this.var_351b = true;
@@ -4450,12 +4440,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3ab3[i] = this.activeUnit;
 					}
 					sub_e1a9(this.activeUnit.positionX, this.activeUnit.positionY,
-							this.var_356b[this.activeUnit.var_acb]);
+							this.playersIndexes[this.activeUnit.playerId]);
 					A_MenuBase.mainCanvas.showMenu(createDialog(null,
-							A_MenuBase.getLangString(73), this.var_32d3, 1000));
+							A_MenuBase.getLangString(73), this.someGHeight, 1000));
 					E_MainCanvas.playMusicLooped(9, 1);
 					this.activeUnitState = 9;
-					this.var_3553 = this.time;
+					this.someStartTime5 = this.time;
 				} else if (sub_e065(this.activeUnit.positionX,
 						this.activeUnit.positionY, this.activeUnit)) {
 					i = sub_10b21(this.activeUnit.positionX, this.activeUnit.positionY);
@@ -4466,10 +4456,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					repairDestroyedHouse((byte) this.houseTileIdStartIndex, this.activeUnit.positionX,
 							this.activeUnit.positionY);
 					A_MenuBase.mainCanvas.showMenu(createDialog(null,
-							A_MenuBase.getLangString(74), this.var_32d3, 1000));
+							A_MenuBase.getLangString(74), this.someGHeight, 1000));
 					E_MainCanvas.playMusicLooped(9, 1);
 					this.activeUnitState = 0;
-					this.var_3553 = this.time;
+					this.someStartTime5 = this.time;
 				} else {
 					this.activeUnitState = 0;
 				}
@@ -4579,10 +4569,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						j++;
 						int i5 = 0;
 						int i9;
-						for (int i61 = this.mapSprites.size() - 1; i61 >= 0; i61--) {
-							C_Unit localClass_c_032 = (C_Unit) this.mapSprites
+						for (int i61 = this.mapUnitsSprites.size() - 1; i61 >= 0; i61--) {
+							C_Unit localClass_c_032 = (C_Unit) this.mapUnitsSprites
 									.elementAt(i61);
-							if ((this.var_3573[localClass_c_032.var_acb] != this.var_3573[this.playerId])
+							if ((this.var_3573[localClass_c_032.playerId] != this.var_3573[this.playerId])
 									&& (localClass_c_032.hasProperty((short) 16))) {
 								if ((i9 = Math.abs(localClass_c_032.positionX
 										- i2)
@@ -4624,31 +4614,31 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 					}
 					if (localObject == null) {
-						if ((sub_e3c8(0, -1, this.playerId) < 2)
+						if ((countSomeUnits(0, -1, this.playerId) < 2)
 								&& (sub_e943((byte) 0, m, n))) {
 							localObject = sub_8788((byte) 0, m, n);
-						} else if ((sub_e3c8(1, -1, this.playerId) < 2)
+						} else if ((countSomeUnits(1, -1, this.playerId) < 2)
 								&& (sub_e943((byte) 1, m, n))) {
 							localObject = sub_8788((byte) 1, m, n);
 						} else {
 							int i1 = 0;
 							i2 = 0;
 							int i4;
-							for (i3 = 0; i3 < this.var_355b; i4 = (byte) (i3 + 1)) {
-								if (this.var_3573[i3] == this.var_3573[this.playerId]) {
-									i1 += sub_e3c8(-1, -1, (byte) i3);
+							for (int pIt = 0; pIt < this.mapMaxPlayersMb; i4 = (byte) (pIt + 1)) {
+								if (this.var_3573[pIt] == this.var_3573[this.playerId]) {
+									i1 += countSomeUnits(-1, -1, (byte) pIt);
 								} else {
-									i2 += sub_e3c8(-1, -1, (byte) i3);
+									i2 += countSomeUnits(-1, -1, (byte) pIt);
 								}
 							}
 							if ((this.var_35a3[this.playerId] >= 1000)
-									|| (sub_e3c8(-1, -1, this.playerId) < 8)
+									|| (countSomeUnits(-1, -1, this.playerId) < 8)
 									|| (i1 < i2)) {
 								i4 = 0;
 								byte[] arrayOfByte = new byte[12];
 								int i7;
 								for (i6 = 1; i6 < 12; i7 = (byte) (i6 + 1)) {
-									if (((sub_e3c8(i6, -1, this.playerId) < 1) || (C_Unit.var_bcb[i6] >= 600))
+									if (((countSomeUnits(i6, -1, this.playerId) < 1) || (C_Unit.var_bcb[i6] >= 600))
 											&& (sub_e943(i6, m, n))) {
 										arrayOfByte[i4] = i6;
 										i4++;
@@ -4709,57 +4699,58 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3afb = -1;
 		this.var_3b03 = -1;
 		for (int n = 0; n < this.var_3aab.length + this.playersKings.length; n++) {
-			C_Unit localClass_c_0321 = null;
+			C_Unit someKingUnit = null;
 			if (n >= this.var_3aab.length) {
-				if ((localClass_c_0321 = this.playersKings[(n - this.var_3aab.length)]) != null) {
-					if (localClass_c_0321.var_b13 == 3) {
-						localClass_c_0321 = null;
-					} else if ((this.var_3573[localClass_c_0321.var_acb] != this.var_3573[this.playerId])
+				someKingUnit = this.playersKings[(n - this.var_3aab.length)];
+				if (someKingUnit != null) {
+					if (someKingUnit.var_b13 == 3) {
+						someKingUnit = null;
+					} else if ((this.var_3573[someKingUnit.playerId] != this.var_3573[this.playerId])
 							&& (this.playersKings[this.playerId] == null)) {
-						this.var_3ac3[i][2] += localClass_c_0321.sub_1318(
-								localClass_c_0321.positionX,
-								localClass_c_0321.positionY, null) * 2;
+						this.var_3ac3[i][2] += someKingUnit.sub_1318(
+								someKingUnit.positionX,
+								someKingUnit.positionY, null) * 2;
 					} else if ((this.var_3583 >= 15)
-							&& (this.var_3573[localClass_c_0321.var_acb] != this.var_3573[this.playerId])
-							&& (sub_e3c8(-1, -1, localClass_c_0321.var_acb) < 4)
-							&& (sub_e3c8(-1, -1, this.playerId) >= 8)) {
-						this.var_3ac3[i][2] += localClass_c_0321.sub_1318(
-								localClass_c_0321.positionX,
-								localClass_c_0321.positionY, null) * 2;
-					} else if (localClass_c_0321.var_acb != this.playerId) {
-						localClass_c_0321 = null;
+							&& (this.var_3573[someKingUnit.playerId] != this.var_3573[this.playerId])
+							&& (countSomeUnits(-1, -1, someKingUnit.playerId) < 4)
+							&& (countSomeUnits(-1, -1, this.playerId) >= 8)) {
+						this.var_3ac3[i][2] += someKingUnit.sub_1318(
+								someKingUnit.positionX,
+								someKingUnit.positionY, null) * 2;
+					} else if (someKingUnit.playerId != this.playerId) {
+						someKingUnit = null;
 					}
 				}
 			} else if (this.playersKings[this.playerId] != null) {
-				localClass_c_0321 = this.var_3aab[n];
+				someKingUnit = this.var_3aab[n];
 			}
-			if (localClass_c_0321 != null) {
-				this.var_3ac3[i][0] = localClass_c_0321.positionX;
-				this.var_3ac3[i][1] = localClass_c_0321.positionY;
-				if (localClass_c_0321.var_acb == this.playerId) {
-					C_Unit[] arrayOfClass_c_0321 = localClass_c_0321
-							.sub_15e7(localClass_c_0321.positionX,
-									localClass_c_0321.positionY, 1, 5, (byte) 0);
-					for (int i3 = 0; i3 < arrayOfClass_c_0321.length; i3++) {
-						if (arrayOfClass_c_0321[i3].var_b13 != 4) {
-							this.var_3ac3[i][2] += arrayOfClass_c_0321[i3]
-									.sub_1318(arrayOfClass_c_0321[i3].positionX,
-											arrayOfClass_c_0321[i3].positionY,
-											localClass_c_0321);
+			if (someKingUnit != null) {
+				this.var_3ac3[i][0] = someKingUnit.positionX;
+				this.var_3ac3[i][1] = someKingUnit.positionY;
+				if (someKingUnit.playerId == this.playerId) {
+					C_Unit[] sUnit = someKingUnit
+							.getPositionUnitsInAttackRange(someKingUnit.positionX,
+									someKingUnit.positionY, 1, 5, (byte) 0);
+					for (int i3 = 0; i3 < sUnit.length; i3++) {
+						if (sUnit[i3].var_b13 != 4) {
+							this.var_3ac3[i][2] += sUnit[i3]
+									.sub_1318(sUnit[i3].positionX,
+											sUnit[i3].positionY,
+											someKingUnit);
 						}
 					}
 				}
 				if (this.var_3ac3[i][2] > 0) {
-					this.var_3ac3[i][4] += localClass_c_0321.sub_1318(
-							localClass_c_0321.positionX,
-							localClass_c_0321.positionY, null);
-					this.var_3ac3[i][4] += localClass_c_0321.var_b93;
+					this.var_3ac3[i][4] += someKingUnit.sub_1318(
+							someKingUnit.positionX,
+							someKingUnit.positionY, null);
+					this.var_3ac3[i][4] += someKingUnit.var_b93;
 					if (this.var_3ac3[i][2] > this.var_3ad3) {
 						this.var_3ad3 = this.var_3ac3[i][2];
 					}
-					this.var_3ac3[i][3] = (Math.abs(localClass_c_0321.positionX
+					this.var_3ac3[i][3] = (Math.abs(someKingUnit.positionX
 							- paramClass_c_032.positionX) + Math
-							.abs(localClass_c_0321.positionY
+							.abs(someKingUnit.positionY
 									- paramClass_c_032.positionY));
 					if (this.var_3ac3[i][3] < 1) {
 						this.var_3ac3[i][3] = 1;
@@ -4786,12 +4777,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			i5 = this.housesDataArr[i4][0];
 			i6 = this.housesDataArr[i4][1];
 			i7 = getTileType(i5, i6);
-			boolean bool = sub_e312(i5, i6, paramClass_c_032.var_acb);
+			boolean bool = sub_e312(i5, i6, paramClass_c_032.playerId);
 			this.var_3ac3[i][2] = -6666;
 			C_Unit[] localObject;
 			int i10;
 			if ((bool) || (this.var_3ab3[i4] != null)) {
-				localObject = paramClass_c_032.sub_15e7(i5, i6, 1, 5, (byte) 0);
+				localObject = paramClass_c_032.getPositionUnitsInAttackRange(i5, i6, 1, 5, (byte) 0);
 				this.var_3ac3[i][0] = i5;
 				this.var_3ac3[i][1] = i6;
 				this.var_3ac3[i][2] = 0;
@@ -4835,9 +4826,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 				}
 			}
-			if (sub_e2b4(i5, i6, this.var_3573[paramClass_c_032.var_acb])) {
-				C_Unit localObject1 = sub_dc52(i5, i6, (byte) 0);
-				if ((((localObject1) == null) || (((C_Unit) localObject1).var_acb == paramClass_c_032.var_acb))
+			if (sub_e2b4(i5, i6, this.var_3573[paramClass_c_032.playerId])) {
+				C_Unit localObject1 = getSomeUnit(i5, i6, (byte) 0);
+				if ((((localObject1) == null) || (((C_Unit) localObject1).playerId == paramClass_c_032.playerId))
 						&& ((i10 = Math.abs(i5 - paramClass_c_032.positionX)
 								+ Math.abs(i6 - paramClass_c_032.positionY)) < i1)) {
 					i3 = i4;
@@ -4852,10 +4843,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					i2 = i4;
 					n = i9;
 				}
-				C_Unit localClass_c_0324 = sub_dc52(i5, i6, (byte) 0);
+				C_Unit localClass_c_0324 = getSomeUnit(i5, i6, (byte) 0);
 				if ((i9 < i1)
 						&& (this.someMapData[i5][i6] > 0)
-						&& ((localClass_c_0324 == null) || (localClass_c_0324.var_acb == paramClass_c_032.var_acb))) {
+						&& ((localClass_c_0324 == null) || (localClass_c_0324.playerId == paramClass_c_032.playerId))) {
 					i3 = i4;
 					i1 = i9;
 				}
@@ -4925,16 +4916,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			i7 = 0;
 			int i8 = this.someMapData[i51].length;
 			while (i7 < i8) {
-				C_Unit localClass_c_0323;
+				C_Unit lcUnit;
 				if ((this.someMapData[i51][i7] > 0)
-						&& (((localClass_c_0323 = sub_dc52(i51, i7, (byte) 0)) == null)
-								|| (localClass_c_0323 == paramClass_c_032) || ((this.var_3a93 == null)
-								&& (localClass_c_0323.var_acb == paramClass_c_032.var_acb) && (localClass_c_0323.var_b13 == 0)))) {
+						&& (((lcUnit = getSomeUnit(i51, i7, (byte) 0)) == null)
+								|| (lcUnit == paramClass_c_032) || ((this.var_3a93 == null)
+								&& (lcUnit.playerId == paramClass_c_032.playerId) && (lcUnit.var_b13 == 0)))) {
 					int i11;
 					if ((!paramClass_c_032.hasProperty((short) 512))
-							|| (localClass_c_0323 == paramClass_c_032)) {
+							|| (lcUnit == paramClass_c_032)) {
 						C_Unit[] arrayOfClass_c_0322 = paramClass_c_032
-								.sub_15b5(i51, i7, (byte) 0);
+								.getActiveUnitsInAttackRange(i51, i7, (byte) 0);
 						for (int i13 = 0; i13 < arrayOfClass_c_0322.length; i13++) {
 							if ((i11 = sub_1062b(paramClass_c_032, i51, i7,
 									arrayOfClass_c_0322[i13], null)) > i4) {
@@ -4947,7 +4938,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 					}
 					if (paramClass_c_032.hasProperty((short) 32)) {
-						this.var_34f3 = paramClass_c_032.sub_15b5(i51, i7,
+						this.var_34f3 = paramClass_c_032.getActiveUnitsInAttackRange(i51, i7,
 								(byte) 1);
 						for (int i12 = 0; i12 < this.var_34f3.length; i12++) {
 							if ((i11 = sub_1062b(paramClass_c_032, i51, i7,
@@ -4977,7 +4968,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		this.var_3a93 = null;
 		C_Unit localClass_c_0322;
-		if (((localClass_c_0322 = sub_dc52(this.var_3a73, this.var_3a7b,
+		if (((localClass_c_0322 = getSomeUnit(this.var_3a73, this.var_3a7b,
 				(byte) 0)) != null) && (localClass_c_0322 != paramClass_c_032)) {
 			this.var_3a93 = localClass_c_0322;
 			this.var_3a6b = 0;
@@ -4988,51 +4979,51 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3a6b = 3;
 	}
 
-	public final int sub_1062b(C_Unit paramClass_c_0321, int paramInt1,
-			int paramInt2, C_Unit paramClass_c_0322,
+	public final int sub_1062b(C_Unit cUnit21, int paramInt1,
+			int paramInt2, C_Unit cUnit1,
 			C_Unit paramClass_c_0323) {
 		int i = 0;
 		int m;
 		if ((this.var_3b03 != -1)
-				&& (this.playersKings[paramClass_c_0321.var_acb] != null)) {
+				&& (this.playersKings[cUnit21.playerId] != null)) {
 			if (this.var_3aeb != -1) {
 				if (this.var_3adb[paramInt1][paramInt2] > 0) {
 					i = 0 + (100 + 100 * this.var_3adb[paramInt1][paramInt2] / 10);
 				} else {
-					int j = Math.abs(this.var_3aeb - paramClass_c_0321.positionX)
+					int j = Math.abs(this.var_3aeb - cUnit21.positionX)
 							+ Math.abs(this.var_3af3
-									- paramClass_c_0321.positionY);
+									- cUnit21.positionY);
 					m = Math.abs(this.var_3aeb - paramInt1)
 							+ Math.abs(this.var_3af3 - paramInt2);
 					i = 0
 							+ 100
 							* (j - m)
-							/ (C_Unit.var_b9b[paramClass_c_0321.unitTypeId] - 1);
+							/ (C_Unit.var_b9b[cUnit21.unitTypeId] - 1);
 					if (var_33eb[getTileType(paramInt1, paramInt2)] <= 1) {
 						i += 20;
 					}
 				}
 			}
-			if ((paramClass_c_0322 == null)
+			if ((cUnit1 == null)
 					&& (!sub_e2b4(paramInt1, paramInt2,
-							this.var_3573[paramClass_c_0321.var_acb]))) {
-				if ((paramClass_c_0321.hasProperty((short) 16))
+							this.var_3573[cUnit21.playerId]))) {
+				if ((cUnit21.hasProperty((short) 16))
 						&& (getTileType(paramInt1, paramInt2) == 9)) {
 					i += 300;
-				} else if ((paramClass_c_0321.hasProperty((short) 8))
+				} else if ((cUnit21.hasProperty((short) 8))
 						&& ((getTileType(paramInt1, paramInt2) == 8) || (this.mapTilesIds[paramInt1][paramInt2] == 27))) {
 					i += 200;
 				}
 			}
 		}
-		switch (paramClass_c_0321.unitTypeId) {
+		switch (cUnit21.unitTypeId) {
 		case 3:
 			if (paramClass_c_0323 != null) {
 				i += 100;
 			}
 			break;
 		case 4:
-			C_Unit[] arrayOfClass_c_032 = paramClass_c_0321.sub_15e7(
+			C_Unit[] arrayOfClass_c_032 = cUnit21.getPositionUnitsInAttackRange(
 					paramInt1, paramInt2, 1, 2, (byte) 2);
 			if (paramClass_c_0323 != null) {
 				i += 25 * arrayOfClass_c_032.length;
@@ -5044,71 +5035,68 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			break;
 		}
-		if (paramClass_c_0322 != null) {
-			if (paramClass_c_0322.var_b13 == 4) {
-				int k = sub_e206(paramClass_c_0322.positionX,
-						paramClass_c_0322.positionY);
-				m = sub_10b21(paramClass_c_0322.positionX,
-						paramClass_c_0322.positionY);
+		if (cUnit1 != null) {
+			if (cUnit1.var_b13 == 4) {
+				int k = sub_e206(cUnit1.positionX, cUnit1.positionY);
+				m = sub_10b21(cUnit1.positionX, cUnit1.positionY);
 				if ((k != 0) && (m != -1) && (this.var_3ab3[m] == null)) {
-					i += paramClass_c_0321.sub_1318(paramInt1, paramInt2,
-							paramClass_c_0322) / 2;
+					i += cUnit21.sub_1318(paramInt1, paramInt2, cUnit1) / 2;
 				}
 			} else {
-				if (!paramClass_c_0322.sub_1134(paramClass_c_0321, paramInt1,
+				if (!cUnit1.sub_1134(cUnit21, paramInt1,
 						paramInt2)) {
-					i += paramClass_c_0321.sub_1318(paramInt1, paramInt2,
-							paramClass_c_0322) * 2;
+					i += cUnit21.sub_1318(paramInt1, paramInt2,
+							cUnit1) * 2;
 				} else {
-					i += paramClass_c_0321.sub_1318(paramInt1, paramInt2,
-							paramClass_c_0322)
+					i += cUnit21.sub_1318(paramInt1, paramInt2,
+							cUnit1)
 							* 3
 							/ 2
-							- paramClass_c_0322.sub_1318(paramInt1, paramInt2,
-									paramClass_c_0321);
+							- cUnit1.sub_1318(paramInt1, paramInt2,
+									cUnit21);
 				}
-				if (paramClass_c_0322.unitTypeId == 9) {
+				if (cUnit1.unitTypeId == 9) {
 					i += 25;
-				} else if (paramClass_c_0322.unitTypeId == 11) {
+				} else if (cUnit1.unitTypeId == 11) {
 					i += 100;
 				}
 			}
 		}
 		i += var_33e3[getTileType(paramInt1, paramInt2)];
-		if ((paramClass_c_0321.unitHealthMb < 100)
+		if ((cUnit21.unitHealthMb < 100)
 				&& (sub_e2b4(paramInt1, paramInt2,
-						this.var_3573[paramClass_c_0321.var_acb]))) {
-			i += 100 - paramClass_c_0321.unitHealthMb;
+						this.var_3573[cUnit21.playerId]))) {
+			i += 100 - cUnit21.unitHealthMb;
 		}
 		int k = sub_10b21(paramInt1, paramInt2);
 		int n;
 		if (this.var_3adb[paramInt1][paramInt2] > 0) {
 			m = this.var_3adb[paramInt1][paramInt2];
-			n = 10 - C_Unit.var_b9b[paramClass_c_0321.unitTypeId] / 2;
+			n = 10 - C_Unit.var_b9b[cUnit21.unitTypeId] / 2;
 			if (m > n) {
 				m = n;
 			}
 			i += 50 + 100 * m / n;
 		} else if (this.var_3aeb != -1) {
-			m = Math.abs(this.var_3aeb - paramClass_c_0321.positionX)
-					+ Math.abs(this.var_3af3 - paramClass_c_0321.positionY);
+			m = Math.abs(this.var_3aeb - cUnit21.positionX)
+					+ Math.abs(this.var_3af3 - cUnit21.positionY);
 			n = Math.abs(this.var_3aeb - paramInt1)
 					+ Math.abs(this.var_3af3 - paramInt2);
 			i += 50 * (m - n)
-					/ (C_Unit.var_b9b[paramClass_c_0321.unitTypeId] - 1);
+					/ (C_Unit.var_b9b[cUnit21.unitTypeId] - 1);
 		}
 		C_Unit localClass_c_032;
 		if ((k != -1)
 				&& ((localClass_c_032 = this.var_3ab3[k]) != null)
-				&& (localClass_c_032 != paramClass_c_0321)
+				&& (localClass_c_032 != cUnit21)
 				&& (localClass_c_032.var_b13 == 0)
 				&& (this.var_3abb[k] < C_Unit.var_b9b[localClass_c_032.unitTypeId])) {
 			i -= 200;
 		}
 		return i += 20
-				* (Math.abs(paramInt1 - paramClass_c_0321.positionX) + Math
-						.abs(paramInt2 - paramClass_c_0321.positionY))
-				/ (C_Unit.var_b9b[paramClass_c_0321.unitTypeId] - 1);
+				* (Math.abs(paramInt1 - cUnit21.positionX) + Math
+						.abs(paramInt2 - cUnit21.positionY))
+				/ (C_Unit.var_b9b[cUnit21.unitTypeId] - 1);
 	}
 
 	public final int sub_10b21(int paramInt1, int paramInt2) {
@@ -5126,15 +5114,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.isWaiting = true;
 	}
 
-	public final D_Menu sub_10bb9(String paramString, byte paramByte1,
-			byte paramByte2) {
-		D_Menu localClass_d_023 = new D_Menu((byte) 7, 12);
+	public final D_Menu showUnitDialogMsg(String msg, byte paramByte1, byte paramByte2) {
+		D_Menu dialog = new D_Menu((byte) 7, 12);
 		int i = E_MainCanvas.var_138c * 3;
-		localClass_d_023.sub_1a04(paramString, this.someCanWidth, i, paramByte1,
-				paramByte2);
-		localClass_d_023.sub_193f(0, this.someCanHeight - i, 0);
-		A_MenuBase.mainCanvas.showMenu(localClass_d_023);
-		return localClass_d_023;
+		dialog.sub_1a04(msg, this.someCanWidth, i, paramByte1, paramByte2);
+		dialog.sub_193f(0, this.someCanHeight - i, 0);
+		A_MenuBase.mainCanvas.showMenu(dialog);
+		return dialog;
 	}
 
 	public final D_Menu createDialog(String header,
@@ -5177,7 +5163,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			E_MainCanvas.sub_2439(1, 1);
 			this.var_3813 = false;
 			this.var_352b = false;
-			this.aState = 0;
+			this.scriptStep = 0;
 			return;
 		}
 		if (this.scenarioMapIndex == 1) {
@@ -5189,9 +5175,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.playersKings[0].setKingName(2);
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
-			sub_dc52(7, 12, (byte) 0).sub_18b7(7, 10, false);
-			sub_dc52(8, 11, (byte) 0).sub_18b7(8, 9, false);
-			sub_dc52(9, 12, (byte) 0).sub_18b7(9, 10, false);
+			getSomeUnit(7, 12, (byte) 0).sub_18b7(7, 10, false);
+			getSomeUnit(8, 11, (byte) 0).sub_18b7(8, 9, false);
+			getSomeUnit(9, 12, (byte) 0).sub_18b7(9, 10, false);
 			sub_143f6(7, 3);
 			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
 			return;
@@ -5204,16 +5190,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_35a3[0] = 0;
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
-			this.var_3b2b = sub_dc52(8, 17, (byte) 0);
-			this.var_3b33 = sub_dc52(8, 18, (byte) 0);
-			this.var_3b3b = sub_dc52(8, 19, (byte) 0);
+			this.var_3b2b = getSomeUnit(8, 17, (byte) 0);
+			this.var_3b33 = getSomeUnit(8, 18, (byte) 0);
+			this.var_3b3b = getSomeUnit(8, 19, (byte) 0);
 			this.var_3b2b.sub_18b7(8, 15, false);
 			this.var_3b33.sub_18b7(8, 15, false);
 			this.var_3b3b.sub_18b7(8, 15, false);
 			this.playersKings[0].sub_18b7(8, 14, false);
 			this.var_352b = false;
 			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
-			this.aState = 0;
+			this.scriptStep = 0;
 			return;
 		}
 		if (this.scenarioMapIndex == 3) {
@@ -5235,7 +5221,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			E_MainCanvas.sub_2439(1, 1);
 			this.var_3813 = false;
 			this.var_352b = false;
-			this.aState = 0;
+			this.scriptStep = 0;
 			return;
 		}
 		C_Unit localClass_c_0321;
@@ -5247,21 +5233,21 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.playersKings[0].posYPixel + 12);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			C_Unit.var_a7b = 4;
-			(localClass_c_0321 = sub_dc52(11, 2, (byte) 0)).setUnitPosition(11, -3);
+			(localClass_c_0321 = getSomeUnit(11, 2, (byte) 0)).setUnitPosition(11, -3);
 			localClass_c_0321.sub_18b7(11, 2, false);
-			(localClass_c_0321 = sub_dc52(10, 1, (byte) 0)).setUnitPosition(10, -5);
+			(localClass_c_0321 = getSomeUnit(10, 1, (byte) 0)).setUnitPosition(10, -5);
 			localClass_c_0321.sub_18b7(10, 1, false);
-			(localClass_c_0321 = sub_dc52(11, 1, (byte) 0)).setUnitPosition(11, -5);
+			(localClass_c_0321 = getSomeUnit(11, 1, (byte) 0)).setUnitPosition(11, -5);
 			localClass_c_0321.sub_18b7(11, 1, false);
-			(localClass_c_0321 = sub_dc52(12, 1, (byte) 0)).setUnitPosition(12, -5);
+			(localClass_c_0321 = getSomeUnit(12, 1, (byte) 0)).setUnitPosition(12, -5);
 			localClass_c_0321.sub_18b7(12, 1, false);
-			(localClass_c_0321 = sub_dc52(11, 0, (byte) 0)).setUnitPosition(11, -7);
+			(localClass_c_0321 = getSomeUnit(11, 0, (byte) 0)).setUnitPosition(11, -7);
 			localClass_c_0321.sub_18b7(11, 0, false);
-			(localClass_c_0321 = sub_dc52(12, 0, (byte) 0)).setUnitPosition(12, -7);
+			(localClass_c_0321 = getSomeUnit(12, 0, (byte) 0)).setUnitPosition(12, -7);
 			localClass_c_0321.sub_18b7(12, 0, false);
 			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
 			this.var_352b = false;
-			this.aState = 0;
+			this.scriptStep = 0;
 			return;
 		}
 		if (this.scenarioMapIndex == 5) {
@@ -5275,7 +5261,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
 			this.var_352b = false;
-			this.aState = 0;
+			this.scriptStep = 0;
 			return;
 		}
 		C_Unit localClass_c_0322;
@@ -5301,7 +5287,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_39b3 = this.playersKings[0];
 			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
 			this.var_352b = false;
-			this.aState = 0;
+			this.scriptStep = 0;
 			return;
 		}
 		if (this.scenarioMapIndex == 7) {
@@ -5309,12 +5295,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			C_Unit.var_a7b = 4;
 			this.var_35a3[0] = 800;
 			this.var_35a3[1] = 200;
-			(localClass_c_0321 = sub_dc52(7, 4, (byte) 0)).setKingName(3);
+			(localClass_c_0321 = getSomeUnit(7, 4, (byte) 0)).setKingName(3);
 			this.playersKings[1] = localClass_c_0321;
-			localClass_c_0322 = sub_dc52(8, 15, (byte) 0);
+			localClass_c_0322 = getSomeUnit(8, 15, (byte) 0);
 			this.playersKings[0] = localClass_c_0322;
 			localClass_c_0322.setKingName(0);
-			(localClass_c_0323 = sub_dc52(6, 15, (byte) 0)).setKingName(2);
+			(localClass_c_0323 = getSomeUnit(6, 15, (byte) 0)).setKingName(2);
 			sub_b998(this.playersKings[0].posXPixel + 12,
 					this.playersKings[0].posYPixel + 12);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
@@ -5322,7 +5308,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			E_MainCanvas.sub_2439(1, 1);
 			this.var_3813 = false;
 			this.var_352b = false;
-			this.aState = 0;
+			this.scriptStep = 0;
 		}
 	}
 
@@ -5331,11 +5317,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.var_3b7b) {
-			if (this.aState == 0) {
+			if (this.scriptStep == 0) {
 				this.var_364b = true;
 				this.waveImageAmplitude = 0;
 				this.activeUnitState = 11;
-				this.aState = 1;
+				this.scriptStep = 1;
 			}
 			return;
 		}
@@ -5344,19 +5330,19 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		Object localObject2;
 		Object localObject3;
 		if (this.mapModeCampIf0 == 1) {
-			if (this.aState == 100) {
-				E_MainCanvas.sub_2439(var_33c3[this.var_356b[this.playerId]], 0);
+			if (this.scriptStep == 100) {
+				E_MainCanvas.sub_2439(var_33c3[this.playersIndexes[this.playerId]], 0);
 				this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
 				this.startupMessageBox.setParentMenu(null);
 				A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
-				this.aState += 1;
+				this.scriptStep += 1;
 				return;
 			}
-			if (this.aState == 101) {
+			if (this.scriptStep == 101) {
 				i = -1;
 				j = -1;
 				int n = 1;
-				for (int i1 = 0; i1 < this.var_355b; i1++) {
+				for (int i1 = 0; i1 < this.mapMaxPlayersMb; i1++) {
 					if ((this.var_35b3[i1] != 2)
 							&& (((this.playersKings[i1] != null) && (this.playersKings[i1].var_b13 != 3)) || (sub_e353(i1) != 0))) {
 						j = i1;
@@ -5374,20 +5360,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							+ (this.var_3573[j] + 1));
 					localObject3 = A_MenuBase.replaceStringFirst(81,
 							(String) localObject2) + "\n(";
-					for (int i2 = 0; i2 < this.var_355b; i2++) {
+					for (int i2 = 0; i2 < this.mapMaxPlayersMb; i2++) {
 						if ((this.var_35b3[i2] != 2)
 								&& (this.var_3573[i2] == this.var_3573[j])) {
 							localObject3 = (String) localObject3
 									+ " "
 									+ A_MenuBase
-											.getLangString(88 + this.var_356b[i2])
+											.getLangString(88 + this.playersIndexes[i2])
 									+ " ";
 						}
 					}
 					localObject3 = (String) localObject3 + ")";
 					D_Menu localClass_d_023;
 					(localClass_d_023 = createDialog(null, (String) localObject3,
-							this.var_32d3, this.viewportHeight, -1)).setParentMenu(this);
+							this.someGHeight, this.viewportHeight, -1)).setParentMenu(this);
 					A_MenuBase.mainCanvas.showMenu(localClass_d_023);
 					if (this.var_35b3[j] == 1) {
 						E_MainCanvas.sub_2439(6, 1);
@@ -5395,18 +5381,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						E_MainCanvas.sub_2439(7, 1);
 					}
 					sub_10b94(15);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
-			} else if (this.aState == 102) {
+			} else if (this.scriptStep == 102) {
 				this.var_364b = true;
 				this.waveImageAmplitude = 0;
 				this.activeUnitState = 11;
-				this.aState += 1;
+				this.scriptStep += 1;
 			}
 			return;
 		}
 		if ((this.gameMode2Mb != 1) || (this.mapModeCampIf0 != 0)
-				|| (this.aState == -1)) {
+				|| (this.scriptStep == -1)) {
 			return;
 		}
 		if (this.var_3b83 != -1) {
@@ -5433,20 +5419,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		C_Unit[] localObject1 = null;
 		C_Unit localClass_c_0324;
 		if (this.scenarioMapIndex == 0) {
-			switch (this.aState) {
+			switch (this.scriptStep) {
 			case 0:
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 1:
 				A_MenuBase.mainCanvas.showMenu(this.var_3b23);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 2:
 				this.var_3813 = true;
-				sub_dc52(0, 8, (byte) 0).sub_18b7(3, 8, false);
-				sub_dc52(1, 9, (byte) 0).sub_18b7(4, 9, false);
-				sub_dc52(0, 10, (byte) 0).sub_18b7(3, 10, false);
+				getSomeUnit(0, 8, (byte) 0).sub_18b7(3, 8, false);
+				getSomeUnit(1, 9, (byte) 0).sub_18b7(4, 9, false);
+				getSomeUnit(0, 10, (byte) 0).sub_18b7(3, 10, false);
 				sub_143f6(5, 9);
 				break;
 			case 3:
@@ -5457,35 +5443,35 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				sub_10b94(10);
 				this.var_39bb = 12;
 				C_Unit.var_a7b = C_Unit.var_a73;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 5:
-				sub_10bb9(A_MenuBase.getLangString(221), (byte) 2, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(221), (byte) 2, (byte) 4);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 6:
-				C_Unit localObject11 = sub_dc52(9, 3, (byte) 0);
+				C_Unit localObject11 = getSomeUnit(9, 3, (byte) 0);
 				E_MainCanvas.sub_233e(100);
 				((C_Unit) localObject11).sub_d0e(400);
 				showSpriteOnMap(this.redsparkSprite, ((F_Sprite) localObject11).posXPixel,
 						((F_Sprite) localObject11).posYPixel, 0, 0, 2, 50);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 7:
-				sub_10bb9(A_MenuBase.getLangString(222), (byte) 2, (byte) 4);
-				this.aState += 1;
+				showUnitDialogMsg(A_MenuBase.getLangString(222), (byte) 2, (byte) 4);
+				this.scriptStep += 1;
 				break;
 			case 8:
-				C_Unit localClass_c_0321 = sub_dc52(9, 3, (byte) 0);
+				C_Unit localClass_c_0321 = getSomeUnit(9, 3, (byte) 0);
 				showSpriteOnMap(this.sparkSprite, localClass_c_0321.posXPixel,
 						localClass_c_0321.posYPixel, 0, 0, 1, 50);
 				showSpriteOnMap(this.smokeSprite, localClass_c_0321.posXPixel,
 						localClass_c_0321.posYPixel, 0, -3, 1, 100);
 				localClass_c_0321.removeFromMap();
 				sub_10b94(20);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 9:
 				this.var_352b = false;
@@ -5493,75 +5479,75 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				break;
 			case 10:
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 11:
-				sub_10bb9(A_MenuBase.getLangString(223), (byte) 0, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(223), (byte) 0, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 12:
-				sub_10bb9(A_MenuBase.getLangString(224), (byte) 5, (byte) 4);
-				this.aState += 1;
+				showUnitDialogMsg(A_MenuBase.getLangString(224), (byte) 5, (byte) 4);
+				this.scriptStep += 1;
 				break;
 			case 13:
 				sub_1439a();
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 14:
 				if (this.var_378b == 0) {
 					this.var_36db = 0;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 15:
 				if ((this.playerId == 0) && (this.activeUnitState == 1)
 						&& (this.alphaWindowWTF == 0)) {
 					this.var_36db = 1;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 16:
 				if ((this.playerId == 0) && (this.unitEndTurnMb != null)) {
 					this.var_36db = 2;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 17:
 				if ((this.playerId == 0) && (this.unitEndTurnMb != null)) {
 					this.var_36db = 3;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 18:
-				if (sub_e3c8(-1, 2, (byte) 0) >= 3) {
+				if (countSomeUnits(-1, 2, (byte) 0) >= 3) {
 					this.var_36db = 4;
-					this.aState += 1;
+					this.scriptStep += 1;
 				} else if (this.var_3583 >= 1) {
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 19:
 				if (this.var_3583 >= 2) {
 					this.var_36db = 5;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 20:
 				this.var_36db = 6;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 21:
 				if ((this.activeUnitState == 1) && (this.playerId == 0)) {
 					this.var_36db = 7;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 22:
-				if (sub_e3c8(-1, -1, (byte) 1) == 0) {
+				if (countSomeUnits(-1, -1, (byte) 1) == 0) {
 					this.var_3783 = false;
 					sub_10b94(20);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 23:
@@ -5571,7 +5557,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				(localClass_c_0324 = C_Unit.sub_d3d((byte) 1, (byte) 1, 1,
 						1)).sub_18da(1, 2, false, true);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 25:
 				sub_143f6(10, 10);
@@ -5581,79 +5567,79 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						(byte) 1, 10, 10);
 				localObject21.sub_18da(10, 9, false, true);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 27:
 				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
 				break;
 			case 28:
-				sub_10bb9(A_MenuBase.getLangString(225), (byte) 5, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(225), (byte) 5, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 29:
-				sub_10bb9(A_MenuBase.getLangString(226), (byte) 0, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(226), (byte) 0, (byte) 4);
 				this.var_3783 = true;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 30:
-				if ((sub_e3c8(-1, -1, (byte) 1) == 0) && (this.activeUnitState == 0)) {
+				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (this.activeUnitState == 0)) {
 					this.var_3783 = false;
 					this.var_352b = false;
 					sub_10b94(30);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 31:
 				this.var_3803 = true;
 				this.var_37fb = 0;
 				sub_10b94(20);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 32:
-				sub_10bb9(A_MenuBase.getLangString(227), (byte) 2, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(227), (byte) 2, (byte) 4);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 33:
-				sub_10bb9(A_MenuBase.getLangString(228), (byte) 0, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(228), (byte) 0, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 34:
-				sub_10bb9(A_MenuBase.getLangString(229), (byte) 2, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(229), (byte) 2, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 35:
-				sub_10bb9(A_MenuBase.getLangString(230), (byte) 0, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(230), (byte) 0, (byte) 4);
 				sub_10b94(15);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 36:
 				sub_1442b();
 			}
 		} else if (this.scenarioMapIndex == 1) {
-			switch (this.aState) {
+			switch (this.scriptStep) {
 			case 1:
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 2:
 				this.var_39bb = 4;
 				sub_143f6(12, 3);
 				break;
 			case 3:
-				sub_10bb9(A_MenuBase.getLangString(231), (byte) 1, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(231), (byte) 1, (byte) 4);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 4:
-				sub_10bb9(A_MenuBase.getLangString(232), (byte) 3, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(232), (byte) 3, (byte) 4);
 				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
 				break;
 			case 5:
-				sub_10bb9(A_MenuBase.getLangString(233), (byte) 5, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(233), (byte) 5, (byte) 4);
 				sub_143f6(7, 3);
 				break;
 			case 6:
@@ -5665,7 +5651,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3b33.var_b73 = this.var_3b3b;
 				this.var_3b2b.sub_18b7(6, -2, false);
 				sub_10b94(30);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 7:
 				if ((this.var_3b3b.positionX == 6)
@@ -5675,8 +5661,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							3);
 					this.var_3b43.sub_18b7(6, 2, false);
 					this.var_3b33.var_b73 = null;
-					sub_10bb9(A_MenuBase.getLangString(234), (byte) 2, (byte) 4);
-					this.aState += 1;
+					showUnitDialogMsg(A_MenuBase.getLangString(234), (byte) 2, (byte) 4);
+					this.scriptStep += 1;
 				}
 				break;
 			case 8:
@@ -5686,13 +5672,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					showSpriteOnMap(this.redsparkSprite, this.var_3b43.posXPixel,
 							this.var_3b43.posYPixel, 0, 0, 2, 50);
 					sub_10b94(10);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 9:
-				sub_10bb9(A_MenuBase.getLangString(235), (byte) 2, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(235), (byte) 2, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 10:
 				showSpriteOnMap(this.smokeSprite, this.var_3b43.posXPixel,
@@ -5702,7 +5688,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3b43.removeFromMap();
 				this.var_3b43 = null;
 				sub_10b94(15);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 11:
 				C_Unit.var_a7b = C_Unit.var_a73;
@@ -5715,88 +5701,88 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
 				break;
 			case 12:
-				sub_10bb9(A_MenuBase.getLangString(236), (byte) 5, (byte) 4);
-				this.aState += 1;
+				showUnitDialogMsg(A_MenuBase.getLangString(236), (byte) 5, (byte) 4);
+				this.scriptStep += 1;
 				break;
 			case 13:
-				sub_10bb9(A_MenuBase.getLangString(237), (byte) 1, (byte) 4);
-				this.aState += 1;
+				showUnitDialogMsg(A_MenuBase.getLangString(237), (byte) 1, (byte) 4);
+				this.scriptStep += 1;
 				break;
 			case 14:
 				sub_143f6(3, 5);
 				break;
 			case 15:
-				sub_10bb9(A_MenuBase.getLangString(238), (byte) 5, (byte) 4);
-				this.aState += 1;
+				showUnitDialogMsg(A_MenuBase.getLangString(238), (byte) 5, (byte) 4);
+				this.scriptStep += 1;
 				break;
 			case 16:
 				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
 				break;
 			case 17:
 				this.var_36db = 8;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 18:
 				this.var_36db = 9;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 19:
 				sub_1439a();
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 20:
 				if ((this.activeUnitState == 9) && (this.playerId == 0)) {
 					this.var_36db = 10;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 21:
 				this.var_36db = 11;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 22:
 				if ((this.playersKings[0].var_b13 == 3)
 						|| (this.playersKings[1].var_b13 == 3)) {
 					this.var_36db = 12;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 23:
-				if ((sub_e3c8(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
+				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
 					this.var_3783 = false;
 					sub_10b94(20);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 24:
 				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
 				break;
 			case 25:
-				sub_10bb9(A_MenuBase.getLangString(239), (byte) 1, (byte) 4);
-				this.aState += 1;
+				showUnitDialogMsg(A_MenuBase.getLangString(239), (byte) 1, (byte) 4);
+				this.scriptStep += 1;
 				break;
 			case 26:
-				sub_10bb9(A_MenuBase.getLangString(240), (byte) 5, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(240), (byte) 5, (byte) 4);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 27:
 				sub_1442b();
 			}
 		} else if (this.scenarioMapIndex == 2) {
 			int k = 0;
-			switch (this.aState) {
+			switch (this.scriptStep) {
 			case 0:
 				if (this.var_3b2b.var_b13 != 1) {
 					this.var_3b2b.sub_18b7(7, 14, false);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 1:
 				if (this.var_3b33.var_b13 != 1) {
 					this.var_3b33.sub_18b7(7, 15, false);
 					sub_10b94(20);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 2:
@@ -5804,35 +5790,35 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3b2b = null;
 				this.var_3b33 = null;
 				this.var_3b3b = null;
-				sub_10bb9(A_MenuBase.getLangString(241), (byte) 5, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(241), (byte) 5, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 3:
-				sub_10bb9(A_MenuBase.getLangString(242), (byte) 0, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(242), (byte) 0, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 4:
-				sub_10bb9(A_MenuBase.getLangString(243), (byte) 5, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(243), (byte) 5, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 5:
 				this.var_36db = 14;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 6:
 				sub_1439a();
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 7:
 			case 8:
-				if ((this.aState == 7) && (this.playerId == 0)
+				if ((this.scriptStep == 7) && (this.playerId == 0)
 						&& (this.var_378b == 0)
-						&& (sub_e3c8(-1, 3, (byte) -1) >= 1)) {
+						&& (countSomeUnits(-1, 3, (byte) -1) >= 1)) {
 					this.var_36db = 15;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				localObject1 = sub_e4c7(-1, 2, (byte) 0);
 				k = 0;
@@ -5856,7 +5842,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						sub_10b94(10);
 						this.var_3783 = false;
 						this.var_352b = false;
-						this.aState = 9;
+						this.scriptStep = 9;
 					} else {
 						k++;
 						// continue; //@todo
@@ -5881,9 +5867,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								.sub_18b7(2, 1, false);
 						sub_10b94(20);
 						// break;//@todo
-						sub_10bb9(A_MenuBase.getLangString(244), (byte) 5, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(244), (byte) 5, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						// break;//@todo
 						sub_143f6(4, 8);
 						sub_10b94(15);
@@ -5903,27 +5889,27 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								((F_Sprite) localObject2).posYPixel, 0, 0, 1,
 								50);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						// break;//@todo
-						sub_10bb9(A_MenuBase.getLangString(245), (byte) 5, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(245), (byte) 5, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						// break;//@todo
-						sub_10bb9(A_MenuBase.getLangString(246), (byte) -1, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(246), (byte) -1, (byte) 4);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						// break;//@todo
-						sub_10bb9(A_MenuBase.getLangString(247), (byte) 0, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(247), (byte) 0, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						// break;//@todo
 						A_MenuBase.mainCanvas.showMenu(createDialog(null,
-								A_MenuBase.getLangString(248), this.var_32d3, 1500));
-						this.aState += 1;
+								A_MenuBase.getLangString(248), this.someGHeight, 1500));
+						this.scriptStep += 1;
 						// break;//@todo
-						sub_dc52(3, 8, (byte) 0).removeFromMap();
-						sub_dc52(4, 7, (byte) 0).removeFromMap();
-						sub_dc52(5, 8, (byte) 0).removeFromMap();
+						getSomeUnit(3, 8, (byte) 0).removeFromMap();
+						getSomeUnit(4, 7, (byte) 0).removeFromMap();
+						getSomeUnit(5, 8, (byte) 0).removeFromMap();
 						localClass_c_0322 = C_Unit.sub_d3d((byte) 2,
 								(byte) 0, 3, 8);
 						localClass_c_0324 = C_Unit.sub_d3d((byte) 2,
@@ -5939,17 +5925,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								((F_Sprite) localObject2).posYPixel, 0, 0, 1,
 								50);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						// break;//@todo
 						this.var_3783 = true;
 						this.var_352b = true;
 						this.var_36db = 13;
-						this.aState += 1;
+						this.scriptStep += 1;
 						// break;//@todo
-						if (sub_e3c8(-1, -1, (byte) 1) == 0) {
+						if (countSomeUnits(-1, -1, (byte) 1) == 0) {
 							this.var_3783 = false;
 							sub_10b94(10);
-							this.aState += 1;
+							this.scriptStep += 1;
 							// break;//@todo
 							sub_1442b();
 						}
@@ -5957,17 +5943,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 		} else if (this.scenarioMapIndex == 3) {
-			switch (this.aState) {
+			switch (this.scriptStep) {
 			case 0:
 				A_MenuBase.mainCanvas.showMenu(this.var_3b23);
 				this.var_3813 = true;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 1:
 				if (this.playersKings[0].var_b13 != 1) {
 					this.var_39b3 = null;
 					sub_10b94(20);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 2:
@@ -5975,20 +5961,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3813 = true;
 				this.var_37fb = 0;
 				sub_10b94(20);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 3:
-				sub_10bb9(A_MenuBase.getLangString(249), (byte) 2, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(249), (byte) 2, (byte) 4);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 4:
-				sub_10bb9(A_MenuBase.getLangString(250), (byte) 0, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(250), (byte) 0, (byte) 4);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 5:
-				sub_10bb9(A_MenuBase.getLangString(251), (byte) 5, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(251), (byte) 5, (byte) 4);
 				moveCursorToPos(13, 3);
 				sub_b998(312, 72);
 				this.playersKings[0].setUnitPosition(7, 1);
@@ -6000,14 +5986,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3b3b = null;
 				this.var_39bb = 2;
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 6:
 				this.var_3803 = false;
 				this.var_380b = true;
 				this.var_37fb = 0;
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 7:
 				sub_143f6(13, 10);
@@ -6015,7 +6001,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			case 8:
 				C_Unit.var_a7b = 2;
 				this.var_39bb = 4;
-				this.var_3b2b = sub_dc52(10, 10, (byte) 0);
+				this.var_3b2b = getSomeUnit(10, 10, (byte) 0);
 				this.var_3b2b.sub_18b7(6, 10, false);
 				moveCursorToPos(6, 10);
 				sub_143f6(6, 10);
@@ -6025,7 +6011,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.var_3b2b = null;
 					this.var_352b = true;
 					sub_10b94(10);
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 10:
@@ -6041,41 +6027,43 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_35db.var_b13 = 4;
 				this.var_3603 = 6;
 				sub_10b94(20);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 12:
-				sub_10bb9(A_MenuBase.getLangString(252), (byte) 5, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(252), (byte) 5, (byte) 4);
 				sub_143f6(7, 1);
 				break;
 			case 13:
-				sub_10bb9(A_MenuBase.getLangString(253), (byte) 0, (byte) 4);
+				showUnitDialogMsg(A_MenuBase.getLangString(253), (byte) 0, (byte) 4);
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 14:
 				this.var_36db = 17;
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 15:
 				sub_1439a();
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 16:
-				if ((sub_e3c8(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
+				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
 					sub_10b94(15);
 					this.var_3783 = false;
-					this.aState += 1;
+					this.scriptStep += 1;
 				}
 				break;
 			case 17:
-				sub_10bb9(A_MenuBase.getLangString(254), (byte) 5, (byte) 4);
+				//Your Majesty, We have stopped the attack.
+				showUnitDialogMsg(A_MenuBase.getLangString(254), (byte) 5, (byte) 4); 
 				sub_10b94(5);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 18:
-				sub_10bb9(A_MenuBase.getLangString(255), (byte) 0, (byte) 4);
+				//Well done, Captain! Prepare the troops to march to Thorin!
+				showUnitDialogMsg(A_MenuBase.getLangString(255), (byte) 0, (byte) 4);
 				sub_10b94(10);
-				this.aState += 1;
+				this.scriptStep += 1;
 				break;
 			case 19:
 				sub_1442b();
@@ -6086,13 +6074,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if (this.var_3b4b == null) {
 					this.var_3b4b = sub_e4c7(11, -1, (byte) 0)[0];
 				}
-				if ((this.aState == 25) && (this.var_3b4b.positionX >= 15)
+				if ((this.scriptStep == 25) && (this.var_3b4b.positionX >= 15)
 						&& (this.var_3b4b.positionY >= 11)
 						&& (this.var_3b4b.var_b13 == 2)) {
 					sub_10b94(10);
 					this.var_3783 = false;
 					this.var_352b = false;
-					this.aState = 26;
+					this.scriptStep = 26;
 					return;
 				}
 				if (this.var_3b4b.var_b13 == 3) {
@@ -6100,24 +6088,24 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					sub_1447e();
 					return;
 				}
-				switch (this.aState) {
+				switch (this.scriptStep) {
 				case 0:
 					sub_10b94(50);
-					this.aState += 1;
+					this.scriptStep += 1;
 					break;
 				case 1:
-					sub_10bb9(A_MenuBase.getLangString(256), (byte) 5, (byte) 4);
+					showUnitDialogMsg(A_MenuBase.getLangString(256), (byte) 5, (byte) 4);
 					sub_10b94(5);
-					this.aState += 1;
+					this.scriptStep += 1;
 					break;
 				case 2:
-					sub_10bb9(A_MenuBase.getLangString(257), (byte) 0, (byte) 4);
+					showUnitDialogMsg(A_MenuBase.getLangString(257), (byte) 0, (byte) 4);
 					sub_10b94(5);
-					this.aState += 1;
+					this.scriptStep += 1;
 					break;
 				case 3:
 					sub_1439a();
-					this.aState += 1;
+					this.scriptStep += 1;
 					break;
 				case 4:
 					localObject1 = sub_e4c7(-1, -1, (byte) 0);
@@ -6149,7 +6137,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								&& (localObject1[m].positionX <= 8)) {
 							this.var_3783 = false;
 							sub_10b94(5);
-							this.aState += 1;
+							this.scriptStep += 1;
 						} else {
 							m++;
 							// continue;//@todo
@@ -6159,26 +6147,26 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							C_Unit.sub_d3d((byte) 10, (byte) 1, 4, 4)
 									.sub_18da(4, 1, false, true);
 							sub_10b94(10);
-							this.aState += 1;
+							this.scriptStep += 1;
 							// break;//@todo
 							C_Unit.sub_d3d((byte) 1, (byte) 1, 4, 4)
 									.sub_18da(5, 2, false, true);
 							sub_10b94(10);
-							this.aState += 1;
+							this.scriptStep += 1;
 							// break;//@todo
 							C_Unit.sub_d3d((byte) 10, (byte) 1, 4, 4)
 									.sub_18da(4, 3, false, true);
 							sub_10b94(10);
-							this.aState += 1;
+							this.scriptStep += 1;
 							// break;//@todo
-							sub_10bb9(A_MenuBase.getLangString(258), (byte) 5,
+							showUnitDialogMsg(A_MenuBase.getLangString(258), (byte) 5,
 									(byte) 4);
 							sub_143f6(this.playersKings[0].positionX,
 									this.playersKings[0].positionY);
 							// break;//@todo
 							this.var_3783 = true;
 							this.var_352b = true;
-							this.aState += 1;
+							this.scriptStep += 1;
 							// break;//@todo
 							localObject1 = sub_e4c7(-1, -1, (byte) 0);
 							m = 0;
@@ -6194,18 +6182,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									C_Unit.sub_d3d((byte) 1, (byte) 1, 6,
 											10).sub_18da(5, 10, false, true);
 									sub_10b94(10);
-									this.aState += 1;
+									this.scriptStep += 1;
 									// break;//@todo
 									C_Unit.sub_d3d((byte) 5, (byte) 1, 6,
 											10).sub_18da(7, 8, false, true);
 									sub_10b94(15);
-									this.aState += 1;
+									this.scriptStep += 1;
 									// break;//@todo
 									C_Unit.sub_d3d((byte) 5, (byte) 1, 6,
 											10).sub_18da(7, 9, false, true);
 									this.var_3783 = true;
 									this.var_352b = true;
-									this.aState += 1;
+									this.scriptStep += 1;
 									// break;//@todo
 									localObject1 = sub_e4c7(-1, -1, (byte) 0);
 									m = 0;
@@ -6223,20 +6211,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 													(byte) 1, 12, 5).sub_18da(
 													12, 7, false, true);
 											sub_10b94(15);
-											this.aState += 1;
+											this.scriptStep += 1;
 											// break;//@todo
 											C_Unit.sub_d3d((byte) 6,
 													(byte) 1, 12, 5).sub_18da(
 													12, 6, false, true);
 											sub_10b94(10);
-											this.aState += 1;
+											this.scriptStep += 1;
 											// break;//@todo
 											C_Unit.sub_d3d((byte) 5,
 													(byte) 1, 12, 5).sub_18da(
 													12, 5, false, true);
 											this.var_3783 = true;
 											this.var_352b = true;
-											this.aState += 1;
+											this.scriptStep += 1;
 											// break;//@todo
 											localObject1 = sub_e4c7(-1, -1,
 													(byte) 0);
@@ -6256,46 +6244,46 @@ public final class I_Game extends A_MenuBase implements Runnable {
 															18, 8).sub_18da(16,
 															10, false, true);
 													sub_10b94(10);
-													this.aState += 1;
+													this.scriptStep += 1;
 													// break;//@todo
 													C_Unit.sub_d3d(
 															(byte) 6, (byte) 1,
 															18, 8).sub_18da(17,
 															10, false, true);
 													sub_10b94(10);
-													this.aState += 1;
+													this.scriptStep += 1;
 													// break;//@todo
 													C_Unit.sub_d3d(
 															(byte) 5, (byte) 1,
 															18, 8).sub_18da(18,
 															10, false, true);
 													sub_10b94(10);
-													this.aState += 1;
+													this.scriptStep += 1;
 													// break;//@todo
 													C_Unit.sub_d3d(
 															(byte) 1, (byte) 1,
 															18, 8).sub_18da(18,
 															9, false, true);
 													sub_10b94(10);
-													this.aState += 1;
+													this.scriptStep += 1;
 													// break;//@todo
-													sub_10bb9(
+													showUnitDialogMsg(
 															A_MenuBase
 																	.getLangString(259),
 															(byte) 0, (byte) 4);
 													this.var_3783 = true;
 													this.var_352b = true;
-													this.aState += 1;
+													this.scriptStep += 1;
 													// break;//@todo
-													if (sub_e3c8(-1, -1,
+													if (countSomeUnits(-1, -1,
 															(byte) 1) == 0) {
 														this.var_3783 = false;
 														this.var_352b = false;
 														sub_10b94(10);
-														this.aState += 1;
+														this.scriptStep += 1;
 														// break;//@todo
 														sub_1442b();
-														this.aState += 1;
+														this.scriptStep += 1;
 													}
 												}
 											}
@@ -6307,25 +6295,25 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 				}
 			} else if (this.scenarioMapIndex == 5) {
-				switch (this.aState) {
+				switch (this.scriptStep) {
 				case 0:
 					sub_10b94(10);
-					this.aState += 1;
+					this.scriptStep += 1;
 					break;
 				case 1:
-					sub_10bb9(A_MenuBase.getLangString(260), (byte) 1, (byte) 4);
-					this.aState += 1;
+					showUnitDialogMsg(A_MenuBase.getLangString(260), (byte) 1, (byte) 4);
+					this.scriptStep += 1;
 					break;
 				case 2:
 					sub_1439a();
-					this.aState += 1;
+					this.scriptStep += 1;
 					break;
 				case 3:
-					if ((sub_e3c8(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
+					if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
 						this.var_3783 = false;
 						this.var_352b = false;
 						sub_10b94(15);
-						this.aState += 1;
+						this.scriptStep += 1;
 					}
 					break;
 				case 4:
@@ -6333,9 +6321,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							this.playersKings[0].positionY);
 					break;
 				case 5:
-					sub_10bb9(A_MenuBase.getLangString(261), (byte) 0, (byte) 4);
+					showUnitDialogMsg(A_MenuBase.getLangString(261), (byte) 0, (byte) 4);
 					sub_10b94(10);
-					this.aState += 1;
+					this.scriptStep += 1;
 					break;
 				case 6:
 					sub_1442b();
@@ -6343,7 +6331,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			} else {
 				C_Unit localClass_c_0323;
 				if (this.scenarioMapIndex == 6) {
-					if (this.aState <= 10) {
+					if (this.scriptStep <= 10) {
 						if (this.var_3b4b == null) {
 							this.var_3b4b = sub_e4c7(11, -1, (byte) 0)[0];
 						}
@@ -6353,23 +6341,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							return;
 						}
 					}
-					switch (this.aState) {
+					switch (this.scriptStep) {
 					case 0:
 						if (this.playersKings[0].var_b13 != 1) {
 							this.var_39b3 = null;
 							sub_10b94(10);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 1:
-						sub_10bb9(A_MenuBase.getLangString(262), (byte) 5, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(262), (byte) 5, (byte) 4);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 2:
-						sub_10bb9(A_MenuBase.getLangString(263), (byte) 0, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(263), (byte) 0, (byte) 4);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 3:
 						localObject1 = sub_e4c7(-1, -1, (byte) 0);
@@ -6377,7 +6365,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							localObject1[m].var_b73 = null;
 						}
 						sub_1439a();
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 4:
 						if (this.var_3583 >= 2) {
@@ -6392,14 +6380,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								(byte) 1, 11, 8)).fillWhereUnitCanMove(this.someMapData);
 						localClass_c_0323.sub_18b7(14, 7, true);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 6:
 						(localClass_c_0324 = C_Unit.sub_d3d((byte) 0,
 								(byte) 1, 11, 8)).fillWhereUnitCanMove(this.someMapData);
 						localClass_c_0324.sub_18b7(13, 7, true);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 7:
 						C_Unit localObject21 = C_Unit.sub_d3d(
@@ -6407,17 +6395,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						localObject21.fillWhereUnitCanMove(this.someMapData);
 						((C_Unit) localObject21).sub_18b7(12, 7, true);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 8:
 						C_Unit localObject31 = C_Unit.sub_d3d(
 								(byte) 1, (byte) 1, 11, 8);
 						localObject31.sub_18b7(13, 8, false);
 						sub_10b94(20);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 9:
-						sub_10bb9(A_MenuBase.getLangString(264), (byte) 5, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(264), (byte) 5, (byte) 4);
 						this.var_3783 = true;
 						this.var_352b = true;
 						sub_143f6(this.playersKings[0].positionX,
@@ -6434,11 +6422,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								break;
 							}
 						}
-						if ((i3 != 0) || (sub_e3c8(-1, -1, (byte) 1) == 0)) {
+						if ((i3 != 0) || (countSomeUnits(-1, -1, (byte) 1) == 0)) {
 							this.var_352b = false;
 							this.var_3783 = false;
 							sub_10b94(10);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 11:
@@ -6452,27 +6440,27 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3b33.sub_18b7(this.var_3b2b.positionX,
 								this.var_3b2b.positionY, false);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 13:
-						sub_10bb9(A_MenuBase.getLangString(265), (byte) 5, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(265), (byte) 5, (byte) 4);
 						this.var_39b3 = this.var_3b33;
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 14:
 						if (this.var_3b33.var_b13 != 1) {
-							sub_10bb9(A_MenuBase.getLangString(266), (byte) 0,
+							showUnitDialogMsg(A_MenuBase.getLangString(266), (byte) 0,
 									(byte) 4);
 							this.var_3b33.sub_18b7(-1, this.var_3b33.positionY,
 									false);
 							sub_10b94(3);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 15:
 						this.var_3b2b
 								.sub_18b7(-1, this.var_3b33.positionY, false);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 16:
 						if (this.var_3b33.var_b13 != 1) {
@@ -6483,7 +6471,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							this.var_3b2b = null;
 							this.var_3b33 = null;
 							this.var_39b3 = null;
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 17:
@@ -6508,11 +6496,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						C_Unit.sub_d3d((byte) 6, (byte) 1, -6, 9)
 								.sub_18b7(5, 10, false);
 						sub_10b94(50);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 19:
-						sub_10bb9(A_MenuBase.getLangString(267), (byte) 3, (byte) 4);
-						this.aState += 1;
+						showUnitDialogMsg(A_MenuBase.getLangString(267), (byte) 3, (byte) 4);
+						this.scriptStep += 1;
 						break;
 					case 20:
 						sub_143f6(13, 14);
@@ -6521,35 +6509,35 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						C_Unit.sub_d3d((byte) 0, (byte) 1, 13, 14)
 								.sub_18b7(12, 14, false);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 22:
 						C_Unit.sub_d3d((byte) 6, (byte) 1, 13, 14)
 								.sub_18b7(14, 14, false);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 23:
 						C_Unit.sub_d3d((byte) 2, (byte) 1, 13, 14)
 								.sub_18b7(13, 12, false);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 24:
 						C_Unit.sub_d3d((byte) 3, (byte) 1, 13, 14)
 								.sub_18b7(13, 15, false);
 						sub_10b94(15);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 25:
-						sub_10bb9(A_MenuBase.getLangString(268), (byte) 5, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(268), (byte) 5, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 26:
-						sub_10bb9(A_MenuBase.getLangString(269), (byte) 0, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(269), (byte) 0, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 27:
 						sub_143f6(13, 17);
@@ -6568,12 +6556,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						C_Unit.sub_d3d((byte) 1, (byte) 0, 12, 19)
 								.sub_18b7(12, 17, false);
 						sub_10b94(20);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 29:
-						sub_10bb9(A_MenuBase.getLangString(270), (byte) 1, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(270), (byte) 1, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 30:
 						sub_143f6(this.playersKings[0].positionX,
@@ -6581,43 +6569,43 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						break;
 					case 31:
 						this.var_36db = 18;
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 32:
 						this.var_3783 = true;
 						this.var_352b = true;
 						this.startupMessageBox = createDialog(
 								A_MenuBase.getLangString(121 + this.scenarioMapIndex),
-								A_MenuBase.getLangString(138), this.var_32d3, -1);
+								A_MenuBase.getLangString(138), this.someGHeight, -1);
 						this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
 						this.startupMessageBox.setParentMenu(null);
 						A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 33:
-						if ((sub_e3c8(-1, -1, (byte) 1) == 0)
+						if ((countSomeUnits(-1, -1, (byte) 1) == 0)
 								&& (sub_e353(1) == 0)) {
 							this.var_3783 = false;
 							this.var_352b = false;
 							sub_10b94(10);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 34:
 						sub_1442b();
 					}
 				} else if (this.scenarioMapIndex == 7) {
-					switch (this.aState) {
+					switch (this.scriptStep) {
 					case 0:
 						A_MenuBase.mainCanvas.showMenu(this.var_3b23);
 						this.var_3813 = true;
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 1:
 						if (!this.var_380b) {
-							sub_10bb9(A_MenuBase.getLangString(271), (byte) 0,
+							showUnitDialogMsg(A_MenuBase.getLangString(271), (byte) 0,
 									(byte) 4);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 2:
@@ -6625,40 +6613,40 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								this.playersKings[1].positionY);
 						break;
 					case 3:
-						sub_10bb9(A_MenuBase.getLangString(272), (byte) 4, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(272), (byte) 4, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 4:
-						sub_10bb9(A_MenuBase.getLangString(273), (byte) 1, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(273), (byte) 1, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 5:
-						sub_10bb9(A_MenuBase.getLangString(274), (byte) 4, (byte) 4);
-						this.aState += 1;
+						showUnitDialogMsg(A_MenuBase.getLangString(274), (byte) 4, (byte) 4);
+						this.scriptStep += 1;
 						break;
 					case 6:
-						this.var_3b2b = sub_dc52(5, 2, (byte) 0);
+						this.var_3b2b = getSomeUnit(5, 2, (byte) 0);
 						this.var_3b2b.sub_18b7(7, 2, false);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 7:
 						if (this.var_3b2b.var_b13 != 1) {
 							this.var_3b2b.removeFromMap();
 							this.var_3b2b = null;
-							this.var_3b33 = sub_dc52(7, 3, (byte) 0);
+							this.var_3b33 = getSomeUnit(7, 3, (byte) 0);
 							this.var_3b33.sub_18b7(7, 2, false);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 8:
 						if (this.var_3b33.var_b13 != 1) {
 							this.var_3b33.removeFromMap();
 							this.var_3b33 = null;
-							this.var_3b3b = sub_dc52(9, 2, (byte) 0);
+							this.var_3b3b = getSomeUnit(9, 2, (byte) 0);
 							this.var_3b3b.sub_18b7(7, 2, false);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 9:
@@ -6667,7 +6655,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							this.var_3b3b = null;
 							this.playersKings[1].sub_18b7(7, 2, false);
 							sub_10b94(20);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 10:
@@ -6676,37 +6664,37 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						break;
 					case 11:
 						D_Menu localObject11 = createDialog(null,
-								A_MenuBase.getLangString(279), this.var_32d3, 2000);
+								A_MenuBase.getLangString(279), this.someGHeight, 2000);
 						localObject11.sub_193f(this.viewportWidth, 2, 17);
 						A_MenuBase.mainCanvas
 								.showMenu((A_MenuBase) localObject11);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 12:
 						this.var_387b = false;
-						sub_558c(sub_dc52(9, 15, (byte) 0));
-						this.aState += 1;
+						sub_558c(getSomeUnit(9, 15, (byte) 0));
+						this.scriptStep += 1;
 						break;
 					case 13:
 						if (this.var_3873 >= 2) {
-							sub_10bb9(A_MenuBase.getLangString(275), (byte) 0,
+							showUnitDialogMsg(A_MenuBase.getLangString(275), (byte) 0,
 									(byte) 4);
-							(localClass_c_0323 = sub_dc52(9, 15, (byte) 0))
+							(localClass_c_0323 = getSomeUnit(9, 15, (byte) 0))
 									.removeFromMap();
 							this.var_387b = true;
 							sub_10b94(20);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 14:
 						this.var_352b = false;
-						sub_10bb9(A_MenuBase.getLangString(276), (byte) 4, (byte) 4);
-						this.aState += 1;
+						showUnitDialogMsg(A_MenuBase.getLangString(276), (byte) 4, (byte) 4);
+						this.scriptStep += 1;
 						break;
 					case 15:
-						sub_10bb9(A_MenuBase.getLangString(277), (byte) 1, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(277), (byte) 1, (byte) 4);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 16:
 						this.var_352b = true;
@@ -6718,27 +6706,27 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						break;
 					case 18:
 						this.var_39bb = 12;
-						sub_10bb9(A_MenuBase.getLangString(278), (byte) 5, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(278), (byte) 5, (byte) 4);
 						sub_143f6(this.playersKings[0].positionX,
 								this.playersKings[0].positionY);
 						break;
 					case 19:
 						sub_1439a();
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 20:
 						if (this.var_3883) {
 							this.var_352b = false;
 							this.var_3783 = false;
 							sub_10b94(20);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 21:
 						this.var_3803 = true;
 						this.var_37fb = 0;
 						this.var_3813 = true;
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 22:
 						if (this.var_37fb >= 16) {
@@ -6754,7 +6742,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							C_Unit.sub_d3d((byte) 0, (byte) 0, 6, 1);
 							C_Unit.sub_d3d((byte) 0, (byte) 0, 8, 1);
 							sub_10b94(10);
-							this.aState += 1;
+							this.scriptStep += 1;
 							E_MainCanvas.sub_2439(8, 0);
 						}
 						break;
@@ -6762,79 +6750,79 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3803 = false;
 						this.var_380b = true;
 						this.var_37fb = 0;
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 24:
 						if (this.var_37fb >= 16) {
-							sub_10bb9(A_MenuBase.getLangString(281), (byte) 4,
+							showUnitDialogMsg(A_MenuBase.getLangString(281), (byte) 4,
 									(byte) 4);
 							sub_10b94(15);
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 25:
-						sub_10bb9(A_MenuBase.getLangString(282), (byte) 0, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(282), (byte) 0, (byte) 4);
 						sub_10b94(8);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 26:
-						sub_10bb9(A_MenuBase.getLangString(283), (byte) 4, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(283), (byte) 4, (byte) 4);
 						sub_10b94(15);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 27:
 						showSpriteOnMap(this.sparkSprite, 168, 48, 0, 0, 1, 50);
-						this.mapSprites.removeElement(this.playersKings[1]);
+						this.mapUnitsSprites.removeElement(this.playersKings[1]);
 						sub_10b94(15);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 28:
 						E_MainCanvas.sub_233e(400);
 						sub_14bd3(5000);
 						sub_10b94(10);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 29:
-						sub_10bb9(A_MenuBase.getLangString(284), (byte) 5, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(284), (byte) 5, (byte) 4);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 30:
-						sub_10bb9(A_MenuBase.getLangString(285), (byte) 2, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(285), (byte) 2, (byte) 4);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 31:
-						sub_10bb9(A_MenuBase.getLangString(286), (byte) 1, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(286), (byte) 1, (byte) 4);
 						sub_10b94(5);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 32:
-						sub_10bb9(A_MenuBase.getLangString(287), (byte) 0, (byte) 4);
+						showUnitDialogMsg(A_MenuBase.getLangString(287), (byte) 0, (byte) 4);
 						this.var_3803 = true;
 						this.var_37fb = 0;
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 33:
 						if (this.var_37fb >= 16) {
 							sub_10b94(10);
 							this.var_3bc3 = false;
-							this.aState += 1;
+							this.scriptStep += 1;
 						}
 						break;
 					case 34:
 						loadIntro(5, 2, 2);
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 35:
 						E_MainCanvas.sub_2439(0, 0);
 						sub_c16e(A_MenuBase.getLangString(288));
-						this.aState += 1;
+						this.scriptStep += 1;
 						break;
 					case 36:
 						this.var_3b93 = 0;
 						this.activeUnitState = 14;
-						this.aState += 1;
+						this.scriptStep += 1;
 					}
 				}
 			}
@@ -6859,23 +6847,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3b83 = paramInt1;
 		this.var_3b8b = paramInt2;
 		moveCursorToPos(paramInt1, paramInt2);
-		this.aState += 1;
+		this.scriptStep += 1;
 	}
 
 	public final void sub_1442b() {
 		E_MainCanvas.stopMusic();
 		E_MainCanvas.playMusicLooped(6, 1);
 		A_MenuBase.mainCanvas.showMenu(createDialog(null, A_MenuBase.getLangString(72),
-				this.var_32d3, 3000));
-		this.var_3553 = this.time;
-		this.aState = -1;
+				this.someGHeight, 3000));
+		this.someStartTime5 = this.time;
+		this.scriptStep = -1;
 		this.var_3b93 = 0;
 		this.activeUnitState = 10;
 	}
 
 	public final void sub_1447e() {
 		this.var_3b7b = true;
-		this.aState = 0;
+		this.scriptStep = 0;
 		sub_10b94(20);
 		E_MainCanvas.stopMusic();
 		E_MainCanvas.playMusicLooped(7, 1);
@@ -6884,7 +6872,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final void sub_144b2(C_Unit paramClass_c_0321,
 			C_Unit paramClass_c_0322) throws Exception {
 		System.gc();
-		this.var_3bfb = (this.var_32d3 - this.var_3a43);
+		this.var_3bfb = (this.someGHeight - this.var_3a43);
 		this.var_3be3 = true;
 		this.waveImageAmplitude = 0;
 		this.var_3bb3 = false;
@@ -6906,7 +6894,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3b9b.var_b5d = ((byte) paramClass_c_0321.getAliveCharactersCount());
 		this.var_3ba3.var_b4d = ((byte) paramClass_c_0322.unitHealthMb);
 		this.var_3ba3.var_b5d = ((byte) paramClass_c_0322.getAliveCharactersCount());
-		E_MainCanvas.playMusicLooped(var_33cb[this.var_356b[this.playerId]], 0);
+		E_MainCanvas.playMusicLooped(var_33cb[this.playersIndexes[this.playerId]], 0);
 		this.gameMode2Mb = 2;
 	}
 
@@ -6955,7 +6943,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				sub_56c3();
 				this.gameMode2Mb = 1;
 				E_MainCanvas.stopMusic();
-				E_MainCanvas.playMusicLooped(var_33c3[this.var_356b[this.playerId]], 0);
+				E_MainCanvas.playMusicLooped(var_33c3[this.playersIndexes[this.playerId]], 0);
 				A_MenuBase.mainCanvas.clearActions();
 				this.var_397b = true;
 				this.var_3983 = true;
@@ -6984,7 +6972,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			j = E_MainCanvas.getRandom() % 3;
 		}
 		paramGraphics.translate(0, this.var_3a43);
-		paramGraphics.setClip(0, 0, this.var_32cb, this.var_3bfb);
+		paramGraphics.setClip(0, 0, this.someGWidth, this.var_3bfb);
 		this.var_3b9b.sub_35fd(paramGraphics, i, j);
 		this.var_3ba3.sub_35fd(paramGraphics, i + this.viewportWidth, j);
 		paramGraphics.setColor(0);
@@ -7023,7 +7011,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				paramGraphics.setClip(this.viewportWidth, 0, this.viewportWidth,
 						this.var_3bfb);
 			} else {
-				paramGraphics.setClip(0, 0, this.var_32cb, this.var_3bfb);
+				paramGraphics.setClip(0, 0, this.someGWidth, this.var_3bfb);
 			}
 			localClass_f_0451.draw(paramGraphics, 0,
 					localClass_f_0451.var_80c);
@@ -7045,7 +7033,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (this.var_3beb) {
 			this.var_3beb = false;
-			sub_d5f9(paramGraphics, this.var_3b9b.m_unit,
+			drawAttackStatMenu(paramGraphics, this.var_3b9b.m_unit,
 					this.var_3ba3.m_unit, 0);
 		}
 		if (this.var_3be3) {
@@ -7067,15 +7055,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.var_3c13.length > 0) {
 			(localClass_d_0232 = (localClass_d_0231 = new D_Menu(
 					(byte) 11, 0)).createTitleMenu(A_MenuBase.getLangString(46))).menuTitleIcon = this.menuIconsFrames[6];
-			localClass_d_0231.createMenuListItems(this.var_3c13, this.var_32cb / 2,
-					(this.var_32d3 + localClass_d_0232.menuHeightMb) / 2,
-					this.var_32cb, this.var_32d3 - localClass_d_0232.menuHeightMb,
+			localClass_d_0231.createMenuListItems(this.var_3c13, this.someGWidth / 2,
+					(this.someGHeight + localClass_d_0232.menuHeight) / 2,
+					this.someGWidth, this.someGHeight - localClass_d_0232.menuHeight,
 					3, 4);
 		} else {
 			(localClass_d_0232 = (localClass_d_0231 = new D_Menu(
 					(byte) 10, 0)).createTitleMenu(A_MenuBase.getLangString(46))).menuTitleIcon = this.menuIconsFrames[6];
 			localClass_d_0231.createDescDialogMb(null, A_MenuBase.getLangString(52),
-					this.var_32cb, -1);
+					this.someGWidth, -1);
 		}
 		localClass_d_0231.setParentMenu(paramClass_a_000);
 		A_MenuBase.mainCanvas.showMenu(localClass_d_0231);
@@ -7114,7 +7102,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3c1b[i1] = ((DataInputStream) localObject1)
 								.readUTF();
 					}
-					this.var_392b = sub_14c01(this.var_3c13, this.var_3c7b);
+					this.newsItemsMenu = sub_14c01(this.var_3c13, this.var_3c7b);
 				} else if (this.var_3c83 == 1) {
 					((DataInputStream) localObject1).readInt();
 					this.var_3c23[this.var_3c03] = ((DataInputStream) localObject1)
@@ -7122,8 +7110,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					D_Menu localClass_d_0231;
 					(localClass_d_0231 = createDialog(
 							this.var_3c13[this.var_3c03],
-							this.var_3c23[this.var_3c03], this.var_32d3,
-							this.var_32d3 / 2, -1)).setParentMenu(this.var_3c7b);
+							this.var_3c23[this.var_3c03], this.someGHeight,
+							this.someGHeight / 2, -1)).setParentMenu(this.var_3c7b);
 					A_MenuBase.mainCanvas.showMenu(localClass_d_0231);
 				} else if (this.var_3c83 == 2) {
 					int m = ((DataInputStream) localObject1).readInt() / 3;
@@ -7149,7 +7137,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					sub_5d1a(this.var_3943.parentMenu);
 					D_Menu localClass_d_0232;
 					(localClass_d_0232 = createDialog(null,
-							A_MenuBase.replaceStringFirst(45, str), this.var_32d3, 2000))
+							A_MenuBase.replaceStringFirst(45, str), this.someGHeight, 2000))
 							.setParentMenu(this.var_3943);
 					A_MenuBase.mainCanvas.showMenu(localClass_d_0232);
 				}
@@ -7161,7 +7149,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			localException.printStackTrace();
 		}
 		D_Menu localObject = createDialog(null, A_MenuBase.getLangString(44),
-				this.var_32d3, -1);
+				this.someGHeight, -1);
 		localObject.setParentMenu(this.var_3c7b);
 		this.var_3c7b = null;
 		A_MenuBase.mainCanvas.showMenu((A_MenuBase) localObject);
@@ -7189,7 +7177,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.m_dos.writeUTF("requestId");
 		this.m_dos.writeUTF("0");
 		D_Menu retrievingMenu = createDialog(null, A_MenuBase.getLangString(43),
-				this.var_32d3, -1);
+				this.someGHeight, -1);
 		retrievingMenu.setParentMenu(inMenu); //Retrieving data...
 		A_MenuBase.mainCanvas.showMenu(retrievingMenu);
 		new Thread(this).start();

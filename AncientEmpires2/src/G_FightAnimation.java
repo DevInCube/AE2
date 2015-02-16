@@ -124,7 +124,7 @@ public final class G_FightAnimation {
 			}
 		}
 		this.var_b8d = new F_Sprite(unitTypeNames[this.unitType],
-				aGame.var_356b[aUnit.var_acb]);
+				aGame.playersIndexes[aUnit.playerId]);
 		if ((faInst != null)
 				&& (faInst.unitType == this.unitType)) {
 			if (faInst.slashSprite != null) {
@@ -536,7 +536,7 @@ public final class G_FightAnimation {
 				}
 				if (this.unitType == 9) {
 					if (this.var_b6d == 0) {
-						if (this.var_c75[m].posXPixel >= this.game.var_32cb) {
+						if (this.var_c75[m].posXPixel >= this.game.someGWidth) {
 							if (this.var_c75[m].var_87c == 0) {
 								this.var_c75[m].setSpritePosition(this.game.viewportWidth
 										- this.var_c75[m].frameWidth,
@@ -604,7 +604,7 @@ public final class G_FightAnimation {
 					if ((this.unitType == 2) || (this.unitType == 1)) {
 						localClass_f_0453.var_854 = false;
 					}
-					int i2 = E_MainCanvas.getRandomMax(this.game.var_32cb / 2
+					int i2 = E_MainCanvas.getRandomMax(this.game.someGWidth / 2
 							- localClass_f_0453.frameWidth);
 					i3 = 0;
 					if (this.otherFightAnim.var_be5 != null) {
