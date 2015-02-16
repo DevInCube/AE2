@@ -316,7 +316,7 @@ public class F_Sprite {
 		return sprite;
 	}
 
-	public static final F_Sprite sub_1616(F_Sprite sprite,
+	public static final F_Sprite someSpriteCopy(F_Sprite sprite,
 			int paramInt1, int paramInt2, int paramInt3, int paramInt4,
 			int frameTime, byte paramByte) {
 		F_Sprite lspr = null;

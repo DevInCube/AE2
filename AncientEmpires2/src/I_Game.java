@@ -108,7 +108,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public byte[][] someMapData;
 	public boolean var_351b = false;
 	public boolean var_3523 = false;
-	public boolean var_352b = true;
+	public boolean isCursorVisible = true;
 	public Vector mapUnitsSprites = new Vector();
 	public Vector var_353b;
 	public int var_3543;
@@ -119,7 +119,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public byte[] playersIndexes = new byte[4];
 	public byte[] var_3573 = new byte[4];
 	public byte playerId = 0;
-	public short var_3583;
+	public short currentTurn;
 	public C_Unit[] playersKings;
 	public C_Unit[][] var_3593;
 	public int[] var_359b;
@@ -162,7 +162,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public boolean showPressAnyKey;
 	public static int[] var_36d3 = { 83, 83, 83, 83, 83, 83, 83, 83, 175, 84,
 			84, 84, 175, 147, 159, 151, 155, 167, 171 };
-	public int var_36db = -1;
+	public int helpTipId = -1;
 	public D_Menu instructionsMenu;
 	public D_Menu instructionsItemsMenu;
 	public D_Menu instructionsDescMenu;
@@ -183,11 +183,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public int someMenuWidth;
 	public int someMenuHeight;
 	public int glowImagePosX;
-	public boolean var_3783 = true;
+	public boolean isUpdatingMb = true;
 	public int var_378b;
 	public boolean var_3793;
 	public F_Sprite miniIconsSprite;
-	public F_Sprite[] var_37a3;
+	public F_Sprite[] houseSmokeSprites;
 	public F_Sprite bigSmokeSprite;
 	public D_Menu skirmishSetupMenu;
 	public D_Menu playerOptionsMenu;
@@ -198,10 +198,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public D_Menu settingsMenu;
 	public D_Menu[] settingsMenuList;
 	public F_Sprite alphaMapSprite;
-	public int var_37fb;
-	public boolean var_3803;
+	public int fadeInColor;
+	public boolean isFadingIn;
 	public boolean var_380b;
-	public boolean var_3813;
+	public boolean isFading;
 	public Vector gotNewLevelUnits = new Vector(2);
 	public F_Sprite levelupSprite;
 	public int var_382b;
@@ -300,12 +300,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public int var_3b03;
 	public Vector var_3b0b;
 	public boolean var_3b13 = false;
-	public int var_3b1b;
-	public D_Menu var_3b23;
-	public C_Unit var_3b2b;
-	public C_Unit var_3b33;
-	public C_Unit var_3b3b;
-	public C_Unit var_3b43;
+	public int waitTimeValue;
+	public D_Menu mapNameDialog;
+	public C_Unit skeleton1Map2;
+	public C_Unit crystalOfWisdom;
+	public C_Unit skeleton2Map2;
+	public C_Unit wisdomCrystalKeeper;
 	public C_Unit var_3b4b;
 	public C_Unit unitEndTurnMb;
 	public int scriptStep;
@@ -313,8 +313,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public int var_3b6b;
 	public boolean isWaiting = false;
 	public boolean var_3b7b = false;
-	public int var_3b83 = -1;
-	public int var_3b8b = -1;
+	public int cameraX = -1;
+	public int cameraY = -1;
 	public int var_3b93 = 0;
 	public G_FightAnimation var_3b9b;
 	public G_FightAnimation var_3ba3;
@@ -350,7 +350,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public I_Game() {
 		this.actionIconsFrames = new H_ImageExt[this.unitActionsNames.length];
 		this.menuIconsFrames = new H_ImageExt[this.mainMenuItemsNames.length];
-		this.var_37a3 = new F_Sprite[0];
+		this.houseSmokeSprites = new F_Sprite[0];
 		this.var_39b3 = null;
 		this.var_3b4b = null;
 		this.unitEndTurnMb = null;
@@ -540,7 +540,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final boolean sub_4789() {
-		return (this.var_3783) && (A_MenuBase.mainCanvas.mainDrawElement == this);
+		return (this.isUpdatingMb) && (A_MenuBase.mainCanvas.mainDrawElement == this);
 	}
 
 	public final void checkResources() throws Exception {
@@ -638,7 +638,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						if (this.scenarioMapIndex == 7) {
 							this.var_3883 = true;
 						} else {
-							sub_1442b();
+							missionComplete();
 						}
 					} else if (j == 1) {
 						this.var_35a3[this.playerId] += 1000;
@@ -672,7 +672,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		stream.writeByte(this.mapMaxPlayersMb);
 		stream.writeByte(this.playerId);
 		stream.writeByte(this.playersIndexes[this.playerId]);
-		stream.writeShort(this.var_3583);
+		stream.writeShort(this.currentTurn);
 		stream.writeByte(this.var_3703);
 		stream.writeByte(this.mapMaxPlayersMb);
 		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
@@ -695,7 +695,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					.elementAt(i);
 			stream.writeByte(unit.unitTypeId);
 			stream.writeByte(unit.playerId);
-			stream.writeByte(unit.var_b13);
+			stream.writeByte(unit.m_state);
 			stream.writeByte(unit.status);
 			stream.writeByte(unit.unitHealthMb);
 			stream.writeByte(unit.level);
@@ -731,7 +731,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		loadMap(this.scenarioMapIndex);
 		this.playerId = stream.readByte();
 		stream.readByte();
-		this.var_3583 = stream.readShort();
+		this.currentTurn = stream.readShort();
 		this.var_3703 = stream.readByte();
 		this.mapMaxPlayersMb = stream.readByte();
 		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
@@ -763,8 +763,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			int i2 = stream.readShort();
 			byte b6 = stream.readByte();
 			byte b7 = stream.readByte();
-			C_Unit lUnit = C_Unit.sub_d3d(uType, b2, i1, i2);
-			lUnit.var_b13 = b3;
+			C_Unit lUnit = C_Unit.createUnitOnMap(uType, b2, i1, i2);
+			lUnit.m_state = b3;
 			lUnit.experience = n;
 			lUnit.setUnitLevel(b5);
 			lUnit.status = b4;
@@ -799,14 +799,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		int cposy = this.kingsPositions[this.playerId][1];
 		moveCursorToPos(cposx, cposy);
 		sub_b9c5(cposx, cposy);
-		E_MainCanvas.sub_2439(var_33c3[this.playersIndexes[this.playerId]], 0);
+		E_MainCanvas.playMusicLooped2(var_33c3[this.playersIndexes[this.playerId]], 0);
 	}
 
 	public final void saveToSlotMenuShow(int paramInt, A_MenuBase parentMenu) {
 		try {
 			E_MainCanvas.saveRecordStoreData("save", paramInt, saveMapDataBytes());
 			this.slotsDescriptions[paramInt] = getSlotDescription(this.mapModeCampIf0, this.scenarioMapIndex,
-					this.var_3583);
+					this.currentTurn);
 			this.slotsCurrentPlayerIds[paramInt] = this.playersIndexes[this.playerId];
 			this.slotsMapIndexes[paramInt] = this.scenarioMapIndex;
 			this.var_38c3.createDescDialogMb(null, this.slotsDescriptions[paramInt],
@@ -860,7 +860,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final void sub_55bd(C_Unit unit1, C_Unit unit2) {
-		if (unit2.var_b13 == 4) {
+		if (unit2.m_state == 4) {
 			this.var_35db = unit2;
 			showSpriteOnMap(this.redsparkSprite, this.var_35db.posXPixel,
 					this.var_35db.posYPixel, 0, 0, 1, 50);
@@ -901,7 +901,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (this.attackerUnitMb.hasProperty((short) 128)) { //poison
 				showSpriteOnMap(this.sparkSprite, this.attackedUnitMb.posXPixel,
 						this.attackedUnitMb.posYPixel, 0, 0, 1, 50);
-				F_Sprite poisonSprite = F_Sprite.sub_1616(this.statusSprite, 0, 0,
+				F_Sprite poisonSprite = F_Sprite.someSpriteCopy(this.statusSprite, 0, 0,
 						-4, -1, 800, (byte) 5);
 				poisonSprite.setSpritePosition(this.attackedUnitMb.posXPixel
 						+ (this.attackedUnitMb.frameWidth - poisonSprite.frameWidth)
@@ -935,7 +935,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final F_Sprite showSpriteOnMap(F_Sprite sprite,
 			int paramInt1, int paramInt2, int paramInt3, int paramInt4,
 			int paramInt5, int paramInt6) {
-		F_Sprite aSprinte = F_Sprite.sub_1616(sprite, paramInt3,
+		F_Sprite aSprinte = F_Sprite.someSpriteCopy(sprite, paramInt3,
 				paramInt4, 0, paramInt5, paramInt6, (byte) 0);
 		aSprinte.setSpritePosition(paramInt1, paramInt2);
 		this.var_35cb.addElement(aSprinte);
@@ -1393,7 +1393,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						localObject61[i13][i14] = localDataInputStream
 								.readByte();
 						if ((this.tilesProps[localObject61[i13][i14]] == 9)
-								&& ((ii = sub_e22b(i13, i14,
+								&& ((ii = houseOwnerPlayerIndex(i13, i14,
 										(byte[][]) localObject61)) != 0)
 								&& (localObject71[ii] == -1)) {
 							this.somePlayerIds[this.mapTeamsCount] = ((byte) ii);
@@ -1501,7 +1501,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					checkResources();
 					loadMapDataBytes((byte[]) saveData);
 					if (this.mapModeCampIf0 == 0) {
-						this.var_3783 = true;
+						this.isUpdatingMb = true;
 					}
 					this.isBlackLoading = false;
 					this.activeUnitState = 0;
@@ -2030,7 +2030,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			int paramInt2) {
 		this.var_35a3[this.playerId] -= C_Unit.var_bcb[paramByte];
 		this.var_397b = true;
-		return C_Unit.sub_d3d(paramByte, this.playerId, paramInt1,
+		return C_Unit.createUnitOnMap(paramByte, this.playerId, paramInt1,
 				paramInt2);
 	}
 
@@ -2048,8 +2048,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final void loadMap(int mapId) throws Exception {
 		E_MainCanvas.stopMusic();
 		this.var_35c3 = new Vector();
-		this.var_3803 = false;
-		this.var_352b = true;
+		this.isFadingIn = false;
+		this.isCursorVisible = true;
 		this.var_364b = false;
 		this.var_3883 = false;
 		this.var_353b = null;
@@ -2058,7 +2058,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_35db = null;
 		this.var_35eb = null;
 		this.gotNewLevelUnits.removeAllElements();
-		this.var_3583 = 0;
+		this.currentTurn = 0;
 		this.playerId = 0;
 		this.playerId = 0;
 		this.scriptStep = 0;
@@ -2096,7 +2096,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.someMapData[i][j] = 0;
 				if ((this.mapTilesIds[i][j] >= this.houseTileIdStartIndex)
 						|| (this.mapTilesIds[i][j] == 27)) { //is house
-					m = sub_e206(i, j);
+					m = tileOwnerPlayerIndex(i, j);
 					housesArr[countHouses][0] = ((byte) i);
 					housesArr[countHouses][1] = ((byte) j);
 					housesArr[countHouses][2] = ((byte) m);
@@ -2160,7 +2160,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			byte unitType = (byte) (i1 % 12);
 			byte playerID = (byte) sub_e276(1 + i1 / 12);
 			if (this.var_35b3[playerID] != 2) {
-				C_Unit unit1 = C_Unit.sub_d3d(unitType, playerID, posX, posY);
+				C_Unit unit1 = C_Unit.createUnitOnMap(unitType, playerID, posX, posY);
 				if (unitType == 9) {
 					this.playersKings[playerID] = unit1;
 				}
@@ -2176,10 +2176,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		this.var_3b7b = false;
 		this.var_3b4b = null;
-		this.var_3b2b = null;
-		this.var_3b33 = null;
-		this.var_3b3b = null;
-		this.var_3b43 = null;
+		this.skeleton1Map2 = null;
+		this.crystalOfWisdom = null;
+		this.skeleton2Map2 = null;
+		this.wisdomCrystalKeeper = null;
 		this.unitEndTurnMb = null;
 		for (short i = 0; i < this.playersKings.length; i = (short) (i + 1)) {
 			if (this.playersKings[i] == null) {
@@ -2192,13 +2192,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (this.mapModeCampIf0 == 1) {
 			this.scriptStep = 100;
-			this.var_3783 = true;
+			this.isUpdatingMb = true;
 			for (short i = 0; i < this.mapMaxPlayersMb; i = (short) (i + 1)) {
 				if (this.var_35b3[i] != 2) {
 					this.playerId = ((byte) i);
 					break;
 				}
-				this.var_3583 = ((short) (this.var_3583 + 1));
+				this.currentTurn = ((short) (this.currentTurn + 1));
 			}
 		}
 		if (this.playersKings[this.playerId] != null) {
@@ -2209,12 +2209,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		this.var_3ab3 = new C_Unit[this.housesDataArr.length];
 		this.var_3abb = new byte[this.housesDataArr.length];
-		this.var_37a3 = new F_Sprite[this.housesDataArr.length];
+		this.houseSmokeSprites = new F_Sprite[this.housesDataArr.length];
 		for (short i = 0; i < this.housesDataArr.length; i = (short) (i + 1)) {
 			if (getTileType(this.housesDataArr[i][0], this.housesDataArr[i][1]) == 8) {
-				this.var_37a3[i] = F_Sprite.sub_1616(this.bigSmokeSprite, 0, -1,
+				this.houseSmokeSprites[i] = F_Sprite.someSpriteCopy(this.bigSmokeSprite, 0, -1,
 						0, 1, 250, (byte) 0);
-				this.var_37a3[i].var_84c = false;
+				this.houseSmokeSprites[i].var_84c = false;
 			}
 		}
 		if (this.var_35b3[this.playerId] == 0) {
@@ -2246,7 +2246,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_351b = false;
 		if (this.var_35b3[this.playerId] == 1) {
 			this.var_39c3 = 1;
-			this.var_352b = true;
+			this.isCursorVisible = true;
 			this.cursorSprite.setFrameSequence(cursorFrameSequences[0]);
 			this.activeUnitState = 3;
 			sub_5a85(sub_9267(unit, (byte) 0), unit);
@@ -2387,34 +2387,34 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			updateIntro();
 			return;
 		}
-		sub_112a9();
-		if (this.var_36db != -1) {
-			if (E_MainCanvas.settings[2] != false) {
-				D_Menu localClass_d_0231;
-				(localClass_d_0231 = showUnitDialogMsg(
-						A_MenuBase.getSomeHelpString(196 + this.var_36db, true),
-						(byte) -1, (byte) 2)).var_117d = 7831691;
-				localClass_d_0231.titleGradientColor = 7831691;
-				localClass_d_0231.var_fbd = 16250855;
+		updateMapScript();
+		if (this.helpTipId != -1) {
+			if (E_MainCanvas.settings[2] != false) { // help setting
+				D_Menu aHelpDialog1 = showUnitDialogMsg(
+						A_MenuBase.getSomeHelpString(196 + this.helpTipId, true),
+						(byte) -1, (byte) 2); //Use %KM to move the cursor...
+				aHelpDialog1.var_117d = 7831691; //#77808B
+				aHelpDialog1.titleGradientColor = 7831691;  //#77808B
+				aHelpDialog1.m_bgColorMb = 16250855; //#F7F7E7
 			}
-			this.var_36db = -1;
+			this.helpTipId = -1;
 		}
 		if (A_MenuBase.mainCanvas.mainDrawElement != this) {
 			return;
 		}
-		if (this.activeUnitState == 0) {
-			for (int i = 0; i < this.var_37a3.length; i++) {
-				int k = sub_e206(this.housesDataArr[i][0], this.housesDataArr[i][1]);
-				if ((this.var_37a3[i] != null) && (k != -1) && (k != 0)
-						&& (!this.var_37a3[i].var_84c)
+		if (this.activeUnitState == 0) { 
+			for (int i = 0; i < this.houseSmokeSprites.length; i++) {
+				int k = tileOwnerPlayerIndex(this.housesDataArr[i][0], this.housesDataArr[i][1]);
+				if ((this.houseSmokeSprites[i] != null) && (k != -1) && (k != 0)
+						&& (!this.houseSmokeSprites[i].var_84c)
 						&& (E_MainCanvas.random.nextInt() % 8 == 0)) {
-					this.var_37a3[i].var_84c = true;
-					this.var_37a3[i].setCurrentFrameIndex(0);
-					this.var_37a3[i].var_81c = 1;
-					this.var_37a3[i].setSpritePosition((this.housesDataArr[i][0] + 1) * 24
+					this.houseSmokeSprites[i].var_84c = true;
+					this.houseSmokeSprites[i].setCurrentFrameIndex(0);
+					this.houseSmokeSprites[i].var_81c = 1;
+					this.houseSmokeSprites[i].setSpritePosition((this.housesDataArr[i][0] + 1) * 24
 							- this.bigSmokeSprite.frameWidth,
 							this.housesDataArr[i][1] * 24 - 2);
-					this.var_35cb.addElement(this.var_37a3[i]);
+					this.var_35cb.addElement(this.houseSmokeSprites[i]);
 				}
 			}
 		}
@@ -2432,9 +2432,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.var_3b93 = 1;
 				} else if (this.activeUnitState == 11) {
 					if (this.mapModeCampIf0 == 0) {
-						this.var_3813 = true;
+						this.isFading = true;
 						this.var_380b = true;
-						this.var_37fb = 0;
+						this.fadeInColor = 0;
 					}
 					this.var_372b = 0;
 					this.someStartTime5 = this.time;
@@ -2447,14 +2447,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			return;
 		}
-		if (this.var_3813) {
-			if (this.var_3803) {
-				if (this.var_37fb < 16) {
-					this.var_37fb += 1;
+		if (this.isFading) {
+			if (this.isFadingIn) {
+				if (this.fadeInColor < 16) {
+					this.fadeInColor += 1;
 				}
 			} else if (this.var_380b) {
-				this.var_37fb += 1;
-				if (this.var_37fb > 16) {
+				this.fadeInColor += 1;
+				if (this.fadeInColor > 16) {
 					this.var_380b = false;
 				}
 			}
@@ -2481,7 +2481,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 		}
-		if ((this.var_352b) && (this.time - this.var_33a3 >= 200L)) {
+		if ((this.isCursorVisible) && (this.time - this.var_33a3 >= 200L)) {
 			this.cursorSprite.nextFrame();
 			this.var_33a3 = this.time;
 		}
@@ -2537,14 +2537,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								this.someGHeight, 1500);
 						A_MenuBase.mainCanvas.showMenu(localClass_d_0233);
 						localClass_d_0233.titleGradientColor = playerColors[this.playersIndexes[this.playerId]];
-						E_MainCanvas.sub_2439(
+						E_MainCanvas.playMusicLooped2(
 								var_33c3[this.playersIndexes[this.playerId]], 0);
 					}
 				} else {
 					for (int i = this.mapUnitsSprites.size() - 1; i >= 0; i--) {
 						C_Unit localObject11 = (C_Unit) this.mapUnitsSprites
 								.elementAt(i);
-						if ((localObject11.var_b13 != 3)
+						if ((localObject11.m_state != 3)
 								&& (this.playerId == ((C_Unit) localObject11).playerId)
 								&& ((getTileType(
 										((C_Unit) localObject11).positionX,
@@ -2632,9 +2632,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					if (this.activeUnitState == 13) {
 						int i2;
 						if (this.var_366b == 0) {
-							E_MainCanvas.sub_233e(200);
+							E_MainCanvas.vibrate(200);
 							i2 = this.attackerUnitMb.sub_fea(this.attackedUnitMb);
-							this.attackedUnitMb.sub_d0e(400);
+							this.attackedUnitMb.shakeUnit(400);
 							E_MainCanvas.playMusicLooped(14, 1);
 							showSpriteOnMap(this.redsparkSprite, this.attackedUnitMb.posXPixel,
 									this.attackedUnitMb.posYPixel, 0, 0, 2, 50);
@@ -2663,9 +2663,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								if (this.attackedUnitMb.sub_1134(this.attackerUnitMb,
 										this.attackerUnitMb.positionX,
 										this.attackerUnitMb.positionY)) {
-									E_MainCanvas.sub_233e(200);
+									E_MainCanvas.vibrate(200);
 									i2 = this.attackedUnitMb.sub_fea(this.attackerUnitMb);
-									this.attackerUnitMb.sub_d0e(400);
+									this.attackerUnitMb.shakeUnit(400);
 									E_MainCanvas.playMusicLooped(14, 1);
 									showSpriteOnMap(this.redsparkSprite,
 											this.attackerUnitMb.posXPixel,
@@ -2725,7 +2725,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							}
 							if (this.var_3863.posYPixel >= this.var_386b.posYPixel) {
 								this.var_3863.var_84c = false;
-								E_MainCanvas.sub_233e(200);
+								E_MainCanvas.vibrate(200);
 								sub_14bd3(500);
 								if (this.var_387b) {
 									int i3;
@@ -2759,7 +2759,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 					} else if (this.var_35db != null) {
 						if (--this.var_3603 <= 0) {
-							E_MainCanvas.sub_233e(100);
+							E_MainCanvas.vibrate(100);
 							sub_b64d(this.var_35db);
 							repairDestroyedHouse((byte) 27, this.var_35db.positionX,
 									this.var_35db.positionY);
@@ -2775,7 +2775,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							} else {
 								showSpriteOnMap(this.smokeSprite, this.dyingUnit.posXPixel,
 										this.dyingUnit.posYPixel, 0, -3, 1, 100);
-								this.dyingUnit.var_b13 = 3;
+								this.dyingUnit.m_state = 3;
 								this.dyingUnit.var_b5b = 3;
 								if ((this.dyingUnit.unitTypeId == 10)
 										|| (this.dyingUnit.unitTypeId == 11)) {
@@ -2856,7 +2856,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						} else if (this.var_35eb != null) {
 							if (this.time - this.var_35fb >= 400L) {
 								this.var_35eb.removeFromMap();
-								(localClass_c_032 = C_Unit.sub_d3d(
+								(localClass_c_032 = C_Unit.createUnitOnMap(
 										(byte) 10, this.var_35f3,
 										this.var_35eb.positionX,
 										this.var_35eb.positionY)).endMove();
@@ -2864,7 +2864,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							}
 						} else if (!this.var_3b7b) {
 							if (this.activeUnitState == 2) {
-								if ((this.activeUnit.var_b13 != 1)
+								if ((this.activeUnit.m_state != 1)
 										&& (this.var_39cb)) {
 									sub_91c4(this.activeUnit);
 								}
@@ -3058,11 +3058,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 													&& ((localClass_c_032 == null) || (localClass_c_032 == this.activeUnit))) {
 												this.var_3503 = this.activeUnit.positionX;
 												this.var_350b = this.activeUnit.positionY;
-												this.activeUnit.sub_18b7(
+												this.activeUnit.goToPosition(
 														this.var_34ab,
 														this.var_34b3, true);
 												this.var_39b3 = this.activeUnit;
-												this.var_352b = false;
+												this.isCursorVisible = false;
 												this.var_351b = false;
 												this.var_353b = null;
 												this.someGameMenu = null;
@@ -3085,13 +3085,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 											for (;;) {
 												i4++;
 												if ((i4 >= this.var_359b[this.playerId])
-														|| (((C_Unit) localObject41).var_b13 != 3)) {
+														|| (((C_Unit) localObject41).m_state != 3)) {
 													break;
 												}
 												localObject41 = this.var_3593[this.playerId][((localObject41.var_b83 + 1) % this.var_359b[this.playerId])];
 											}
 											if ((localObject41 != null)
-													&& (((C_Unit) localObject41).var_b13 != 3)) {
+													&& (((C_Unit) localObject41).m_state != 3)) {
 												moveCursorToPos(
 														((C_Unit) localObject41).positionX,
 														((C_Unit) localObject41).positionY);
@@ -3127,7 +3127,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 													this.var_34ab,
 													this.var_34b3, (byte) 0);
 											if ((this.activeUnit != null)
-													&& (this.activeUnit.var_b13 == 0)
+													&& (this.activeUnit.m_state == 0)
 													&& (this.activeUnit.playerId == this.playerId)) {
 												byte[] localObject21 = sub_9267(
 														this.activeUnit, (byte) 1);
@@ -3776,7 +3776,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			m = this.mapUnitsSprites.size();
 			while (j < m) {
 				C_Unit unit3 = (C_Unit) this.mapUnitsSprites.elementAt(j);
-				if (unit3.var_b13 == 3) {
+				if (unit3.m_state == 3) {
 					this.tombstoneSprite.drawImageExt(gr, this.var_341b
 							+ unit3.posXPixel, this.var_3423
 							+ unit3.posYPixel);
@@ -3852,7 +3852,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.activeUnit.sub_26ca(gr, this.var_341b,
 						this.var_3423);
 			}
-			if (this.var_352b) {
+			if (this.isCursorVisible) {
 				this.cursorSprite.drawCurrentFrame(gr, this.var_341b + 12,
 						this.var_3423 + 12, 3);
 			}
@@ -3925,7 +3925,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 			if ((this.activeUnitState == 6)
-					&& (this.var_34f3[this.var_34eb].var_b13 != 4)) {
+					&& (this.var_34f3[this.var_34eb].m_state != 4)) {
 				i3 = 0;
 				if (this.var_34b3 * 24 <= this.someGHeight / 2 - 24) {
 					i3 = this.someGHeight - this.buttonsSprite.frameHeight - this.var_3a43
@@ -3948,9 +3948,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				drawActionButton(gr, var_3333, 3, this.someGHeight);
 			}
 		}
-		if ((this.var_3803) || (this.var_380b)) {
-			sub_e77a(gr, 0, this.var_37fb, 16,
-					this.var_3803 ? 0 : 1, null, 0, 0, this.someCanWidth,
+		if ((this.isFadingIn) || (this.var_380b)) {
+			sub_e77a(gr, 0, this.fadeInColor, 16,
+					this.isFadingIn ? 0 : 1, null, 0, 0, this.someCanWidth,
 					this.someCanHeight);
 		}
 	}
@@ -4079,7 +4079,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			C_Unit unit = (C_Unit) this.mapUnitsSprites.elementAt(it);;
 			int i;
 			int j;
-			if (unit.var_b13 == 1) {
+			if (unit.m_state == 1) {
 				i = unit.var_ae3;
 				j = unit.var_aeb;
 			} else {
@@ -4087,9 +4087,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				j = unit.positionY;
 			}
 			if ((inX == i) && (inY == j)) {
-				if ((paramByte == 0) && (unit.var_b13 != 3)) {
+				if ((paramByte == 0) && (unit.m_state != 3)) {
 					return unit;
-				} else if ((paramByte == 1) && (unit.var_b13 == 3)) {
+				} else if ((paramByte == 1) && (unit.m_state == 3)) {
 					return unit;
 				}
 			}
@@ -4113,7 +4113,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final void sub_ddbb() {
 		this.kingsPositions[this.playerId][0] = ((byte) this.var_34ab);
 		this.kingsPositions[this.playerId][1] = ((byte) this.var_34b3);
-		this.var_3583 = ((short) (this.var_3583 + 1));
+		this.currentTurn = ((short) (this.currentTurn + 1));
 		this.playerId = ((byte) ((this.playerId + 1) % this.mapMaxPlayersMb));
 		if (this.var_35b3[this.playerId] == 2) {
 			sub_ddbb();
@@ -4121,7 +4121,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		for (int i = this.mapUnitsSprites.size() - 1; i >= 0; i--) {
 			C_Unit aunit = (C_Unit) this.mapUnitsSprites.elementAt(i);
-			if (aunit.var_b13 == 3) {
+			if (aunit.m_state == 3) {
 				if (aunit.unitTypeId != 9) {
 					C_Unit tempUnit = aunit;
 					tempUnit.var_b5b = (byte) (tempUnit.var_b5b - 1);
@@ -4130,7 +4130,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 				}
 			} else {
-				aunit.var_b13 = 0;
+				aunit.m_state = 0;
 				if (((aunit.status & 0x1) != 0) && (aunit.var_b63 == this.playerId)) {
 					aunit.applyWispStatusMb((byte) 1);
 				}
@@ -4168,7 +4168,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			C_Unit.var_a7b = C_Unit.var_a73;
 		}
 		if ((countSomeUnits(-1, 0, this.playerId) <= 0)
-				&& (sub_e353(this.playerId) == 0)) {
+				&& (countPlayerOwnerCastles(this.playerId) == 0)) {
 			sub_ddbb();
 		}
 	}
@@ -4209,12 +4209,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final int sub_e206(int inX, int inY) {
-		return sub_e22b(inX, inY, this.mapTilesIds);
+	public final int tileOwnerPlayerIndex(int inX, int inY) {
+		return houseOwnerPlayerIndex(inX, inY, this.mapTilesIds);
 	}
 
-	public final int sub_e22b(int inX, int inY,
-			byte[][] mapData) {
+	public final int houseOwnerPlayerIndex(int inX, int inY, byte[][] mapData) {
 		if (mapData[inX][inY] >= this.houseTileIdStartIndex) {
 			return (mapData[inX][inY] - this.houseTileIdStartIndex) / 2;
 		}
@@ -4229,35 +4228,35 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final boolean sub_e2b4(int inX, int inY, int paramInt3) {
-		int i = sub_e276(sub_e206(inX, inY));
+		int i = sub_e276(tileOwnerPlayerIndex(inX, inY));
 		if (i > -1) {
 			return paramInt3 == this.var_3573[i];
 		}
 		return false;
 	}
 
-	public final boolean sub_e312(int paramInt1, int paramInt2, int paramInt3) {
-		return sub_e206(paramInt1, paramInt2) == this.playersIndexes[paramInt3];
+	public final boolean sub_e312(int paramInt1, int paramInt2, int playerId) {
+		return tileOwnerPlayerIndex(paramInt1, paramInt2) == this.playersIndexes[playerId];
 	}
 
-	public final int sub_e353(int paramInt) {
+	public final int countPlayerOwnerCastles(int playerId) {
 		int i = 0;
 		for (int j = 0; j < this.mapCastlesCount; j++) {
-			if (sub_e312(this.var_373b[j][0], this.var_373b[j][1], paramInt)) {
+			if (sub_e312(this.var_373b[j][0], this.var_373b[j][1], playerId)) {
 				i++;
 			}
 		}
 		return i;
 	}
 
-	public final int countSomeUnits(int unitType, int paramInt2, byte inPlayer) {
+	public final int countSomeUnits(int unitType, int unitState, byte inPlayer) {
 		int i = 0;
 		int it = 0;
 		int length = this.mapUnitsSprites.size();
 		while (it < length) {
 			C_Unit unit = (C_Unit) this.mapUnitsSprites.elementAt(it);
 			if (((unitType == -1) || (unit.unitTypeId == unitType))
-					&& (((paramInt2 == -1) && (unit.var_b13 != 3)) || ((paramInt2 == unit.var_b13) && ((inPlayer == -1) || (unit.playerId == inPlayer))))) {
+					&& (((unitState == -1) && (unit.m_state != 3)) || ((unitState == unit.m_state) && ((inPlayer == -1) || (unit.playerId == inPlayer))))) {
 				i++;
 			}
 			it++;
@@ -4265,15 +4264,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return i;
 	}
 
-	public final C_Unit[] sub_e4c7(int uType, int paramInt2, byte uPlayer) {
+	public final C_Unit[] getUnitsOfTypeStatePlayer(int uType, int unitState, byte uPlayer) {
 		Vector localVector = new Vector();
 		int i = 0;
-		int j = this.mapUnitsSprites.size();
-		while (i < j) {
-			C_Unit unit = (C_Unit) this.mapUnitsSprites
-					.elementAt(i);
+		int count = this.mapUnitsSprites.size();
+		while (i < count) {
+			C_Unit unit = (C_Unit) this.mapUnitsSprites.elementAt(i);
 			if (((uType == -1) || (unit.unitTypeId == uType))
-					&& (((paramInt2 == -1) && (unit.var_b13 != 3)) || ((paramInt2 == unit.var_b13) && ((uPlayer == -1) || (unit.playerId == uPlayer))))) {
+					&& (((unitState == -1) && (unit.m_state != 3)) || ((unitState == unit.m_state) && ((uPlayer == -1) || (unit.playerId == uPlayer))))) {
 				localVector.addElement(unit);
 			}
 			i++;
@@ -4319,15 +4317,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public static final void sub_e77a(Graphics gr, int paramInt1,
-			int paramInt2, int paramInt3, int paramInt4,
+			int fadeColor, int paramInt3, int paramInt4,
 			H_ImageExt image, int paramInt5, int paramInt6,
 			int paramInt7, int paramInt8) {
 		int i = paramInt7 / 8 + 1;
 		int j = paramInt8 / 1;
 		int k = paramInt3 - 7;
 		for (int m = 0; m < 8; m++) {
-			int i2;
-			if ((i2 = paramInt2 - m * 1) < 0) {
+			int i2 = fadeColor - m * 1;
+			if (i2 < 0) {
 				i2 = 0;
 			}
 			int i1;
@@ -4381,7 +4379,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final void sub_ea76() {
-		C_Unit[] units = sub_e4c7(-1, 0, this.playerId);
+		C_Unit[] units = getUnitsOfTypeStatePlayer(-1, 0, this.playerId);
 		this.var_3b0b = new Vector(units.length);
 		for (int i = 0; i < units.length; i++) {
 			int j;
@@ -4467,7 +4465,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.activeUnit = null;
 				this.var_3a6b = 0;
 			}
-			this.var_352b = true;
+			this.isCursorVisible = true;
 			return;
 		}
 		if (this.var_3a6b == 5) {
@@ -4506,7 +4504,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						if ((this.mapModeCampIf0 == 0) && (this.scenarioMapIndex == 7)
 								&& (this.activeUnit == this.playersKings[1])) {
 							this.var_39b3 = null;
-							C_Unit[] localObject1 = sub_e4c7(-1, -1,
+							C_Unit[] localObject1 = getUnitsOfTypeStatePlayer(-1, -1,
 									(byte) 0);
 							if (localObject1.length > 0) {
 								sub_558c(localObject1[E_MainCanvas
@@ -4541,7 +4539,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				} else if ((this.var_3a9b == 3)
 						&& (this.time - this.aSomeOtherTime >= 200L)) {
 					this.var_353b = null;
-					this.activeUnit.sub_18b7(this.var_3a73, this.var_3a7b, true);
+					this.activeUnit.goToPosition(this.var_3a73, this.var_3a7b, true);
 					this.var_3a6b = 2;
 					this.var_3a9b = 0;
 					this.activeUnitState = 2;
@@ -4606,7 +4604,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 					for (int i1 = 0; i1 < this.var_359b[this.playerId]; i1++) {
 						if ((this.var_3593[this.playerId][i1] != null)
-								&& (this.var_3593[this.playerId][i1].var_b13 == 3)
+								&& (this.var_3593[this.playerId][i1].m_state == 3)
 								&& (sub_e9d0(this.var_3593[this.playerId][i1],
 										m, n))) {
 							localObject = sub_8722(
@@ -4663,7 +4661,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				return;
 			}
 			if ((this.mapModeCampIf0 == 0) && (this.scenarioMapIndex == 7)
-					&& (this.playersKings[1].var_b13 != 2)) {
+					&& (this.playersKings[1].m_state != 2)) {
 				this.activeUnit = this.playersKings[1];
 				moveCursorToPos(this.activeUnit.positionX, this.activeUnit.positionY);
 				this.var_39b3 = this.activeUnit;
@@ -4683,11 +4681,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final void sub_f66c(C_Unit paramClass_c_032) {
 		this.activeUnit = paramClass_c_032;
-		this.var_352b = true;
+		this.isCursorVisible = true;
 		fillArrayWithValue(this.someMapData, 0);
 		this.activeUnit.fillWhereUnitCanMove(this.someMapData);
 		this.var_351b = false;
-		this.var_3aab = sub_e4c7(0, -1, this.playerId);
+		this.var_3aab = getUnitsOfTypeStatePlayer(0, -1, this.playerId);
 		int i = 0;
 		int j = this.playersKings.length + this.var_3aab.length
 				+ this.housesDataArr.length;
@@ -4703,14 +4701,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (n >= this.var_3aab.length) {
 				someKingUnit = this.playersKings[(n - this.var_3aab.length)];
 				if (someKingUnit != null) {
-					if (someKingUnit.var_b13 == 3) {
+					if (someKingUnit.m_state == 3) {
 						someKingUnit = null;
 					} else if ((this.var_3573[someKingUnit.playerId] != this.var_3573[this.playerId])
 							&& (this.playersKings[this.playerId] == null)) {
 						this.var_3ac3[i][2] += someKingUnit.sub_1318(
 								someKingUnit.positionX,
 								someKingUnit.positionY, null) * 2;
-					} else if ((this.var_3583 >= 15)
+					} else if ((this.currentTurn >= 15)
 							&& (this.var_3573[someKingUnit.playerId] != this.var_3573[this.playerId])
 							&& (countSomeUnits(-1, -1, someKingUnit.playerId) < 4)
 							&& (countSomeUnits(-1, -1, this.playerId) >= 8)) {
@@ -4732,7 +4730,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							.getPositionUnitsInAttackRange(someKingUnit.positionX,
 									someKingUnit.positionY, 1, 5, (byte) 0);
 					for (int i3 = 0; i3 < sUnit.length; i3++) {
-						if (sUnit[i3].var_b13 != 4) {
+						if (sUnit[i3].m_state != 4) {
 							this.var_3ac3[i][2] += sUnit[i3]
 									.sub_1318(sUnit[i3].positionX,
 											sUnit[i3].positionY,
@@ -4787,7 +4785,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3ac3[i][1] = i6;
 				this.var_3ac3[i][2] = 0;
 				for (i10 = 0; i10 < localObject.length; i10++) {
-					if (localObject[i10].var_b13 != 4) {
+					if (localObject[i10].m_state != 4) {
 						if ((this.var_3ab3[i4] != null) && (!bool)) {
 							this.var_3ac3[i][2] += localObject[i10].sub_1318(
 									localObject[i10].positionX,
@@ -4920,7 +4918,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if ((this.someMapData[i51][i7] > 0)
 						&& (((lcUnit = getSomeUnit(i51, i7, (byte) 0)) == null)
 								|| (lcUnit == paramClass_c_032) || ((this.var_3a93 == null)
-								&& (lcUnit.playerId == paramClass_c_032.playerId) && (lcUnit.var_b13 == 0)))) {
+								&& (lcUnit.playerId == paramClass_c_032.playerId) && (lcUnit.m_state == 0)))) {
 					int i11;
 					if ((!paramClass_c_032.hasProperty((short) 512))
 							|| (lcUnit == paramClass_c_032)) {
@@ -5036,8 +5034,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			break;
 		}
 		if (cUnit1 != null) {
-			if (cUnit1.var_b13 == 4) {
-				int k = sub_e206(cUnit1.positionX, cUnit1.positionY);
+			if (cUnit1.m_state == 4) {
+				int k = tileOwnerPlayerIndex(cUnit1.positionX, cUnit1.positionY);
 				m = sub_10b21(cUnit1.positionX, cUnit1.positionY);
 				if ((k != 0) && (m != -1) && (this.var_3ab3[m] == null)) {
 					i += cUnit21.sub_1318(paramInt1, paramInt2, cUnit1) / 2;
@@ -5089,7 +5087,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if ((k != -1)
 				&& ((localClass_c_032 = this.var_3ab3[k]) != null)
 				&& (localClass_c_032 != cUnit21)
-				&& (localClass_c_032.var_b13 == 0)
+				&& (localClass_c_032.m_state == 0)
 				&& (this.var_3abb[k] < C_Unit.var_b9b[localClass_c_032.unitTypeId])) {
 			i -= 200;
 		}
@@ -5109,8 +5107,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return -1;
 	}
 
-	public final void sub_10b94(int paramInt) {
-		this.var_3b1b = paramInt;
+	public final void waitScript(int val) {
+		this.waitTimeValue = val;
 		this.isWaiting = true;
 	}
 
@@ -5144,12 +5142,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.mapModeCampIf0 == 0) {
 			this.var_378b = var_32c3;
 			this.var_3793 = true;
-			this.var_3783 = false;
-			this.var_3b23 = createDialog(null, this.mapName, this.someCanHeight, 2000);
-			this.var_3b23.sub_193f(this.someCanWidthDiv2, this.someCanHeightDiv2, 3);
-			this.var_3813 = true;
+			this.isUpdatingMb = false;
+			this.mapNameDialog = createDialog(null, this.mapName, this.someCanHeight, 2000);
+			this.mapNameDialog.sub_193f(this.someCanWidthDiv2, this.someCanHeightDiv2, 3);
+			this.isFading = true;
 			this.var_380b = true;
-			this.var_37fb = 0;
+			this.fadeInColor = 0;
 		}
 		if (this.scenarioMapIndex == 0) {
 			this.var_3703 = 0;
@@ -5160,9 +5158,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			loadIntro(2, 3, 3);
-			E_MainCanvas.sub_2439(1, 1);
-			this.var_3813 = false;
-			this.var_352b = false;
+			E_MainCanvas.playMusicLooped2(1, 1);
+			this.isFading = false;
+			this.isCursorVisible = false;
 			this.scriptStep = 0;
 			return;
 		}
@@ -5175,11 +5173,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.playersKings[0].setKingName(2);
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
-			getSomeUnit(7, 12, (byte) 0).sub_18b7(7, 10, false);
-			getSomeUnit(8, 11, (byte) 0).sub_18b7(8, 9, false);
-			getSomeUnit(9, 12, (byte) 0).sub_18b7(9, 10, false);
-			sub_143f6(7, 3);
-			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
+			getSomeUnit(7, 12, (byte) 0).goToPosition(7, 10, false);
+			getSomeUnit(8, 11, (byte) 0).goToPosition(8, 9, false);
+			getSomeUnit(9, 12, (byte) 0).goToPosition(9, 10, false);
+			moveCameraTo(7, 3);
+			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
 			return;
 		}
 		if (this.scenarioMapIndex == 2) {
@@ -5190,15 +5188,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_35a3[0] = 0;
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
-			this.var_3b2b = getSomeUnit(8, 17, (byte) 0);
-			this.var_3b33 = getSomeUnit(8, 18, (byte) 0);
-			this.var_3b3b = getSomeUnit(8, 19, (byte) 0);
-			this.var_3b2b.sub_18b7(8, 15, false);
-			this.var_3b33.sub_18b7(8, 15, false);
-			this.var_3b3b.sub_18b7(8, 15, false);
-			this.playersKings[0].sub_18b7(8, 14, false);
-			this.var_352b = false;
-			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
+			this.skeleton1Map2 = getSomeUnit(8, 17, (byte) 0);
+			this.crystalOfWisdom = getSomeUnit(8, 18, (byte) 0);
+			this.skeleton2Map2 = getSomeUnit(8, 19, (byte) 0);
+			this.skeleton1Map2.goToPosition(8, 15, false);
+			this.crystalOfWisdom.goToPosition(8, 15, false);
+			this.skeleton2Map2.goToPosition(8, 15, false);
+			this.playersKings[0].goToPosition(8, 14, false);
+			this.isCursorVisible = false;
+			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
 			this.scriptStep = 0;
 			return;
 		}
@@ -5207,20 +5205,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			C_Unit.var_a7b = 4;
 			this.var_35a3[0] = 400;
 			this.var_35a3[1] = 400;
-			this.var_3b2b = C_Unit.sub_d3d((byte) 0, (byte) 0, -1, 5);
-			this.var_3b33 = C_Unit.sub_d3d((byte) 2, (byte) 0, -2, 5);
-			this.var_3b3b = C_Unit.sub_d3d((byte) 3, (byte) 0, -3, 5);
-			this.var_3b2b.sub_18b7(3, 4, false);
-			this.var_3b33.sub_18b7(4, 4, false);
-			this.var_3b3b.sub_18b7(2, 4, false);
-			this.playersKings[0].sub_18b7(3, 3, false);
+			this.skeleton1Map2 = C_Unit.createUnitOnMap((byte) 0, (byte) 0, -1, 5);
+			this.crystalOfWisdom = C_Unit.createUnitOnMap((byte) 2, (byte) 0, -2, 5);
+			this.skeleton2Map2 = C_Unit.createUnitOnMap((byte) 3, (byte) 0, -3, 5);
+			this.skeleton1Map2.goToPosition(3, 4, false);
+			this.crystalOfWisdom.goToPosition(4, 4, false);
+			this.skeleton2Map2.goToPosition(2, 4, false);
+			this.playersKings[0].goToPosition(3, 3, false);
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(3, 3);
 			this.var_39b3 = this.playersKings[0];
 			loadIntro(3, 3, 3);
-			E_MainCanvas.sub_2439(1, 1);
-			this.var_3813 = false;
-			this.var_352b = false;
+			E_MainCanvas.playMusicLooped2(1, 1);
+			this.isFading = false;
+			this.isCursorVisible = false;
 			this.scriptStep = 0;
 			return;
 		}
@@ -5234,19 +5232,19 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			C_Unit.var_a7b = 4;
 			(localClass_c_0321 = getSomeUnit(11, 2, (byte) 0)).setUnitPosition(11, -3);
-			localClass_c_0321.sub_18b7(11, 2, false);
+			localClass_c_0321.goToPosition(11, 2, false);
 			(localClass_c_0321 = getSomeUnit(10, 1, (byte) 0)).setUnitPosition(10, -5);
-			localClass_c_0321.sub_18b7(10, 1, false);
+			localClass_c_0321.goToPosition(10, 1, false);
 			(localClass_c_0321 = getSomeUnit(11, 1, (byte) 0)).setUnitPosition(11, -5);
-			localClass_c_0321.sub_18b7(11, 1, false);
+			localClass_c_0321.goToPosition(11, 1, false);
 			(localClass_c_0321 = getSomeUnit(12, 1, (byte) 0)).setUnitPosition(12, -5);
-			localClass_c_0321.sub_18b7(12, 1, false);
+			localClass_c_0321.goToPosition(12, 1, false);
 			(localClass_c_0321 = getSomeUnit(11, 0, (byte) 0)).setUnitPosition(11, -7);
-			localClass_c_0321.sub_18b7(11, 0, false);
+			localClass_c_0321.goToPosition(11, 0, false);
 			(localClass_c_0321 = getSomeUnit(12, 0, (byte) 0)).setUnitPosition(12, -7);
-			localClass_c_0321.sub_18b7(12, 0, false);
-			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
-			this.var_352b = false;
+			localClass_c_0321.goToPosition(12, 0, false);
+			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
+			this.isCursorVisible = false;
 			this.scriptStep = 0;
 			return;
 		}
@@ -5258,9 +5256,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			sub_b9c5(5, 0);
 			moveCursorToPos(5, 0);
 			this.var_39bb = 4;
-			sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
-			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
-			this.var_352b = false;
+			moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
+			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
+			this.isCursorVisible = false;
 			this.scriptStep = 0;
 			return;
 		}
@@ -5271,22 +5269,22 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			C_Unit.var_a7b = 4;
 			this.var_35a3[0] = 400;
 			this.var_35a3[1] = 600;
-			localClass_c_0321 = C_Unit.sub_d3d((byte) 0, (byte) 0, 13, -1);
-			localClass_c_0322 = C_Unit.sub_d3d((byte) 1, (byte) 0, 13, -1);
-			localClass_c_0323 = C_Unit.sub_d3d((byte) 3, (byte) 0, 13, -1);
-			C_Unit localClass_c_0324 = C_Unit.sub_d3d((byte) 11,
+			localClass_c_0321 = C_Unit.createUnitOnMap((byte) 0, (byte) 0, 13, -1);
+			localClass_c_0322 = C_Unit.createUnitOnMap((byte) 1, (byte) 0, 13, -1);
+			localClass_c_0323 = C_Unit.createUnitOnMap((byte) 3, (byte) 0, 13, -1);
+			C_Unit localClass_c_0324 = C_Unit.createUnitOnMap((byte) 11,
 					(byte) 0, 13, -1);
-			this.playersKings[0].var_b73 = localClass_c_0321;
-			localClass_c_0321.var_b73 = localClass_c_0322;
-			localClass_c_0322.var_b73 = localClass_c_0323;
-			localClass_c_0323.var_b73 = localClass_c_0324;
+			this.playersKings[0].followerUnitMb = localClass_c_0321;
+			localClass_c_0321.followerUnitMb = localClass_c_0322;
+			localClass_c_0322.followerUnitMb = localClass_c_0323;
+			localClass_c_0323.followerUnitMb = localClass_c_0324;
 			this.playersKings[0].fillWhereUnitCanMove(this.someMapData);
-			this.playersKings[0].sub_18b7(14, 3, true);
+			this.playersKings[0].goToPosition(14, 3, true);
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			this.var_39b3 = this.playersKings[0];
-			A_MenuBase.mainCanvas.showMenu(this.var_3b23);
-			this.var_352b = false;
+			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
+			this.isCursorVisible = false;
 			this.scriptStep = 0;
 			return;
 		}
@@ -5305,15 +5303,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.playersKings[0].posYPixel + 12);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			loadIntro(4, 3, 3);
-			E_MainCanvas.sub_2439(1, 1);
-			this.var_3813 = false;
-			this.var_352b = false;
+			E_MainCanvas.playMusicLooped2(1, 1);
+			this.isFading = false;
+			this.isCursorVisible = false;
 			this.scriptStep = 0;
 		}
 	}
 
-	public final void sub_112a9() throws Exception {
-		if ((this.var_3b1b > 0) && (--this.var_3b1b > 0)) {
+	public final void updateMapScript() throws Exception {
+		if ((this.waitTimeValue > 0) && (--this.waitTimeValue > 0)) {
 			return;
 		}
 		if (this.var_3b7b) {
@@ -5327,11 +5325,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		int i;
 		int j;
-		Object localObject2;
-		Object localObject3;
-		if (this.mapModeCampIf0 == 1) {
+		String str2;
+		String str3;
+		if (this.mapModeCampIf0 == 1) {//skirmish
 			if (this.scriptStep == 100) {
-				E_MainCanvas.sub_2439(var_33c3[this.playersIndexes[this.playerId]], 0);
+				E_MainCanvas.playMusicLooped2(var_33c3[this.playersIndexes[this.playerId]], 0);
 				this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
 				this.startupMessageBox.setParentMenu(null);
 				A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
@@ -5344,7 +5342,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				int n = 1;
 				for (int i1 = 0; i1 < this.mapMaxPlayersMb; i1++) {
 					if ((this.var_35b3[i1] != 2)
-							&& (((this.playersKings[i1] != null) && (this.playersKings[i1].var_b13 != 3)) || (sub_e353(i1) != 0))) {
+							&& (((this.playersKings[i1] != null) && (this.playersKings[i1].m_state != 3)) || (countPlayerOwnerCastles(i1) != 0))) {
 						j = i1;
 						if ((i != -1) && (i != this.var_3573[i1])) {
 							n = 0;
@@ -5354,33 +5352,25 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 				}
 				if (n != 0) {
-					this.var_3783 = false;
-					this.var_352b = false;
-					localObject2 = A_MenuBase.replaceStringFirst(38, ""
-							+ (this.var_3573[j] + 1));
-					localObject3 = A_MenuBase.replaceStringFirst(81,
-							(String) localObject2) + "\n(";
-					for (int i2 = 0; i2 < this.mapMaxPlayersMb; i2++) {
-						if ((this.var_35b3[i2] != 2)
-								&& (this.var_3573[i2] == this.var_3573[j])) {
-							localObject3 = (String) localObject3
-									+ " "
-									+ A_MenuBase
-											.getLangString(88 + this.playersIndexes[i2])
-									+ " ";
+					this.isUpdatingMb = false;
+					this.isCursorVisible = false;
+					str2 = A_MenuBase.replaceStringFirst(38, "" + (this.var_3573[j] + 1)); //Team %U
+					str3 = A_MenuBase.replaceStringFirst(81, str2) + "\n("; //%U WINS!
+					for (int pIndex = 0; pIndex < this.mapMaxPlayersMb; pIndex++) {
+						if ((this.var_35b3[pIndex] != 2) && (this.var_3573[pIndex] == this.var_3573[j])) {
+							str3 = str3 + " " + A_MenuBase.getLangString(88 + this.playersIndexes[pIndex]) + " "; // player color
 						}
 					}
-					localObject3 = (String) localObject3 + ")";
-					D_Menu localClass_d_023;
-					(localClass_d_023 = createDialog(null, (String) localObject3,
-							this.someGHeight, this.viewportHeight, -1)).setParentMenu(this);
-					A_MenuBase.mainCanvas.showMenu(localClass_d_023);
+					str3 = str3 + ")";
+					D_Menu teamWinsDialog = createDialog(null, str3, this.someGHeight, this.viewportHeight, -1);
+					teamWinsDialog.setParentMenu(this);
+					A_MenuBase.mainCanvas.showMenu(teamWinsDialog);
 					if (this.var_35b3[j] == 1) {
-						E_MainCanvas.sub_2439(6, 1);
+						E_MainCanvas.playMusicLooped2(6, 1);
 					} else {
-						E_MainCanvas.sub_2439(7, 1);
+						E_MainCanvas.playMusicLooped2(7, 1);
 					}
-					sub_10b94(15);
+					waitScript(15);
 					this.scriptStep += 1;
 				}
 			} else if (this.scriptStep == 102) {
@@ -5391,14 +5381,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			return;
 		}
-		if ((this.gameMode2Mb != 1) || (this.mapModeCampIf0 != 0)
-				|| (this.scriptStep == -1)) {
+		if ((this.gameMode2Mb != 1) || (this.mapModeCampIf0 != 0) || (this.scriptStep == -1)) {
 			return;
 		}
-		if (this.var_3b83 != -1) {
-			if (sub_b848(this.var_3b83, this.var_3b8b)) {
-				this.var_3b83 = -1;
-				this.var_3b8b = -1;
+		if (this.cameraX != -1) {
+			if (sub_b848(this.cameraX, this.cameraY)) {
+				this.cameraX = -1;
+				this.cameraY = -1;
 			} else {
 				return;
 			}
@@ -5406,884 +5395,244 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.activeUnitState != 11) {
 			i = 1;
 			for (j = 0; j < this.var_359b[0]; j++) {
-				if (this.var_3593[0][j].var_b13 != 3) {
+				if (this.var_3593[0][j].m_state != 3) {
 					i = 0;
 					break;
 				}
 			}
-			if ((i != 0) && (sub_e353(0) == 0)) {
+			if ((i != 0) && (countPlayerOwnerCastles(0) == 0)) {
 				sub_1447e();
 				return;
 			}
 		}
-		C_Unit[] localObject1 = null;
-		C_Unit localClass_c_0324;
+		
+		//@todo scripting is here
 		if (this.scenarioMapIndex == 0) {
-			switch (this.scriptStep) {
-			case 0:
-				this.scriptStep += 1;
-				break;
-			case 1:
-				A_MenuBase.mainCanvas.showMenu(this.var_3b23);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 2:
-				this.var_3813 = true;
-				getSomeUnit(0, 8, (byte) 0).sub_18b7(3, 8, false);
-				getSomeUnit(1, 9, (byte) 0).sub_18b7(4, 9, false);
-				getSomeUnit(0, 10, (byte) 0).sub_18b7(3, 10, false);
-				sub_143f6(5, 9);
-				break;
-			case 3:
-				sub_143f6(9, 3);
-				this.var_352b = true;
-				break;
-			case 4:
-				sub_10b94(10);
-				this.var_39bb = 12;
-				C_Unit.var_a7b = C_Unit.var_a73;
-				this.scriptStep += 1;
-				break;
-			case 5:
-				showUnitDialogMsg(A_MenuBase.getLangString(221), (byte) 2, (byte) 4);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 6:
-				C_Unit localObject11 = getSomeUnit(9, 3, (byte) 0);
-				E_MainCanvas.sub_233e(100);
-				((C_Unit) localObject11).sub_d0e(400);
-				showSpriteOnMap(this.redsparkSprite, ((F_Sprite) localObject11).posXPixel,
-						((F_Sprite) localObject11).posYPixel, 0, 0, 2, 50);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 7:
-				showUnitDialogMsg(A_MenuBase.getLangString(222), (byte) 2, (byte) 4);
-				this.scriptStep += 1;
-				break;
-			case 8:
-				C_Unit localClass_c_0321 = getSomeUnit(9, 3, (byte) 0);
-				showSpriteOnMap(this.sparkSprite, localClass_c_0321.posXPixel,
-						localClass_c_0321.posYPixel, 0, 0, 1, 50);
-				showSpriteOnMap(this.smokeSprite, localClass_c_0321.posXPixel,
-						localClass_c_0321.posYPixel, 0, -3, 1, 100);
-				localClass_c_0321.removeFromMap();
-				sub_10b94(20);
-				this.scriptStep += 1;
-				break;
-			case 9:
-				this.var_352b = false;
-				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
-				break;
-			case 10:
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 11:
-				showUnitDialogMsg(A_MenuBase.getLangString(223), (byte) 0, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 12:
-				showUnitDialogMsg(A_MenuBase.getLangString(224), (byte) 5, (byte) 4);
-				this.scriptStep += 1;
-				break;
-			case 13:
-				sub_1439a();
-				this.scriptStep += 1;
-				break;
-			case 14:
-				if (this.var_378b == 0) {
-					this.var_36db = 0;
-					this.scriptStep += 1;
-				}
-				break;
-			case 15:
-				if ((this.playerId == 0) && (this.activeUnitState == 1)
-						&& (this.alphaWindowWTF == 0)) {
-					this.var_36db = 1;
-					this.scriptStep += 1;
-				}
-				break;
-			case 16:
-				if ((this.playerId == 0) && (this.unitEndTurnMb != null)) {
-					this.var_36db = 2;
-					this.scriptStep += 1;
-				}
-				break;
-			case 17:
-				if ((this.playerId == 0) && (this.unitEndTurnMb != null)) {
-					this.var_36db = 3;
-					this.scriptStep += 1;
-				}
-				break;
-			case 18:
-				if (countSomeUnits(-1, 2, (byte) 0) >= 3) {
-					this.var_36db = 4;
-					this.scriptStep += 1;
-				} else if (this.var_3583 >= 1) {
-					this.scriptStep += 1;
-				}
-				break;
-			case 19:
-				if (this.var_3583 >= 2) {
-					this.var_36db = 5;
-					this.scriptStep += 1;
-				}
-				break;
-			case 20:
-				this.var_36db = 6;
-				this.scriptStep += 1;
-				break;
-			case 21:
-				if ((this.activeUnitState == 1) && (this.playerId == 0)) {
-					this.var_36db = 7;
-					this.scriptStep += 1;
-				}
-				break;
-			case 22:
-				if (countSomeUnits(-1, -1, (byte) 1) == 0) {
-					this.var_3783 = false;
-					sub_10b94(20);
-					this.scriptStep += 1;
-				}
-				break;
-			case 23:
-				sub_143f6(1, 1);
-				break;
-			case 24:
-				(localClass_c_0324 = C_Unit.sub_d3d((byte) 1, (byte) 1, 1,
-						1)).sub_18da(1, 2, false, true);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 25:
-				sub_143f6(10, 10);
-				break;
-			case 26:
-				C_Unit localObject21 = C_Unit.sub_d3d((byte) 0,
-						(byte) 1, 10, 10);
-				localObject21.sub_18da(10, 9, false, true);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 27:
-				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
-				break;
-			case 28:
-				showUnitDialogMsg(A_MenuBase.getLangString(225), (byte) 5, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 29:
-				showUnitDialogMsg(A_MenuBase.getLangString(226), (byte) 0, (byte) 4);
-				this.var_3783 = true;
-				this.scriptStep += 1;
-				break;
-			case 30:
-				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (this.activeUnitState == 0)) {
-					this.var_3783 = false;
-					this.var_352b = false;
-					sub_10b94(30);
-					this.scriptStep += 1;
-				}
-				break;
-			case 31:
-				this.var_3803 = true;
-				this.var_37fb = 0;
-				sub_10b94(20);
-				this.scriptStep += 1;
-				break;
-			case 32:
-				showUnitDialogMsg(A_MenuBase.getLangString(227), (byte) 2, (byte) 4);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 33:
-				showUnitDialogMsg(A_MenuBase.getLangString(228), (byte) 0, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 34:
-				showUnitDialogMsg(A_MenuBase.getLangString(229), (byte) 2, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 35:
-				showUnitDialogMsg(A_MenuBase.getLangString(230), (byte) 0, (byte) 4);
-				sub_10b94(15);
-				this.scriptStep += 1;
-				break;
-			case 36:
-				sub_1442b();
-			}
+			updateScenarioScript1();
 		} else if (this.scenarioMapIndex == 1) {
-			switch (this.scriptStep) {
-			case 1:
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 2:
-				this.var_39bb = 4;
-				sub_143f6(12, 3);
-				break;
-			case 3:
-				showUnitDialogMsg(A_MenuBase.getLangString(231), (byte) 1, (byte) 4);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 4:
-				showUnitDialogMsg(A_MenuBase.getLangString(232), (byte) 3, (byte) 4);
-				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
-				break;
-			case 5:
-				showUnitDialogMsg(A_MenuBase.getLangString(233), (byte) 5, (byte) 4);
-				sub_143f6(7, 3);
-				break;
-			case 6:
-				C_Unit.var_a7b = 2;
-				this.var_3b2b = C_Unit.sub_d3d((byte) 0, (byte) 1, 7, 3);
-				this.var_3b33 = C_Unit.sub_d3d((byte) 11, (byte) 1, 7, 3);
-				this.var_3b3b = C_Unit.sub_d3d((byte) 0, (byte) 1, 7, 3);
-				this.var_3b2b.var_b73 = this.var_3b33;
-				this.var_3b33.var_b73 = this.var_3b3b;
-				this.var_3b2b.sub_18b7(6, -2, false);
-				sub_10b94(30);
-				this.scriptStep += 1;
-				break;
-			case 7:
-				if ((this.var_3b3b.positionX == 6)
-						&& (this.var_3b3b.positionY == 1)) {
-					C_Unit.var_a7b = 4;
-					this.var_3b43 = C_Unit.sub_d3d((byte) 0, (byte) 0, 7,
-							3);
-					this.var_3b43.sub_18b7(6, 2, false);
-					this.var_3b33.var_b73 = null;
-					showUnitDialogMsg(A_MenuBase.getLangString(234), (byte) 2, (byte) 4);
-					this.scriptStep += 1;
-				}
-				break;
-			case 8:
-				if (this.var_3b43.var_b13 != 1) {
-					E_MainCanvas.sub_233e(100);
-					this.var_3b43.sub_d0e(400);
-					showSpriteOnMap(this.redsparkSprite, this.var_3b43.posXPixel,
-							this.var_3b43.posYPixel, 0, 0, 2, 50);
-					sub_10b94(10);
-					this.scriptStep += 1;
-				}
-				break;
-			case 9:
-				showUnitDialogMsg(A_MenuBase.getLangString(235), (byte) 2, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 10:
-				showSpriteOnMap(this.smokeSprite, this.var_3b43.posXPixel,
-						this.var_3b43.posYPixel, 0, -3, 1, 100);
-				showSpriteOnMap(this.sparkSprite, this.var_3b43.posXPixel,
-						this.var_3b43.posYPixel, 0, 0, 1, 50);
-				this.var_3b43.removeFromMap();
-				this.var_3b43 = null;
-				sub_10b94(15);
-				this.scriptStep += 1;
-				break;
-			case 11:
-				C_Unit.var_a7b = C_Unit.var_a73;
-				this.var_3b2b.removeFromMap();
-				this.var_3b33.removeFromMap();
-				this.var_3b2b = null;
-				this.var_3b33 = null;
-				this.var_3b3b = null;
-				this.var_39bb = 12;
-				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
-				break;
-			case 12:
-				showUnitDialogMsg(A_MenuBase.getLangString(236), (byte) 5, (byte) 4);
-				this.scriptStep += 1;
-				break;
-			case 13:
-				showUnitDialogMsg(A_MenuBase.getLangString(237), (byte) 1, (byte) 4);
-				this.scriptStep += 1;
-				break;
-			case 14:
-				sub_143f6(3, 5);
-				break;
-			case 15:
-				showUnitDialogMsg(A_MenuBase.getLangString(238), (byte) 5, (byte) 4);
-				this.scriptStep += 1;
-				break;
-			case 16:
-				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
-				break;
-			case 17:
-				this.var_36db = 8;
-				this.scriptStep += 1;
-				break;
-			case 18:
-				this.var_36db = 9;
-				this.scriptStep += 1;
-				break;
-			case 19:
-				sub_1439a();
-				this.scriptStep += 1;
-				break;
-			case 20:
-				if ((this.activeUnitState == 9) && (this.playerId == 0)) {
-					this.var_36db = 10;
-					this.scriptStep += 1;
-				}
-				break;
-			case 21:
-				this.var_36db = 11;
-				this.scriptStep += 1;
-				break;
-			case 22:
-				if ((this.playersKings[0].var_b13 == 3)
-						|| (this.playersKings[1].var_b13 == 3)) {
-					this.var_36db = 12;
-					this.scriptStep += 1;
-				}
-				break;
-			case 23:
-				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
-					this.var_3783 = false;
-					sub_10b94(20);
-					this.scriptStep += 1;
-				}
-				break;
-			case 24:
-				sub_143f6(this.playersKings[0].positionX, this.playersKings[0].positionY);
-				break;
-			case 25:
-				showUnitDialogMsg(A_MenuBase.getLangString(239), (byte) 1, (byte) 4);
-				this.scriptStep += 1;
-				break;
-			case 26:
-				showUnitDialogMsg(A_MenuBase.getLangString(240), (byte) 5, (byte) 4);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 27:
-				sub_1442b();
-			}
+			updateScenarioScript2();
 		} else if (this.scenarioMapIndex == 2) {
-			int k = 0;
-			switch (this.scriptStep) {
-			case 0:
-				if (this.var_3b2b.var_b13 != 1) {
-					this.var_3b2b.sub_18b7(7, 14, false);
-					this.scriptStep += 1;
-				}
-				break;
-			case 1:
-				if (this.var_3b33.var_b13 != 1) {
-					this.var_3b33.sub_18b7(7, 15, false);
-					sub_10b94(20);
-					this.scriptStep += 1;
-				}
-				break;
-			case 2:
-				C_Unit.var_a7b = C_Unit.var_a73;
-				this.var_3b2b = null;
-				this.var_3b33 = null;
-				this.var_3b3b = null;
-				showUnitDialogMsg(A_MenuBase.getLangString(241), (byte) 5, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 3:
-				showUnitDialogMsg(A_MenuBase.getLangString(242), (byte) 0, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 4:
-				showUnitDialogMsg(A_MenuBase.getLangString(243), (byte) 5, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 5:
-				this.var_36db = 14;
-				this.scriptStep += 1;
-				break;
-			case 6:
-				sub_1439a();
-				this.scriptStep += 1;
-				break;
-			case 7:
-			case 8:
-				if ((this.scriptStep == 7) && (this.playerId == 0)
-						&& (this.var_378b == 0)
-						&& (countSomeUnits(-1, 3, (byte) -1) >= 1)) {
-					this.var_36db = 15;
-					this.scriptStep += 1;
-				}
-				localObject1 = sub_e4c7(-1, 2, (byte) 0);
-				k = 0;
-			case 9:
-			case 10:
-			case 11:
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-			case 16:
-			case 17:
-			case 18:
-			case 19:
-			case 20:
-			case 21:
-			case 22:
-				while (k < localObject1.length) {
-					if ((localObject1[k].positionX <= 4)
-							|| (localObject1[k].positionY <= 10)) {
-						sub_10b94(10);
-						this.var_3783 = false;
-						this.var_352b = false;
-						this.scriptStep = 9;
-					} else {
-						k++;
-						// continue; //@todo
-						sub_143f6(0, 8);
-						C_Unit.sub_d3d((byte) 5, (byte) 1, -1, 8)
-								.sub_18b7(0, 8, false);
-						C_Unit.sub_d3d((byte) 5, (byte) 1, -2, 7)
-								.sub_18b7(1, 7, false);
-						sub_10b94(20);
-						// break;//@todo
-						sub_143f6(8, 6);
-						C_Unit.sub_d3d((byte) 5, (byte) 1, 12, 6)
-								.sub_18b7(8, 6, false);
-						sub_10b94(20);
-						// break;//@todo
-						sub_143f6(2, 1);
-						C_Unit.sub_d3d((byte) 5, (byte) 1, 1, -2)
-								.sub_18b7(1, 2, false);
-						C_Unit.sub_d3d((byte) 5, (byte) 1, 3, -2)
-								.sub_18b7(3, 2, false);
-						C_Unit.sub_d3d((byte) 4, (byte) 1, 2, -1)
-								.sub_18b7(2, 1, false);
-						sub_10b94(20);
-						// break;//@todo
-						showUnitDialogMsg(A_MenuBase.getLangString(244), (byte) 5, (byte) 4);
-						sub_10b94(10);
-						this.scriptStep += 1;
-						// break;//@todo
-						sub_143f6(4, 8);
-						sub_10b94(15);
-						// break;//@todo
-						C_Unit localClass_c_0322 = C_Unit.sub_d3d(
-								(byte) 2, (byte) 1, 3, 8);
-						localClass_c_0324 = C_Unit.sub_d3d((byte) 2,
-								(byte) 1, 4, 7);
-						localObject2 = C_Unit.sub_d3d((byte) 2, (byte) 1,
-								5, 8);
-						showSpriteOnMap(this.sparkSprite, localClass_c_0322.posXPixel,
-								localClass_c_0322.posYPixel, 0, 0, 1, 50);
-						showSpriteOnMap(this.sparkSprite, localClass_c_0324.posXPixel,
-								localClass_c_0324.posYPixel, 0, 0, 1, 50);
-						showSpriteOnMap(this.sparkSprite,
-								((F_Sprite) localObject2).posXPixel,
-								((F_Sprite) localObject2).posYPixel, 0, 0, 1,
-								50);
-						sub_10b94(10);
-						this.scriptStep += 1;
-						// break;//@todo
-						showUnitDialogMsg(A_MenuBase.getLangString(245), (byte) 5, (byte) 4);
-						sub_10b94(10);
-						this.scriptStep += 1;
-						// break;//@todo
-						showUnitDialogMsg(A_MenuBase.getLangString(246), (byte) -1, (byte) 4);
-						sub_10b94(5);
-						this.scriptStep += 1;
-						// break;//@todo
-						showUnitDialogMsg(A_MenuBase.getLangString(247), (byte) 0, (byte) 4);
-						sub_10b94(10);
-						this.scriptStep += 1;
-						// break;//@todo
-						A_MenuBase.mainCanvas.showMenu(createDialog(null,
-								A_MenuBase.getLangString(248), this.someGHeight, 1500));
-						this.scriptStep += 1;
-						// break;//@todo
-						getSomeUnit(3, 8, (byte) 0).removeFromMap();
-						getSomeUnit(4, 7, (byte) 0).removeFromMap();
-						getSomeUnit(5, 8, (byte) 0).removeFromMap();
-						localClass_c_0322 = C_Unit.sub_d3d((byte) 2,
-								(byte) 0, 3, 8);
-						localClass_c_0324 = C_Unit.sub_d3d((byte) 2,
-								(byte) 0, 4, 7);
-						localObject2 = C_Unit.sub_d3d((byte) 2, (byte) 0,
-								5, 8);
-						showSpriteOnMap(this.sparkSprite, localClass_c_0322.posXPixel,
-								localClass_c_0322.posYPixel, 0, 0, 1, 50);
-						showSpriteOnMap(this.sparkSprite, localClass_c_0324.posXPixel,
-								localClass_c_0324.posYPixel, 0, 0, 1, 50);
-						showSpriteOnMap(this.sparkSprite,
-								((F_Sprite) localObject2).posXPixel,
-								((F_Sprite) localObject2).posYPixel, 0, 0, 1,
-								50);
-						sub_10b94(10);
-						this.scriptStep += 1;
-						// break;//@todo
-						this.var_3783 = true;
-						this.var_352b = true;
-						this.var_36db = 13;
-						this.scriptStep += 1;
-						// break;//@todo
-						if (countSomeUnits(-1, -1, (byte) 1) == 0) {
-							this.var_3783 = false;
-							sub_10b94(10);
-							this.scriptStep += 1;
-							// break;//@todo
-							sub_1442b();
-						}
-					}
-				}
-			}
+			updateScenarioScript3();
 		} else if (this.scenarioMapIndex == 3) {
-			switch (this.scriptStep) {
-			case 0:
-				A_MenuBase.mainCanvas.showMenu(this.var_3b23);
-				this.var_3813 = true;
-				this.scriptStep += 1;
-				break;
-			case 1:
-				if (this.playersKings[0].var_b13 != 1) {
-					this.var_39b3 = null;
-					sub_10b94(20);
-					this.scriptStep += 1;
-				}
-				break;
-			case 2:
-				this.var_3803 = true;
-				this.var_3813 = true;
-				this.var_37fb = 0;
-				sub_10b94(20);
-				this.scriptStep += 1;
-				break;
-			case 3:
-				showUnitDialogMsg(A_MenuBase.getLangString(249), (byte) 2, (byte) 4);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 4:
-				showUnitDialogMsg(A_MenuBase.getLangString(250), (byte) 0, (byte) 4);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 5:
-				showUnitDialogMsg(A_MenuBase.getLangString(251), (byte) 5, (byte) 4);
-				moveCursorToPos(13, 3);
-				sub_b998(312, 72);
-				this.playersKings[0].setUnitPosition(7, 1);
-				this.var_3b2b.setUnitPosition(5, 4);
-				this.var_3b33.setUnitPosition(7, 5);
-				this.var_3b3b.setUnitPosition(3, 3);
-				this.var_3b2b = null;
-				this.var_3b33 = null;
-				this.var_3b3b = null;
-				this.var_39bb = 2;
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 6:
-				this.var_3803 = false;
-				this.var_380b = true;
-				this.var_37fb = 0;
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 7:
-				sub_143f6(13, 10);
-				break;
-			case 8:
-				C_Unit.var_a7b = 2;
-				this.var_39bb = 4;
-				this.var_3b2b = getSomeUnit(10, 10, (byte) 0);
-				this.var_3b2b.sub_18b7(6, 10, false);
-				moveCursorToPos(6, 10);
-				sub_143f6(6, 10);
-				break;
-			case 9:
-				if (this.var_3b2b.var_b13 != 1) {
-					this.var_3b2b = null;
-					this.var_352b = true;
-					sub_10b94(10);
-					this.scriptStep += 1;
-				}
-				break;
-			case 10:
-				moveCursorToPos(4, 9);
-				sub_143f6(4, 9);
-				showSpriteOnMap(this.redsparkSprite, 96, 216, 0, 0, 1, 50);
-				sub_10b94(15);
-				break;
-			case 11:
-				this.var_35db = C_Unit.sub_d60((byte) 0, (byte) 0, 4, 9,
-						false);
-				this.var_35db.unitTypeId = -1;
-				this.var_35db.var_b13 = 4;
-				this.var_3603 = 6;
-				sub_10b94(20);
-				this.scriptStep += 1;
-				break;
-			case 12:
-				showUnitDialogMsg(A_MenuBase.getLangString(252), (byte) 5, (byte) 4);
-				sub_143f6(7, 1);
-				break;
-			case 13:
-				showUnitDialogMsg(A_MenuBase.getLangString(253), (byte) 0, (byte) 4);
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 14:
-				this.var_36db = 17;
-				this.scriptStep += 1;
-				break;
-			case 15:
-				sub_1439a();
-				this.scriptStep += 1;
-				break;
-			case 16:
-				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
-					sub_10b94(15);
-					this.var_3783 = false;
-					this.scriptStep += 1;
-				}
-				break;
-			case 17:
-				//Your Majesty, We have stopped the attack.
-				showUnitDialogMsg(A_MenuBase.getLangString(254), (byte) 5, (byte) 4); 
-				sub_10b94(5);
-				this.scriptStep += 1;
-				break;
-			case 18:
-				//Well done, Captain! Prepare the troops to march to Thorin!
-				showUnitDialogMsg(A_MenuBase.getLangString(255), (byte) 0, (byte) 4);
-				sub_10b94(10);
-				this.scriptStep += 1;
-				break;
-			case 19:
-				sub_1442b();
-			}
+			updateScenarioScript4();
 		} else {
 			int m = 0;
+			C_Unit[] localObject1 = null;
 			if (this.scenarioMapIndex == 4) {
 				if (this.var_3b4b == null) {
-					this.var_3b4b = sub_e4c7(11, -1, (byte) 0)[0];
+					this.var_3b4b = getUnitsOfTypeStatePlayer(11, -1, (byte) 0)[0];
 				}
 				if ((this.scriptStep == 25) && (this.var_3b4b.positionX >= 15)
 						&& (this.var_3b4b.positionY >= 11)
-						&& (this.var_3b4b.var_b13 == 2)) {
-					sub_10b94(10);
-					this.var_3783 = false;
-					this.var_352b = false;
+						&& (this.var_3b4b.m_state == 2)) {
+					waitScript(10);
+					this.isUpdatingMb = false;
+					this.isCursorVisible = false;
 					this.scriptStep = 26;
 					return;
 				}
-				if (this.var_3b4b.var_b13 == 3) {
+				if (this.var_3b4b.m_state == 3) {
 					this.var_3b4b = null;
 					sub_1447e();
 					return;
 				}
 				switch (this.scriptStep) {
-				case 0:
-					sub_10b94(50);
-					this.scriptStep += 1;
-					break;
-				case 1:
-					showUnitDialogMsg(A_MenuBase.getLangString(256), (byte) 5, (byte) 4);
-					sub_10b94(5);
-					this.scriptStep += 1;
-					break;
-				case 2:
-					showUnitDialogMsg(A_MenuBase.getLangString(257), (byte) 0, (byte) 4);
-					sub_10b94(5);
-					this.scriptStep += 1;
-					break;
-				case 3:
-					sub_1439a();
-					this.scriptStep += 1;
-					break;
-				case 4:
-					localObject1 = sub_e4c7(-1, -1, (byte) 0);
-					m = 0;
-				case 5:
-				case 6:
-				case 7:
-				case 8:
-				case 9:
-				case 10:
-				case 11:
-				case 12:
-				case 13:
-				case 14:
-				case 15:
-				case 16:
-				case 17:
-				case 18:
-				case 19:
-				case 20:
-				case 21:
-				case 22:
-				case 23:
-				case 24:
-				case 25:
-				case 26:
-					while (m < localObject1.length) {
-						if ((localObject1[m].var_b13 == 2)
-								&& (localObject1[m].positionX <= 8)) {
-							this.var_3783 = false;
-							sub_10b94(5);
-							this.scriptStep += 1;
-						} else {
-							m++;
-							// continue;//@todo
-							this.var_352b = false;
-							sub_143f6(4, 4);
-							// break;//@todo
-							C_Unit.sub_d3d((byte) 10, (byte) 1, 4, 4)
-									.sub_18da(4, 1, false, true);
-							sub_10b94(10);
-							this.scriptStep += 1;
-							// break;//@todo
-							C_Unit.sub_d3d((byte) 1, (byte) 1, 4, 4)
-									.sub_18da(5, 2, false, true);
-							sub_10b94(10);
-							this.scriptStep += 1;
-							// break;//@todo
-							C_Unit.sub_d3d((byte) 10, (byte) 1, 4, 4)
-									.sub_18da(4, 3, false, true);
-							sub_10b94(10);
-							this.scriptStep += 1;
-							// break;//@todo
-							showUnitDialogMsg(A_MenuBase.getLangString(258), (byte) 5,
-									(byte) 4);
-							sub_143f6(this.playersKings[0].positionX,
-									this.playersKings[0].positionY);
-							// break;//@todo
-							this.var_3783 = true;
-							this.var_352b = true;
-							this.scriptStep += 1;
-							// break;//@todo
-							localObject1 = sub_e4c7(-1, -1, (byte) 0);
-							m = 0;
-							while (m < localObject1.length) {
-								if ((localObject1[m].var_b13 == 2)
-										&& (localObject1[m].positionY >= 7)) {
-									this.var_3783 = false;
-									this.var_352b = false;
-									sub_143f6(6, 10);
-								} else {
-									m++;
-									// continue;//@todo
-									C_Unit.sub_d3d((byte) 1, (byte) 1, 6,
-											10).sub_18da(5, 10, false, true);
-									sub_10b94(10);
-									this.scriptStep += 1;
-									// break;//@todo
-									C_Unit.sub_d3d((byte) 5, (byte) 1, 6,
-											10).sub_18da(7, 8, false, true);
-									sub_10b94(15);
-									this.scriptStep += 1;
-									// break;//@todo
-									C_Unit.sub_d3d((byte) 5, (byte) 1, 6,
-											10).sub_18da(7, 9, false, true);
-									this.var_3783 = true;
-									this.var_352b = true;
-									this.scriptStep += 1;
-									// break;//@todo
-									localObject1 = sub_e4c7(-1, -1, (byte) 0);
-									m = 0;
-									while (m < localObject1.length) {
-										if ((localObject1[m].var_b13 == 2)
-												&& (localObject1[m].positionX >= 8)
-												&& (localObject1[m].positionY >= 6)) {
-											this.var_3783 = false;
-											this.var_352b = false;
-											sub_143f6(12, 5);
-										} else {
-											m++;
-											// continue;@todo
-											C_Unit.sub_d3d((byte) 5,
-													(byte) 1, 12, 5).sub_18da(
-													12, 7, false, true);
-											sub_10b94(15);
-											this.scriptStep += 1;
-											// break;//@todo
-											C_Unit.sub_d3d((byte) 6,
-													(byte) 1, 12, 5).sub_18da(
-													12, 6, false, true);
-											sub_10b94(10);
-											this.scriptStep += 1;
-											// break;//@todo
-											C_Unit.sub_d3d((byte) 5,
-													(byte) 1, 12, 5).sub_18da(
-													12, 5, false, true);
-											this.var_3783 = true;
-											this.var_352b = true;
-											this.scriptStep += 1;
-											// break;//@todo
-											localObject1 = sub_e4c7(-1, -1,
-													(byte) 0);
-											m = 0;
-											while (m < localObject1.length) {
-												if ((localObject1[m].var_b13 == 2)
-														&& (localObject1[m].positionX >= 15)
-														&& (localObject1[m].positionY >= 8)) {
-													this.var_3783 = false;
-													this.var_352b = false;
-													sub_143f6(18, 8);
-												} else {
-													m++;
-													// continue;@todo
-													C_Unit.sub_d3d(
-															(byte) 5, (byte) 1,
-															18, 8).sub_18da(16,
-															10, false, true);
-													sub_10b94(10);
-													this.scriptStep += 1;
-													// break;//@todo
-													C_Unit.sub_d3d(
-															(byte) 6, (byte) 1,
-															18, 8).sub_18da(17,
-															10, false, true);
-													sub_10b94(10);
-													this.scriptStep += 1;
-													// break;//@todo
-													C_Unit.sub_d3d(
-															(byte) 5, (byte) 1,
-															18, 8).sub_18da(18,
-															10, false, true);
-													sub_10b94(10);
-													this.scriptStep += 1;
-													// break;//@todo
-													C_Unit.sub_d3d(
-															(byte) 1, (byte) 1,
-															18, 8).sub_18da(18,
-															9, false, true);
-													sub_10b94(10);
-													this.scriptStep += 1;
-													// break;//@todo
-													showUnitDialogMsg(
-															A_MenuBase
-																	.getLangString(259),
-															(byte) 0, (byte) 4);
-													this.var_3783 = true;
-													this.var_352b = true;
-													this.scriptStep += 1;
-													// break;//@todo
-													if (countSomeUnits(-1, -1,
-															(byte) 1) == 0) {
-														this.var_3783 = false;
-														this.var_352b = false;
-														sub_10b94(10);
+					case 0:
+						waitScript(50);
+						this.scriptStep += 1;
+						break;
+					case 1:
+						showUnitDialogMsg(A_MenuBase.getLangString(256), (byte) 5, (byte) 4);
+						waitScript(5);
+						this.scriptStep += 1;
+						break;
+					case 2:
+						showUnitDialogMsg(A_MenuBase.getLangString(257), (byte) 0, (byte) 4);
+						waitScript(5);
+						this.scriptStep += 1;
+						break;
+					case 3:
+						showObjective();
+						this.scriptStep += 1;
+						break;
+					case 4:
+						localObject1 = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
+						m = 0;
+					case 5:
+					case 6:
+					case 7:
+					case 8:
+					case 9:
+					case 10:
+					case 11:
+					case 12:
+					case 13:
+					case 14:
+					case 15:
+					case 16:
+					case 17:
+					case 18:
+					case 19:
+					case 20:
+					case 21:
+					case 22:
+					case 23:
+					case 24:
+					case 25:
+					case 26:
+						while (m < localObject1.length) {
+							if ((localObject1[m].m_state == 2)
+									&& (localObject1[m].positionX <= 8)) {
+								this.isUpdatingMb = false;
+								waitScript(5);
+								this.scriptStep += 1;
+							} else {
+								m++;
+								// continue;//@todo
+								this.isCursorVisible = false;
+								moveCameraTo(4, 4);
+								// break;//@todo
+								C_Unit.createUnitOnMap((byte) 10, (byte) 1, 4, 4)
+										.goToPosition(4, 1, false, true);
+								waitScript(10);
+								this.scriptStep += 1;
+								// break;//@todo
+								C_Unit.createUnitOnMap((byte) 1, (byte) 1, 4, 4)
+										.goToPosition(5, 2, false, true);
+								waitScript(10);
+								this.scriptStep += 1;
+								// break;//@todo
+								C_Unit.createUnitOnMap((byte) 10, (byte) 1, 4, 4)
+										.goToPosition(4, 3, false, true);
+								waitScript(10);
+								this.scriptStep += 1;
+								// break;//@todo
+								showUnitDialogMsg(A_MenuBase.getLangString(258), (byte) 5,
+										(byte) 4);
+								moveCameraTo(this.playersKings[0].positionX,
+										this.playersKings[0].positionY);
+								// break;//@todo
+								this.isUpdatingMb = true;
+								this.isCursorVisible = true;
+								this.scriptStep += 1;
+								// break;//@todo
+								localObject1 = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
+								m = 0;
+								while (m < localObject1.length) {
+									if ((localObject1[m].m_state == 2)
+											&& (localObject1[m].positionY >= 7)) {
+										this.isUpdatingMb = false;
+										this.isCursorVisible = false;
+										moveCameraTo(6, 10);
+									} else {
+										m++;
+										// continue;//@todo
+										C_Unit.createUnitOnMap((byte) 1, (byte) 1, 6,
+												10).goToPosition(5, 10, false, true);
+										waitScript(10);
+										this.scriptStep += 1;
+										// break;//@todo
+										C_Unit.createUnitOnMap((byte) 5, (byte) 1, 6,
+												10).goToPosition(7, 8, false, true);
+										waitScript(15);
+										this.scriptStep += 1;
+										// break;//@todo
+										C_Unit.createUnitOnMap((byte) 5, (byte) 1, 6,
+												10).goToPosition(7, 9, false, true);
+										this.isUpdatingMb = true;
+										this.isCursorVisible = true;
+										this.scriptStep += 1;
+										// break;//@todo
+										localObject1 = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
+										m = 0;
+										while (m < localObject1.length) {
+											if ((localObject1[m].m_state == 2)
+													&& (localObject1[m].positionX >= 8)
+													&& (localObject1[m].positionY >= 6)) {
+												this.isUpdatingMb = false;
+												this.isCursorVisible = false;
+												moveCameraTo(12, 5);
+											} else {
+												m++;
+												// continue;@todo
+												C_Unit.createUnitOnMap((byte) 5,
+														(byte) 1, 12, 5).goToPosition(
+														12, 7, false, true);
+												waitScript(15);
+												this.scriptStep += 1;
+												// break;//@todo
+												C_Unit.createUnitOnMap((byte) 6,
+														(byte) 1, 12, 5).goToPosition(
+														12, 6, false, true);
+												waitScript(10);
+												this.scriptStep += 1;
+												// break;//@todo
+												C_Unit.createUnitOnMap((byte) 5,
+														(byte) 1, 12, 5).goToPosition(
+														12, 5, false, true);
+												this.isUpdatingMb = true;
+												this.isCursorVisible = true;
+												this.scriptStep += 1;
+												// break;//@todo
+												localObject1 = getUnitsOfTypeStatePlayer(-1, -1,
+														(byte) 0);
+												m = 0;
+												while (m < localObject1.length) {
+													if ((localObject1[m].m_state == 2)
+															&& (localObject1[m].positionX >= 15)
+															&& (localObject1[m].positionY >= 8)) {
+														this.isUpdatingMb = false;
+														this.isCursorVisible = false;
+														moveCameraTo(18, 8);
+													} else {
+														m++;
+														// continue;@todo
+														C_Unit.createUnitOnMap(
+																(byte) 5, (byte) 1,
+																18, 8).goToPosition(16,
+																10, false, true);
+														waitScript(10);
 														this.scriptStep += 1;
 														// break;//@todo
-														sub_1442b();
+														C_Unit.createUnitOnMap(
+																(byte) 6, (byte) 1,
+																18, 8).goToPosition(17,
+																10, false, true);
+														waitScript(10);
 														this.scriptStep += 1;
+														// break;//@todo
+														C_Unit.createUnitOnMap(
+																(byte) 5, (byte) 1,
+																18, 8).goToPosition(18,
+																10, false, true);
+														waitScript(10);
+														this.scriptStep += 1;
+														// break;//@todo
+														C_Unit.createUnitOnMap(
+																(byte) 1, (byte) 1,
+																18, 8).goToPosition(18,
+																9, false, true);
+														waitScript(10);
+														this.scriptStep += 1;
+														// break;//@todo
+														showUnitDialogMsg(
+																A_MenuBase
+																		.getLangString(259),
+																(byte) 0, (byte) 4);
+														this.isUpdatingMb = true;
+														this.isCursorVisible = true;
+														this.scriptStep += 1;
+														// break;//@todo
+														if (countSomeUnits(-1, -1,
+																(byte) 1) == 0) {
+															this.isUpdatingMb = false;
+															this.isCursorVisible = false;
+															waitScript(10);
+															this.scriptStep += 1;
+															// break;//@todo
+															missionComplete();
+															this.scriptStep += 1;
+														}
 													}
 												}
 											}
@@ -6292,12 +5641,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								}
 							}
 						}
-					}
 				}
 			} else if (this.scenarioMapIndex == 5) {
 				switch (this.scriptStep) {
 				case 0:
-					sub_10b94(10);
+					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 1:
@@ -6305,37 +5653,37 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.scriptStep += 1;
 					break;
 				case 2:
-					sub_1439a();
+					showObjective();
 					this.scriptStep += 1;
 					break;
 				case 3:
-					if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (sub_e353(1) == 0)) {
-						this.var_3783 = false;
-						this.var_352b = false;
-						sub_10b94(15);
+					if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
+						this.isUpdatingMb = false;
+						this.isCursorVisible = false;
+						waitScript(15);
 						this.scriptStep += 1;
 					}
 					break;
 				case 4:
-					sub_143f6(this.playersKings[0].positionX,
+					moveCameraTo(this.playersKings[0].positionX,
 							this.playersKings[0].positionY);
 					break;
 				case 5:
 					showUnitDialogMsg(A_MenuBase.getLangString(261), (byte) 0, (byte) 4);
-					sub_10b94(10);
+					waitScript(10);
 					this.scriptStep += 1;
 					break;
 				case 6:
-					sub_1442b();
+					missionComplete();
 				}
 			} else {
 				C_Unit localClass_c_0323;
 				if (this.scenarioMapIndex == 6) {
 					if (this.scriptStep <= 10) {
 						if (this.var_3b4b == null) {
-							this.var_3b4b = sub_e4c7(11, -1, (byte) 0)[0];
+							this.var_3b4b = getUnitsOfTypeStatePlayer(11, -1, (byte) 0)[0];
 						}
-						if (this.var_3b4b.var_b13 == 3) {
+						if (this.var_3b4b.m_state == 3) {
 							this.var_3b4b = null;
 							sub_1447e();
 							return;
@@ -6343,77 +5691,78 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 					switch (this.scriptStep) {
 					case 0:
-						if (this.playersKings[0].var_b13 != 1) {
+						if (this.playersKings[0].m_state != 1) {
 							this.var_39b3 = null;
-							sub_10b94(10);
+							waitScript(10);
 							this.scriptStep += 1;
 						}
 						break;
 					case 1:
 						showUnitDialogMsg(A_MenuBase.getLangString(262), (byte) 5, (byte) 4);
-						sub_10b94(5);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 2:
 						showUnitDialogMsg(A_MenuBase.getLangString(263), (byte) 0, (byte) 4);
-						sub_10b94(5);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 3:
-						localObject1 = sub_e4c7(-1, -1, (byte) 0);
+						localObject1 = getUnitsOfTypeStatePlayer(-1, -1, (byte) 0);
 						for (m = 0; m < localObject1.length; m++) {
-							localObject1[m].var_b73 = null;
+							localObject1[m].followerUnitMb = null;
 						}
-						sub_1439a();
+						showObjective();
 						this.scriptStep += 1;
 						break;
 					case 4:
-						if (this.var_3583 >= 2) {
-							sub_10b94(15);
-							this.var_3783 = false;
-							this.var_352b = false;
-							sub_143f6(11, 7);
+						if (this.currentTurn >= 2) {
+							waitScript(15);
+							this.isUpdatingMb = false;
+							this.isCursorVisible = false;
+							moveCameraTo(11, 7);
 						}
 						break;
 					case 5:
-						(localClass_c_0323 = C_Unit.sub_d3d((byte) 5,
+						(localClass_c_0323 = C_Unit.createUnitOnMap((byte) 5,
 								(byte) 1, 11, 8)).fillWhereUnitCanMove(this.someMapData);
-						localClass_c_0323.sub_18b7(14, 7, true);
-						sub_10b94(10);
+						localClass_c_0323.goToPosition(14, 7, true);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 6:
-						(localClass_c_0324 = C_Unit.sub_d3d((byte) 0,
-								(byte) 1, 11, 8)).fillWhereUnitCanMove(this.someMapData);
-						localClass_c_0324.sub_18b7(13, 7, true);
-						sub_10b94(10);
+						C_Unit luuUnit = C_Unit.createUnitOnMap((byte) 0,
+								(byte) 1, 11, 8);
+						luuUnit.fillWhereUnitCanMove(this.someMapData);
+						luuUnit.goToPosition(13, 7, true);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 7:
-						C_Unit localObject21 = C_Unit.sub_d3d(
+						C_Unit localObject21 = C_Unit.createUnitOnMap(
 								(byte) 3, (byte) 1, 11, 8);
 						localObject21.fillWhereUnitCanMove(this.someMapData);
-						((C_Unit) localObject21).sub_18b7(12, 7, true);
-						sub_10b94(10);
+						((C_Unit) localObject21).goToPosition(12, 7, true);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 8:
-						C_Unit localObject31 = C_Unit.sub_d3d(
+						C_Unit localObject31 = C_Unit.createUnitOnMap(
 								(byte) 1, (byte) 1, 11, 8);
-						localObject31.sub_18b7(13, 8, false);
-						sub_10b94(20);
+						localObject31.goToPosition(13, 8, false);
+						waitScript(20);
 						this.scriptStep += 1;
 						break;
 					case 9:
 						showUnitDialogMsg(A_MenuBase.getLangString(264), (byte) 5, (byte) 4);
-						this.var_3783 = true;
-						this.var_352b = true;
-						sub_143f6(this.playersKings[0].positionX,
+						this.isUpdatingMb = true;
+						this.isCursorVisible = true;
+						moveCameraTo(this.playersKings[0].positionX,
 								this.playersKings[0].positionY);
 						break;
 					case 10:
 						int i3 = 0;
-						C_Unit[] arrayOfClass_c_032 = sub_e4c7(-1, 2,
+						C_Unit[] arrayOfClass_c_032 = getUnitsOfTypeStatePlayer(-1, 2,
 								(byte) 0);
 						for (int i4 = 0; i4 < arrayOfClass_c_032.length; i4++) {
 							if ((arrayOfClass_c_032[i4].positionX <= 9)
@@ -6423,79 +5772,79 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							}
 						}
 						if ((i3 != 0) || (countSomeUnits(-1, -1, (byte) 1) == 0)) {
-							this.var_352b = false;
-							this.var_3783 = false;
-							sub_10b94(10);
+							this.isCursorVisible = false;
+							this.isUpdatingMb = false;
+							waitScript(10);
 							this.scriptStep += 1;
 						}
 						break;
 					case 11:
-						this.var_3b2b = sub_e4c7(11, -1, (byte) 0)[0];
-						this.var_3b33 = C_Unit.sub_d3d((byte) 8, (byte) 1,
-								this.mapWidth, this.var_3b2b.positionY);
-						sub_143f6(this.mapWidth - 1, this.var_3b2b.positionY);
-						this.var_352b = false;
+						this.skeleton1Map2 = getUnitsOfTypeStatePlayer(11, -1, (byte) 0)[0];
+						this.crystalOfWisdom = C_Unit.createUnitOnMap((byte) 8, (byte) 1,
+								this.mapWidth, this.skeleton1Map2.positionY);
+						moveCameraTo(this.mapWidth - 1, this.skeleton1Map2.positionY);
+						this.isCursorVisible = false;
 						break;
 					case 12:
-						this.var_3b33.sub_18b7(this.var_3b2b.positionX,
-								this.var_3b2b.positionY, false);
-						sub_10b94(5);
+						this.crystalOfWisdom.goToPosition(this.skeleton1Map2.positionX,
+								this.skeleton1Map2.positionY, false);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 13:
 						showUnitDialogMsg(A_MenuBase.getLangString(265), (byte) 5, (byte) 4);
-						this.var_39b3 = this.var_3b33;
+						this.var_39b3 = this.crystalOfWisdom;
 						this.scriptStep += 1;
 						break;
 					case 14:
-						if (this.var_3b33.var_b13 != 1) {
+						if (this.crystalOfWisdom.m_state != 1) {
 							showUnitDialogMsg(A_MenuBase.getLangString(266), (byte) 0,
 									(byte) 4);
-							this.var_3b33.sub_18b7(-1, this.var_3b33.positionY,
+							this.crystalOfWisdom.goToPosition(-1, this.crystalOfWisdom.positionY,
 									false);
-							sub_10b94(3);
+							waitScript(3);
 							this.scriptStep += 1;
 						}
 						break;
 					case 15:
-						this.var_3b2b
-								.sub_18b7(-1, this.var_3b33.positionY, false);
+						this.skeleton1Map2
+								.goToPosition(-1, this.crystalOfWisdom.positionY, false);
 						this.scriptStep += 1;
 						break;
 					case 16:
-						if (this.var_3b33.var_b13 != 1) {
-							sub_10b94(10);
-							this.var_3b2b.removeFromMap();
-							this.var_3b33.removeFromMap();
-							moveCursorToPos(0, this.var_3b33.positionY);
-							this.var_3b2b = null;
-							this.var_3b33 = null;
+						if (this.crystalOfWisdom.m_state != 1) {
+							waitScript(10);
+							this.skeleton1Map2.removeFromMap();
+							this.crystalOfWisdom.removeFromMap();
+							moveCursorToPos(0, this.crystalOfWisdom.positionY);
+							this.skeleton1Map2 = null;
+							this.crystalOfWisdom = null;
 							this.var_39b3 = null;
 							this.scriptStep += 1;
 						}
 						break;
 					case 17:
-						sub_143f6(1, 9);
+						moveCameraTo(1, 9);
 						break;
 					case 18:
-						this.playersKings[1] = C_Unit.sub_d3d((byte) 9,
+						this.playersKings[1] = C_Unit.createUnitOnMap((byte) 9,
 								(byte) 1, -2, 8);
-						this.playersKings[1].sub_18b7(0, 8, false);
-						C_Unit.sub_d3d((byte) 0, (byte) 1, -1, 8)
-								.sub_18b7(3, 8, false);
-						C_Unit.sub_d3d((byte) 0, (byte) 1, -1, 10)
-								.sub_18b7(1, 10, false);
-						C_Unit.sub_d3d((byte) 8, (byte) 1, -3, 7)
-								.sub_18b7(4, 8, false);
-						C_Unit.sub_d3d((byte) 8, (byte) 1, -3, 11)
-								.sub_18b7(2, 10, false);
-						C_Unit.sub_d3d((byte) 4, (byte) 1, -2, 9)
-								.sub_18b7(2, 9, false);
-						C_Unit.sub_d3d((byte) 6, (byte) 1, -4, 9)
-								.sub_18b7(4, 9, false);
-						C_Unit.sub_d3d((byte) 6, (byte) 1, -6, 9)
-								.sub_18b7(5, 10, false);
-						sub_10b94(50);
+						this.playersKings[1].goToPosition(0, 8, false);
+						C_Unit.createUnitOnMap((byte) 0, (byte) 1, -1, 8)
+								.goToPosition(3, 8, false);
+						C_Unit.createUnitOnMap((byte) 0, (byte) 1, -1, 10)
+								.goToPosition(1, 10, false);
+						C_Unit.createUnitOnMap((byte) 8, (byte) 1, -3, 7)
+								.goToPosition(4, 8, false);
+						C_Unit.createUnitOnMap((byte) 8, (byte) 1, -3, 11)
+								.goToPosition(2, 10, false);
+						C_Unit.createUnitOnMap((byte) 4, (byte) 1, -2, 9)
+								.goToPosition(2, 9, false);
+						C_Unit.createUnitOnMap((byte) 6, (byte) 1, -4, 9)
+								.goToPosition(4, 9, false);
+						C_Unit.createUnitOnMap((byte) 6, (byte) 1, -6, 9)
+								.goToPosition(5, 10, false);
+						waitScript(50);
 						this.scriptStep += 1;
 						break;
 					case 19:
@@ -6503,77 +5852,77 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.scriptStep += 1;
 						break;
 					case 20:
-						sub_143f6(13, 14);
+						moveCameraTo(13, 14);
 						break;
 					case 21:
-						C_Unit.sub_d3d((byte) 0, (byte) 1, 13, 14)
-								.sub_18b7(12, 14, false);
-						sub_10b94(5);
+						C_Unit.createUnitOnMap((byte) 0, (byte) 1, 13, 14)
+								.goToPosition(12, 14, false);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 22:
-						C_Unit.sub_d3d((byte) 6, (byte) 1, 13, 14)
-								.sub_18b7(14, 14, false);
-						sub_10b94(5);
+						C_Unit.createUnitOnMap((byte) 6, (byte) 1, 13, 14)
+								.goToPosition(14, 14, false);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 23:
-						C_Unit.sub_d3d((byte) 2, (byte) 1, 13, 14)
-								.sub_18b7(13, 12, false);
-						sub_10b94(5);
+						C_Unit.createUnitOnMap((byte) 2, (byte) 1, 13, 14)
+								.goToPosition(13, 12, false);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 24:
-						C_Unit.sub_d3d((byte) 3, (byte) 1, 13, 14)
-								.sub_18b7(13, 15, false);
-						sub_10b94(15);
+						C_Unit.createUnitOnMap((byte) 3, (byte) 1, 13, 14)
+								.goToPosition(13, 15, false);
+						waitScript(15);
 						this.scriptStep += 1;
 						break;
 					case 25:
 						showUnitDialogMsg(A_MenuBase.getLangString(268), (byte) 5, (byte) 4);
-						sub_10b94(10);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 26:
 						showUnitDialogMsg(A_MenuBase.getLangString(269), (byte) 0, (byte) 4);
-						sub_10b94(10);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 27:
-						sub_143f6(13, 17);
+						moveCameraTo(13, 17);
 						break;
 					case 28:
 						C_Unit localClass_c_0325;
-						(localClass_c_0325 = C_Unit.sub_d3d((byte) 9,
+						(localClass_c_0325 = C_Unit.createUnitOnMap((byte) 9,
 								(byte) 0, 13, 18)).setKingName(2);
-						localClass_c_0325.sub_18b7(13, 16, false);
-						C_Unit.sub_d3d((byte) 6, (byte) 0, 12, 18)
-								.sub_18b7(12, 16, false);
-						C_Unit.sub_d3d((byte) 8, (byte) 0, 14, 19)
-								.sub_18b7(14, 16, false);
-						C_Unit.sub_d3d((byte) 4, (byte) 0, 13, 19)
-								.sub_18b7(13, 17, false);
-						C_Unit.sub_d3d((byte) 1, (byte) 0, 12, 19)
-								.sub_18b7(12, 17, false);
-						sub_10b94(20);
+						localClass_c_0325.goToPosition(13, 16, false);
+						C_Unit.createUnitOnMap((byte) 6, (byte) 0, 12, 18)
+								.goToPosition(12, 16, false);
+						C_Unit.createUnitOnMap((byte) 8, (byte) 0, 14, 19)
+								.goToPosition(14, 16, false);
+						C_Unit.createUnitOnMap((byte) 4, (byte) 0, 13, 19)
+								.goToPosition(13, 17, false);
+						C_Unit.createUnitOnMap((byte) 1, (byte) 0, 12, 19)
+								.goToPosition(12, 17, false);
+						waitScript(20);
 						this.scriptStep += 1;
 						break;
 					case 29:
 						showUnitDialogMsg(A_MenuBase.getLangString(270), (byte) 1, (byte) 4);
-						sub_10b94(10);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 30:
-						sub_143f6(this.playersKings[0].positionX,
+						moveCameraTo(this.playersKings[0].positionX,
 								this.playersKings[0].positionY);
 						break;
 					case 31:
-						this.var_36db = 18;
+						this.helpTipId = 18;
 						this.scriptStep += 1;
 						break;
 					case 32:
-						this.var_3783 = true;
-						this.var_352b = true;
+						this.isUpdatingMb = true;
+						this.isCursorVisible = true;
 						this.startupMessageBox = createDialog(
 								A_MenuBase.getLangString(121 + this.scenarioMapIndex),
 								A_MenuBase.getLangString(138), this.someGHeight, -1);
@@ -6584,21 +5933,21 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						break;
 					case 33:
 						if ((countSomeUnits(-1, -1, (byte) 1) == 0)
-								&& (sub_e353(1) == 0)) {
-							this.var_3783 = false;
-							this.var_352b = false;
-							sub_10b94(10);
+								&& (countPlayerOwnerCastles(1) == 0)) {
+							this.isUpdatingMb = false;
+							this.isCursorVisible = false;
+							waitScript(10);
 							this.scriptStep += 1;
 						}
 						break;
 					case 34:
-						sub_1442b();
+						missionComplete();
 					}
 				} else if (this.scenarioMapIndex == 7) {
 					switch (this.scriptStep) {
 					case 0:
-						A_MenuBase.mainCanvas.showMenu(this.var_3b23);
-						this.var_3813 = true;
+						A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
+						this.isFading = true;
 						this.scriptStep += 1;
 						break;
 					case 1:
@@ -6609,17 +5958,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 						break;
 					case 2:
-						sub_143f6(this.playersKings[1].positionX,
+						moveCameraTo(this.playersKings[1].positionX,
 								this.playersKings[1].positionY);
 						break;
 					case 3:
 						showUnitDialogMsg(A_MenuBase.getLangString(272), (byte) 4, (byte) 4);
-						sub_10b94(10);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 4:
 						showUnitDialogMsg(A_MenuBase.getLangString(273), (byte) 1, (byte) 4);
-						sub_10b94(10);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 5:
@@ -6627,40 +5976,40 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.scriptStep += 1;
 						break;
 					case 6:
-						this.var_3b2b = getSomeUnit(5, 2, (byte) 0);
-						this.var_3b2b.sub_18b7(7, 2, false);
+						this.skeleton1Map2 = getSomeUnit(5, 2, (byte) 0);
+						this.skeleton1Map2.goToPosition(7, 2, false);
 						this.scriptStep += 1;
 						break;
 					case 7:
-						if (this.var_3b2b.var_b13 != 1) {
-							this.var_3b2b.removeFromMap();
-							this.var_3b2b = null;
-							this.var_3b33 = getSomeUnit(7, 3, (byte) 0);
-							this.var_3b33.sub_18b7(7, 2, false);
+						if (this.skeleton1Map2.m_state != 1) {
+							this.skeleton1Map2.removeFromMap();
+							this.skeleton1Map2 = null;
+							this.crystalOfWisdom = getSomeUnit(7, 3, (byte) 0);
+							this.crystalOfWisdom.goToPosition(7, 2, false);
 							this.scriptStep += 1;
 						}
 						break;
 					case 8:
-						if (this.var_3b33.var_b13 != 1) {
-							this.var_3b33.removeFromMap();
-							this.var_3b33 = null;
-							this.var_3b3b = getSomeUnit(9, 2, (byte) 0);
-							this.var_3b3b.sub_18b7(7, 2, false);
+						if (this.crystalOfWisdom.m_state != 1) {
+							this.crystalOfWisdom.removeFromMap();
+							this.crystalOfWisdom = null;
+							this.skeleton2Map2 = getSomeUnit(9, 2, (byte) 0);
+							this.skeleton2Map2.goToPosition(7, 2, false);
 							this.scriptStep += 1;
 						}
 						break;
 					case 9:
-						if (this.var_3b3b.var_b13 != 1) {
-							this.var_3b3b.removeFromMap();
-							this.var_3b3b = null;
-							this.playersKings[1].sub_18b7(7, 2, false);
-							sub_10b94(20);
+						if (this.skeleton2Map2.m_state != 1) {
+							this.skeleton2Map2.removeFromMap();
+							this.skeleton2Map2 = null;
+							this.playersKings[1].goToPosition(7, 2, false);
+							waitScript(20);
 							this.scriptStep += 1;
 						}
 						break;
 					case 10:
-						sub_143f6(9, 15);
-						this.var_352b = true;
+						moveCameraTo(9, 15);
+						this.isCursorVisible = true;
 						break;
 					case 11:
 						D_Menu localObject11 = createDialog(null,
@@ -6682,130 +6031,131 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							(localClass_c_0323 = getSomeUnit(9, 15, (byte) 0))
 									.removeFromMap();
 							this.var_387b = true;
-							sub_10b94(20);
+							waitScript(20);
 							this.scriptStep += 1;
 						}
 						break;
 					case 14:
-						this.var_352b = false;
+						this.isCursorVisible = false;
 						showUnitDialogMsg(A_MenuBase.getLangString(276), (byte) 4, (byte) 4);
 						this.scriptStep += 1;
 						break;
 					case 15:
 						showUnitDialogMsg(A_MenuBase.getLangString(277), (byte) 1, (byte) 4);
-						sub_10b94(10);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 16:
-						this.var_352b = true;
+						this.isCursorVisible = true;
 						this.var_39bb = 4;
-						sub_143f6(3, 9);
+						moveCameraTo(3, 9);
 						break;
 					case 17:
-						sub_143f6(13, 4);
+						moveCameraTo(13, 4);
 						break;
 					case 18:
 						this.var_39bb = 12;
 						showUnitDialogMsg(A_MenuBase.getLangString(278), (byte) 5, (byte) 4);
-						sub_143f6(this.playersKings[0].positionX,
+						moveCameraTo(this.playersKings[0].positionX,
 								this.playersKings[0].positionY);
 						break;
 					case 19:
-						sub_1439a();
+						showObjective();
 						this.scriptStep += 1;
 						break;
 					case 20:
 						if (this.var_3883) {
-							this.var_352b = false;
-							this.var_3783 = false;
-							sub_10b94(20);
+							this.isCursorVisible = false;
+							this.isUpdatingMb = false;
+							waitScript(20);
 							this.scriptStep += 1;
 						}
 						break;
 					case 21:
-						this.var_3803 = true;
-						this.var_37fb = 0;
-						this.var_3813 = true;
+						this.isFadingIn = true;
+						this.fadeInColor = 0;
+						this.isFading = true;
 						this.scriptStep += 1;
 						break;
 					case 22:
-						if (this.var_37fb >= 16) {
+						if (this.fadeInColor >= 16) {
 							sub_b9c5(7, 2);
 							moveCursorToPos(7, 2);
 							sub_87e6();
-							this.playersKings[1] = C_Unit.sub_d3d((byte) 9,
+							this.playersKings[1] = C_Unit.createUnitOnMap((byte) 9,
 									(byte) 1, 7, 2);
 							this.playersKings[1].setKingName(3);
-							C_Unit.sub_d3d((byte) 9, (byte) 0, 6, 3);
-							(localClass_c_0324 = C_Unit.sub_d3d((byte) 9,
-									(byte) 0, 8, 3)).setKingName(2);
-							C_Unit.sub_d3d((byte) 0, (byte) 0, 6, 1);
-							C_Unit.sub_d3d((byte) 0, (byte) 0, 8, 1);
-							sub_10b94(10);
+							C_Unit.createUnitOnMap((byte) 9, (byte) 0, 6, 3);
+							C_Unit luuUnit = C_Unit.createUnitOnMap((byte) 9,
+									(byte) 0, 8, 3);
+							luuUnit.setKingName(2);
+							C_Unit.createUnitOnMap((byte) 0, (byte) 0, 6, 1);
+							C_Unit.createUnitOnMap((byte) 0, (byte) 0, 8, 1);
+							waitScript(10);
 							this.scriptStep += 1;
-							E_MainCanvas.sub_2439(8, 0);
+							E_MainCanvas.playMusicLooped2(8, 0);
 						}
 						break;
 					case 23:
-						this.var_3803 = false;
+						this.isFadingIn = false;
 						this.var_380b = true;
-						this.var_37fb = 0;
+						this.fadeInColor = 0;
 						this.scriptStep += 1;
 						break;
 					case 24:
-						if (this.var_37fb >= 16) {
+						if (this.fadeInColor >= 16) {
 							showUnitDialogMsg(A_MenuBase.getLangString(281), (byte) 4,
 									(byte) 4);
-							sub_10b94(15);
+							waitScript(15);
 							this.scriptStep += 1;
 						}
 						break;
 					case 25:
 						showUnitDialogMsg(A_MenuBase.getLangString(282), (byte) 0, (byte) 4);
-						sub_10b94(8);
+						waitScript(8);
 						this.scriptStep += 1;
 						break;
 					case 26:
 						showUnitDialogMsg(A_MenuBase.getLangString(283), (byte) 4, (byte) 4);
-						sub_10b94(15);
+						waitScript(15);
 						this.scriptStep += 1;
 						break;
 					case 27:
 						showSpriteOnMap(this.sparkSprite, 168, 48, 0, 0, 1, 50);
 						this.mapUnitsSprites.removeElement(this.playersKings[1]);
-						sub_10b94(15);
+						waitScript(15);
 						this.scriptStep += 1;
 						break;
 					case 28:
-						E_MainCanvas.sub_233e(400);
+						E_MainCanvas.vibrate(400);
 						sub_14bd3(5000);
-						sub_10b94(10);
+						waitScript(10);
 						this.scriptStep += 1;
 						break;
 					case 29:
 						showUnitDialogMsg(A_MenuBase.getLangString(284), (byte) 5, (byte) 4);
-						sub_10b94(5);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 30:
 						showUnitDialogMsg(A_MenuBase.getLangString(285), (byte) 2, (byte) 4);
-						sub_10b94(5);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 31:
 						showUnitDialogMsg(A_MenuBase.getLangString(286), (byte) 1, (byte) 4);
-						sub_10b94(5);
+						waitScript(5);
 						this.scriptStep += 1;
 						break;
 					case 32:
 						showUnitDialogMsg(A_MenuBase.getLangString(287), (byte) 0, (byte) 4);
-						this.var_3803 = true;
-						this.var_37fb = 0;
+						this.isFadingIn = true;
+						this.fadeInColor = 0;
 						this.scriptStep += 1;
 						break;
 					case 33:
-						if (this.var_37fb >= 16) {
-							sub_10b94(10);
+						if (this.fadeInColor >= 16) {
+							waitScript(10);
 							this.var_3bc3 = false;
 							this.scriptStep += 1;
 						}
@@ -6815,7 +6165,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.scriptStep += 1;
 						break;
 					case 35:
-						E_MainCanvas.sub_2439(0, 0);
+						E_MainCanvas.playMusicLooped2(0, 0);
 						sub_c16e(A_MenuBase.getLangString(288));
 						this.scriptStep += 1;
 						break;
@@ -6830,31 +6180,697 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.unitEndTurnMb = null;
 	}
 
-	public final void sub_1439a() {
-		this.var_3b23 = null;
+	
+
+	private void updateScenarioScript1() {
+		switch (this.scriptStep) {
+			case 0:
+				this.scriptStep += 1;
+				break;
+			case 1:
+				A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 2:
+				this.isFading = true;
+				getSomeUnit(0, 8, (byte) 0).goToPosition(3, 8, false);
+				getSomeUnit(1, 9, (byte) 0).goToPosition(4, 9, false);
+				getSomeUnit(0, 10, (byte) 0).goToPosition(3, 10, false);
+				moveCameraTo(5, 9);
+				break;
+			case 3:
+				moveCameraTo(9, 3);
+				this.isCursorVisible = true;
+				break;
+			case 4:
+				waitScript(10);
+				this.var_39bb = 12;
+				C_Unit.var_a7b = C_Unit.var_a73;
+				this.scriptStep += 1;
+				break;
+			case 5:
+				//Help us! We are under attack!...
+				showUnitDialogMsg(A_MenuBase.getLangString(221), (byte) 2, (byte) 4);
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 6:
+				C_Unit vilTroop = getSomeUnit(9, 3, (byte) 0);
+				E_MainCanvas.vibrate(100);
+				vilTroop.shakeUnit(400);
+				showSpriteOnMap(this.redsparkSprite, ((F_Sprite) vilTroop).posXPixel,
+						((F_Sprite) vilTroop).posYPixel, 0, 0, 2, 50);
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 7:
+				//Aargh... we've failed!
+				showUnitDialogMsg(A_MenuBase.getLangString(222), (byte) 2, (byte) 4);
+				this.scriptStep += 1;
+				break;
+			case 8:
+				C_Unit llUnit = getSomeUnit(9, 3, (byte) 0);
+				showSpriteOnMap(this.sparkSprite, llUnit.posXPixel, llUnit.posYPixel, 0, 0, 1, 50);
+				showSpriteOnMap(this.smokeSprite, llUnit.posXPixel, llUnit.posYPixel, 0, -3, 1, 100);
+				llUnit.removeFromMap();
+				waitScript(20);
+				this.scriptStep += 1;
+				break;
+			case 9:
+				this.isCursorVisible = false;
+				moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
+				break;
+			case 10:
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 11:
+				showUnitDialogMsg(A_MenuBase.getLangString(223), (byte) 0, (byte) 4);
+				waitScript(5);
+				this.scriptStep += 1;
+				break;
+			case 12:
+				//Forward troops! Make these raiders pay!
+				showUnitDialogMsg(A_MenuBase.getLangString(224), (byte) 5, (byte) 4);
+				this.scriptStep += 1;
+				break;
+			case 13:
+				showObjective();
+				this.scriptStep += 1;
+				break;
+			case 14:
+				if (this.var_378b == 0) {
+					this.helpTipId = 0;
+					this.scriptStep += 1;
+				}
+				break;
+			case 15:
+				if ((this.playerId == 0) && (this.activeUnitState == 1)
+						&& (this.alphaWindowWTF == 0)) { //activeUnitState == 1 chosen
+					this.helpTipId = 1;
+					this.scriptStep += 1;
+				}
+				break;
+			case 16:
+				if ((this.playerId == 0) && (this.unitEndTurnMb != null)) {
+					this.helpTipId = 2;
+					this.scriptStep += 1;
+				}
+				break;
+			case 17:
+				if ((this.playerId == 0) && (this.unitEndTurnMb != null)) {
+					this.helpTipId = 3;
+					this.scriptStep += 1;
+				}
+				break;
+			case 18:
+				if (countSomeUnits(-1, 2, (byte) 0) >= 3) { // 2 - has no turn, noboby has turn
+					this.helpTipId = 4;
+					this.scriptStep += 1;
+				} else if (this.currentTurn >= 1) {
+					this.scriptStep += 1;
+				}
+				break;
+			case 19:
+				if (this.currentTurn >= 2) {
+					this.helpTipId = 5;
+					this.scriptStep += 1;
+				}
+				break;
+			case 20:
+				this.helpTipId = 6;
+				this.scriptStep += 1;
+				break;
+			case 21:
+				if ((this.activeUnitState == 1) && (this.playerId == 0)) {
+					this.helpTipId = 7;
+					this.scriptStep += 1;
+				}
+				break;
+			case 22:
+				if (countSomeUnits(-1, -1, (byte) 1) == 0) { // no enemy troops
+					this.isUpdatingMb = false;
+					waitScript(20);
+					this.scriptStep += 1;
+				}
+				break;
+			case 23:
+				moveCameraTo(1, 1);
+				break;
+			case 24:
+				C_Unit newArcher = C_Unit.createUnitOnMap((byte) 1, (byte) 1, 1, 1); //archer
+				newArcher.goToPosition(1, 2, false, true);
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 25:
+				moveCameraTo(10, 10);
+				break;
+			case 26:
+				C_Unit newSoldier = C_Unit.createUnitOnMap((byte) 0, (byte) 1, 10, 10);
+				newSoldier.goToPosition(10, 9, false, true);
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 27:
+				moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
+				break;
+			case 28:
+				showUnitDialogMsg(A_MenuBase.getLangString(225), (byte) 5, (byte) 4);
+				waitScript(5);
+				this.scriptStep += 1;
+				break;
+			case 29:
+				showUnitDialogMsg(A_MenuBase.getLangString(226), (byte) 0, (byte) 4);
+				this.isUpdatingMb = true;
+				this.scriptStep += 1;
+				break;
+			case 30:
+				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (this.activeUnitState == 0)) {
+					this.isUpdatingMb = false;
+					this.isCursorVisible = false;
+					waitScript(30);
+					this.scriptStep += 1;
+				}
+				break;
+			case 31:
+				this.isFadingIn = true;
+				this.fadeInColor = 0;
+				waitScript(20);
+				this.scriptStep += 1;
+				break;
+			case 32:
+				//Thank you, your Majesty, you must help ...
+				showUnitDialogMsg(A_MenuBase.getLangString(227), (byte) 2, (byte) 4);
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 33:
+				showUnitDialogMsg(A_MenuBase.getLangString(228), (byte) 0, (byte) 4);
+				waitScript(5);
+				this.scriptStep += 1;
+				break;
+			case 34:
+				showUnitDialogMsg(A_MenuBase.getLangString(229), (byte) 2, (byte) 4);
+				waitScript(5);
+				this.scriptStep += 1;
+				break;
+			case 35:
+				showUnitDialogMsg(A_MenuBase.getLangString(230), (byte) 0, (byte) 4);
+				waitScript(15);
+				this.scriptStep += 1;
+				break;
+			case 36:
+				missionComplete();
+				break;
+			}
+	}
+
+	private void updateScenarioScript2() {
+		switch (this.scriptStep) {
+			case 1:
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 2:
+				this.var_39bb = 4; //??
+				moveCameraTo(12, 3);
+				break;
+			case 3:
+				showUnitDialogMsg(A_MenuBase.getLangString(231), (byte) 1, (byte) 4);
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 4:
+				showUnitDialogMsg(A_MenuBase.getLangString(232), (byte) 3, (byte) 4);
+				moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
+				break;
+			case 5:
+				showUnitDialogMsg(A_MenuBase.getLangString(233), (byte) 5, (byte) 4);
+				moveCameraTo(7, 3);
+				break;
+			case 6:
+				C_Unit.var_a7b = 2;
+				this.skeleton1Map2 = C_Unit.createUnitOnMap((byte) 0, (byte) 1, 7, 3);
+				this.crystalOfWisdom = C_Unit.createUnitOnMap((byte) 11, (byte) 1, 7, 3);
+				this.skeleton2Map2 = C_Unit.createUnitOnMap((byte) 0, (byte) 1, 7, 3);
+				this.skeleton1Map2.followerUnitMb = this.crystalOfWisdom;
+				this.crystalOfWisdom.followerUnitMb = this.skeleton2Map2;
+				this.skeleton1Map2.goToPosition(6, -2, false);
+				waitScript(30);
+				this.scriptStep += 1;
+				break;
+			case 7:
+				if ((this.skeleton2Map2.positionX == 6) && (this.skeleton2Map2.positionY == 1)) {
+					C_Unit.var_a7b = 4;
+					this.wisdomCrystalKeeper = C_Unit.createUnitOnMap((byte) 0, (byte) 0, 7, 3);
+					this.wisdomCrystalKeeper.goToPosition(6, 2, false);
+					this.crystalOfWisdom.followerUnitMb = null;
+					//The Crystal of Wisdom! Do not let them escape!
+					showUnitDialogMsg(A_MenuBase.getLangString(234), (byte) 2, (byte) 4);
+					this.scriptStep += 1;
+				}
+				break;
+			case 8:
+				if (this.wisdomCrystalKeeper.m_state != 1) {
+					E_MainCanvas.vibrate(100);
+					this.wisdomCrystalKeeper.shakeUnit(400);
+					showSpriteOnMap(this.redsparkSprite, this.wisdomCrystalKeeper.posXPixel,
+							this.wisdomCrystalKeeper.posYPixel, 0, 0, 2, 50);
+					waitScript(10);
+					this.scriptStep += 1;
+				}
+				break;
+			case 9:
+				//Aarrghh!
+				showUnitDialogMsg(A_MenuBase.getLangString(235), (byte) 2, (byte) 4);
+				waitScript(5);
+				this.scriptStep += 1;
+				break;
+			case 10:
+				showSpriteOnMap(this.smokeSprite, this.wisdomCrystalKeeper.posXPixel,
+						this.wisdomCrystalKeeper.posYPixel, 0, -3, 1, 100);
+				showSpriteOnMap(this.sparkSprite, this.wisdomCrystalKeeper.posXPixel,
+						this.wisdomCrystalKeeper.posYPixel, 0, 0, 1, 50);
+				this.wisdomCrystalKeeper.removeFromMap();
+				this.wisdomCrystalKeeper = null;
+				waitScript(15);
+				this.scriptStep += 1;
+				break;
+			case 11:
+				C_Unit.var_a7b = C_Unit.var_a73;
+				this.skeleton1Map2.removeFromMap();
+				this.crystalOfWisdom.removeFromMap();
+				this.skeleton1Map2 = null;
+				this.crystalOfWisdom = null;
+				this.skeleton2Map2 = null;
+				this.var_39bb = 12;
+				moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
+				break;
+			case 12:
+				showUnitDialogMsg(A_MenuBase.getLangString(236), (byte) 5, (byte) 4);
+				this.scriptStep += 1;
+				break;
+			case 13:
+				showUnitDialogMsg(A_MenuBase.getLangString(237), (byte) 1, (byte) 4);
+				this.scriptStep += 1;
+				break;
+			case 14:
+				moveCameraTo(3, 5);
+				break;
+			case 15:
+				showUnitDialogMsg(A_MenuBase.getLangString(238), (byte) 5, (byte) 4);
+				this.scriptStep += 1;
+				break;
+			case 16:
+				moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
+				break;
+			case 17:
+				this.helpTipId = 8;
+				this.scriptStep += 1;
+				break;
+			case 18:
+				this.helpTipId = 9;
+				this.scriptStep += 1;
+				break;
+			case 19:
+				showObjective();
+				this.scriptStep += 1;
+				break;
+			case 20:
+				if ((this.activeUnitState == 9) && (this.playerId == 0)) {
+					this.helpTipId = 10;
+					this.scriptStep += 1;
+				}
+				break;
+			case 21:
+				this.helpTipId = 11;
+				this.scriptStep += 1;
+				break;
+			case 22:
+				if ((this.playersKings[0].m_state == 3) || (this.playersKings[1].m_state == 3)) { // maybe dead @todo
+					this.helpTipId = 12;
+					this.scriptStep += 1;
+				}
+				break;
+			case 23:
+				// no enemies and no enemy castle
+				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) { 
+					this.isUpdatingMb = false;
+					waitScript(20);
+					this.scriptStep += 1;
+				}
+				break;
+			case 24:
+				moveCameraTo(this.playersKings[0].positionX, this.playersKings[0].positionY);
+				break;
+			case 25:
+				showUnitDialogMsg(A_MenuBase.getLangString(239), (byte) 1, (byte) 4);
+				this.scriptStep += 1;
+				break;
+			case 26:
+				showUnitDialogMsg(A_MenuBase.getLangString(240), (byte) 5, (byte) 4);
+				waitScript(10);
+				this.scriptStep += 1;
+				break;
+			case 27:
+				missionComplete();
+				break;
+		}
+	}
+	
+	private void updateScenarioScript3() {
+		//case 0 &1 @todo wtf? 
+		switch (this.scriptStep) {
+		case 0:
+			if (this.skeleton1Map2.m_state != 1) {
+				this.skeleton1Map2.goToPosition(7, 14, false);
+				this.scriptStep += 1;
+			}
+			break;
+		case 1:
+			if (this.crystalOfWisdom.m_state != 1) {
+				this.crystalOfWisdom.goToPosition(7, 15, false);
+				waitScript(20);
+				this.scriptStep += 1;
+			}
+			break;
+		case 2:
+			C_Unit.var_a7b = C_Unit.var_a73;
+			this.skeleton1Map2 = null;
+			this.crystalOfWisdom = null;
+			this.skeleton2Map2 = null;
+			//Your Majesty, this forest is known to be...
+			showUnitDialogMsg(A_MenuBase.getLangString(241), (byte) 5, (byte) 4);
+			waitScript(5);
+			this.scriptStep += 1;
+			break;
+		case 3:
+			showUnitDialogMsg(A_MenuBase.getLangString(242), (byte) 0, (byte) 4);
+			waitScript(5);
+			this.scriptStep += 1;
+			break;
+		case 4:
+			showUnitDialogMsg(A_MenuBase.getLangString(243), (byte) 5, (byte) 4);
+			waitScript(5);
+			this.scriptStep += 1;
+			break;
+		case 5:
+			this.helpTipId = 14;
+			this.scriptStep += 1;
+			break;
+		case 6:
+			showObjective(); //Path of shadows
+			this.scriptStep += 1;
+			break;
+		case 7:
+			if ((this.playerId == 0)
+					&& (this.var_378b == 0)
+					&& (countSomeUnits(-1, 3, (byte) -1) >= 1)) { //there are dead units
+				this.helpTipId = 15;
+				this.scriptStep += 1;
+			}
+			break;
+		case 8:
+			int k = 0;
+			C_Unit[] unitsEndTurn = getUnitsOfTypeStatePlayer(-1, 2, (byte) 0); //2 - End turn
+			while (k < unitsEndTurn.length) {
+				if ((unitsEndTurn[k].positionX <= 4) || (unitsEndTurn[k].positionY <= 10)) {
+					waitScript(10);
+					this.isUpdatingMb = false;
+					this.isCursorVisible = false;
+					this.scriptStep = 9;
+				} else {
+					k++;
+				}
+			}
+			break;
+		case 9:
+			moveCameraTo(0, 8);
+			C_Unit.createUnitOnMap((byte) 5, (byte) 1, -1, 8)
+					.goToPosition(0, 8, false); //wolf
+			C_Unit.createUnitOnMap((byte) 5, (byte) 1, -2, 7)
+					.goToPosition(1, 7, false); //wolf
+			waitScript(20);
+			this.scriptStep += 1;
+			break;
+		case 10:
+			moveCameraTo(8, 6);
+			C_Unit.createUnitOnMap((byte) 5, (byte) 1, 12, 6)
+					.goToPosition(8, 6, false); //wolf
+			waitScript(20);
+			this.scriptStep += 1;
+			break;
+		case 11:
+			moveCameraTo(2, 1);
+			C_Unit.createUnitOnMap((byte) 5, (byte) 1, 1, -2)
+					.goToPosition(1, 2, false); //wolf
+			C_Unit.createUnitOnMap((byte) 5, (byte) 1, 3, -2)
+					.goToPosition(3, 2, false); //wolf
+			C_Unit.createUnitOnMap((byte) 4, (byte) 1, 2, -1)
+					.goToPosition(2, 1, false); //wisp
+			waitScript(20);
+			this.scriptStep += 1;
+			break;
+		case 12:
+			showUnitDialogMsg(A_MenuBase.getLangString(244), (byte) 5, (byte) 4);
+			waitScript(10);
+			this.scriptStep += 1;
+			break;
+		case 13:
+			moveCameraTo(4, 8);
+			waitScript(15);
+			this.scriptStep += 1;
+			break;
+		case 14:
+			C_Unit lcaUnit = C_Unit.createUnitOnMap(
+					(byte) 2, (byte) 1, 3, 8); // elemental
+			C_Unit luuUnit = C_Unit.createUnitOnMap((byte) 2,
+					(byte) 1, 4, 7); // elemental
+			C_Unit someUnitx = C_Unit.createUnitOnMap((byte) 2, (byte) 1, 5, 8); // elemental
+			showSpriteOnMap(this.sparkSprite, lcaUnit.posXPixel,
+					lcaUnit.posYPixel, 0, 0, 1, 50);
+			showSpriteOnMap(this.sparkSprite, luuUnit.posXPixel,
+					luuUnit.posYPixel, 0, 0, 1, 50);
+			showSpriteOnMap(this.sparkSprite,
+					((F_Sprite) someUnitx).posXPixel,
+					((F_Sprite) someUnitx).posYPixel, 0, 0, 1,
+					50);
+			waitScript(10);
+			this.scriptStep += 1;
+			break;
+		case 15:
+			showUnitDialogMsg(A_MenuBase.getLangString(245), (byte) 5, (byte) 4);
+			waitScript(10);
+			this.scriptStep += 1;
+		    break;
+		case 16:
+			showUnitDialogMsg(A_MenuBase.getLangString(246), (byte) -1, (byte) 4);
+			waitScript(5);
+			this.scriptStep += 1;
+			 break;
+		case 17:
+			showUnitDialogMsg(A_MenuBase.getLangString(247), (byte) 0, (byte) 4);
+			waitScript(10);
+			this.scriptStep += 1;
+			break;
+		case 18:
+			A_MenuBase.mainCanvas.showMenu(createDialog(null,
+					A_MenuBase.getLangString(248), this.someGHeight, 1500));
+			this.scriptStep += 1;
+			break;
+		case 19:
+			getSomeUnit(3, 8, (byte) 0).removeFromMap();
+			getSomeUnit(4, 7, (byte) 0).removeFromMap();
+			getSomeUnit(5, 8, (byte) 0).removeFromMap();
+			C_Unit lcaUnit1 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 3, 8);
+			C_Unit luuUnit1 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 4, 7);
+			C_Unit someUnitx1 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 5, 8);
+			showSpriteOnMap(this.sparkSprite, lcaUnit1.posXPixel, lcaUnit1.posYPixel, 0, 0, 1, 50);
+			showSpriteOnMap(this.sparkSprite, luuUnit1.posXPixel, luuUnit1.posYPixel, 0, 0, 1, 50);
+			showSpriteOnMap(this.sparkSprite,
+					((F_Sprite) someUnitx1).posXPixel,
+					((F_Sprite) someUnitx1).posYPixel, 0, 0, 1,
+					50);
+			waitScript(10);
+			this.scriptStep += 1;
+			break;
+		case 20:
+			this.isUpdatingMb = true;
+			this.isCursorVisible = true;
+			this.helpTipId = 13;
+			this.scriptStep += 1;
+		   break;
+		case 21:
+			if (countSomeUnits(-1, -1, (byte) 1) == 0) { // no enemies
+				this.isUpdatingMb = false;
+				waitScript(10);
+				this.scriptStep += 1;
+			}
+			break;
+		case 22:
+			missionComplete();
+			break;
+		}
+	}
+	
+	public final void updateScenarioScript4(){
+		switch (this.scriptStep) {
+		case 0:
+			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
+			this.isFading = true;
+			this.scriptStep += 1;
+			break;
+		case 1:
+			if (this.playersKings[0].m_state != 1) {
+				this.var_39b3 = null;
+				waitScript(20);
+				this.scriptStep += 1;
+			}
+			break;
+		case 2:
+			this.isFadingIn = true;
+			this.isFading = true;
+			this.fadeInColor = 0;
+			waitScript(20);
+			this.scriptStep += 1;
+			break;
+		case 3:
+			//Your Majesty, thank the Creator you are here! 
+			showUnitDialogMsg(A_MenuBase.getLangString(249), (byte) 2, (byte) 4);
+			waitScript(10);
+			this.scriptStep += 1;
+			break;
+		case 4:
+			showUnitDialogMsg(A_MenuBase.getLangString(250), (byte) 0, (byte) 4);
+			waitScript(10);
+			this.scriptStep += 1;
+			break;
+		case 5:
+			showUnitDialogMsg(A_MenuBase.getLangString(251), (byte) 5, (byte) 4);
+			moveCursorToPos(13, 3);
+			sub_b998(312, 72);
+			this.playersKings[0].setUnitPosition(7, 1);
+			this.skeleton1Map2.setUnitPosition(5, 4);
+			this.crystalOfWisdom.setUnitPosition(7, 5);
+			this.skeleton2Map2.setUnitPosition(3, 3);
+			this.skeleton1Map2 = null;
+			this.crystalOfWisdom = null;
+			this.skeleton2Map2 = null;
+			this.var_39bb = 2;
+			waitScript(5);
+			this.scriptStep += 1;
+			break;
+		case 6:
+			this.isFadingIn = false;
+			this.var_380b = true;
+			this.fadeInColor = 0;
+			waitScript(5);
+			this.scriptStep += 1;
+			break;
+		case 7:
+			moveCameraTo(13, 10);
+			break;
+		case 8:
+			C_Unit.var_a7b = 2;
+			this.var_39bb = 4;
+			this.skeleton1Map2 = getSomeUnit(10, 10, (byte) 0);
+			this.skeleton1Map2.goToPosition(6, 10, false);
+			moveCursorToPos(6, 10);
+			moveCameraTo(6, 10);
+			break;
+		case 9:
+			if (this.skeleton1Map2.m_state != 1) {
+				this.skeleton1Map2 = null;
+				this.isCursorVisible = true;
+				waitScript(10);
+				this.scriptStep += 1;
+			}
+			break;
+		case 10:
+			moveCursorToPos(4, 9);
+			moveCameraTo(4, 9);
+			showSpriteOnMap(this.redsparkSprite, 96, 216, 0, 0, 1, 50);
+			waitScript(15);
+			break;
+		case 11:
+			this.var_35db = C_Unit.sub_d60((byte) 0, (byte) 0, 4, 9,
+					false);
+			this.var_35db.unitTypeId = -1;
+			this.var_35db.m_state = 4;
+			this.var_3603 = 6;
+			waitScript(20);
+			this.scriptStep += 1;
+			break;
+		case 12:
+			showUnitDialogMsg(A_MenuBase.getLangString(252), (byte) 5, (byte) 4);
+			moveCameraTo(7, 1);
+			break;
+		case 13:
+			showUnitDialogMsg(A_MenuBase.getLangString(253), (byte) 0, (byte) 4);
+			waitScript(5);
+			this.scriptStep += 1;
+			break;
+		case 14:
+			this.helpTipId = 17;
+			this.scriptStep += 1;
+			break;
+		case 15:
+			showObjective();
+			this.scriptStep += 1;
+			break;
+		case 16:
+			if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
+				waitScript(15);
+				this.isUpdatingMb = false;
+				this.scriptStep += 1;
+			}
+			break;
+		case 17:
+			//Your Majesty, We have stopped the attack.
+			showUnitDialogMsg(A_MenuBase.getLangString(254), (byte) 5, (byte) 4); 
+			waitScript(5);
+			this.scriptStep += 1;
+			break;
+		case 18:
+			//Well done, Captain! Prepare the troops to march to Thorin!
+			showUnitDialogMsg(A_MenuBase.getLangString(255), (byte) 0, (byte) 4);
+			waitScript(10);
+			this.scriptStep += 1;
+			break;
+		case 19:
+			missionComplete();
+			break;
+		}
+	}
+	
+	public final void showObjective() {
+		this.mapNameDialog = null;
 		this.var_39bb = 12;
 		C_Unit.var_a7b = C_Unit.var_a73;
 		this.startupMessageBox.setMenuActionEnabled((byte) 0, true);
 		this.startupMessageBox.setMenuActionEnabled((byte) 1, false);
 		A_MenuBase.mainCanvas.showMenu(this.startupMessageBox);
-		this.var_352b = true;
-		this.var_3783 = true;
+		this.isCursorVisible = true;
+		this.isUpdatingMb = true;
 		this.var_3793 = false;
-		E_MainCanvas.sub_2439(2, 0);
+		E_MainCanvas.playMusicLooped2(2, 0);
 	}
 
-	public final void sub_143f6(int paramInt1, int paramInt2) {
-		this.var_3b83 = paramInt1;
-		this.var_3b8b = paramInt2;
-		moveCursorToPos(paramInt1, paramInt2);
+	public final void moveCameraTo(int inX, int inY) {
+		this.cameraX = inX;
+		this.cameraY = inY;
+		moveCursorToPos(inX, inY);
 		this.scriptStep += 1;
 	}
 
-	public final void sub_1442b() {
+	public final void missionComplete() {
 		E_MainCanvas.stopMusic();
 		E_MainCanvas.playMusicLooped(6, 1);
-		A_MenuBase.mainCanvas.showMenu(createDialog(null, A_MenuBase.getLangString(72),
-				this.someGHeight, 3000));
+		D_Menu dialog = createDialog(null, A_MenuBase.getLangString(72),
+				this.someGHeight, 3000); //MISSION COMPLETE
+		A_MenuBase.mainCanvas.showMenu(dialog);
 		this.someStartTime5 = this.time;
 		this.scriptStep = -1;
 		this.var_3b93 = 0;
@@ -6864,7 +6880,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final void sub_1447e() {
 		this.var_3b7b = true;
 		this.scriptStep = 0;
-		sub_10b94(20);
+		waitScript(20);
 		E_MainCanvas.stopMusic();
 		E_MainCanvas.playMusicLooped(7, 1);
 	}

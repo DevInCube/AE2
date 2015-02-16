@@ -456,13 +456,14 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final void sub_233e(int paramInt) {
+	public static final void vibrate(int val) {
 		try {
 			if (settings[1] != false) {
-				display.vibrate(paramInt * 4);
+				display.vibrate(val * 4);
 			}
 			return;
-		} catch (Exception localException) {
+		} catch (Exception ex) {
+			//
 		}
 	}
 
@@ -487,7 +488,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final void sub_2439(int paramInt1, int paramInt2) {
+	public static final void playMusicLooped2(int paramInt1, int paramInt2) {
 		playMusicLooped(paramInt1, paramInt2);
 	}
 

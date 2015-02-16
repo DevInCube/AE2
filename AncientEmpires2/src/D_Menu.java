@@ -6,7 +6,7 @@ import javax.microedition.lcdui.Graphics;
 public final class D_Menu extends A_MenuBase {
 
 	public boolean[] menuActionsMb = { false, false };
-	public int var_fbd = 13553358; // #CECECE light gray
+	public int m_bgColorMb = 13553358; // #CECECE light gray
 	public static final int someXPadding = E_MainCanvas.canvasHeight <= 143 ? 1
 			: 2;
 	public static final int var_fcd = someXPadding * 2 + 1;
@@ -1251,7 +1251,7 @@ public final class D_Menu extends A_MenuBase {
 				rotationDeg = i1 + this.menuUnit.frameHeight / 2;
 				String str = null;
 				gr.setFont(E_MainCanvas.font8);
-				gr.setColor(this.var_fbd);
+				gr.setColor(this.m_bgColorMb);
 				E_MainCanvas.drawString(gr, this.menuUnit.unitName, i6
 						+ this.menuUnit.frameWidth + i6, rotationDeg
 						- E_MainCanvas.font8BaselinePos / 2, 20);
@@ -1266,7 +1266,7 @@ public final class D_Menu extends A_MenuBase {
 				E_MainCanvas.drawCharedString(gr, str, menuWid - i6, rotationDeg, 1, 10);
 				this.var_1085 = (E_MainCanvas.someMenuShiftHeight - E_MainCanvas.font8BaselinePos);
 				i1 += this.menuUnit.frameHeight + someXPadding;
-				gr.setColor(this.var_fbd);
+				gr.setColor(this.m_bgColorMb);
 				gr.drawLine(i6, i1, menuWid - i6 - i6, i1);
 				i1 += 1 + someXPadding;
 				int i11;
@@ -1281,7 +1281,7 @@ public final class D_Menu extends A_MenuBase {
 					n += i10 + i6;
 					i11 = menuWid - n - i6 - gameVar.hudIconsSprite.frameWidth - i7
 							- i6;
-					gr.setColor(this.var_fbd);
+					gr.setColor(this.m_bgColorMb);
 					sub_35f8(gr, n, i1, i11, i9);
 					gr.setColor(2370117);
 					if ((i12 = i11 * this.menuUnit.experience
@@ -1294,7 +1294,7 @@ public final class D_Menu extends A_MenuBase {
 					E_MainCanvas.drawCharedString(gr, "" + this.menuUnit.level, n,
 							rotationDeg, 0, 6);
 					i1 += i9 + someXPadding;
-					gr.setColor(this.var_fbd);
+					gr.setColor(this.m_bgColorMb);
 					gr.drawLine(i6, i1, menuWid - i6 - i6, i1);
 					i1 += 1 + someXPadding;
 				}
@@ -1345,7 +1345,7 @@ public final class D_Menu extends A_MenuBase {
 					i1 += i11;
 				}
 				i1 += someXPadding;
-				gr.setColor(this.var_fbd);
+				gr.setColor(this.m_bgColorMb);
 				gr.drawLine(i6, i1, menuWid - i6 - i6, i1);
 				break;
 			case 8:
@@ -1475,7 +1475,7 @@ public final class D_Menu extends A_MenuBase {
 						mapUnitsCount = i1;
 					}
 					int i23 = i1 + this.var_10f5;
-					gr.setColor(this.var_fbd);
+					gr.setColor(this.m_bgColorMb);
 					int i24 = this.var_109d;
 					int i25 = this.var_109d + this.var_10a5;
 					if (this.var_10b5 > 0) {
@@ -1507,7 +1507,7 @@ public final class D_Menu extends A_MenuBase {
 							i30 = I_Game.sub_bf33(this.var_117d, 16777215,
 									this.var_101d - i29, this.var_101d);
 						} else {
-							i30 = I_Game.sub_bf33(this.var_117d, this.var_fbd,
+							i30 = I_Game.sub_bf33(this.var_117d, this.m_bgColorMb,
 									this.var_101d - i29, this.var_101d);
 						}
 						i30 = I_Game.sub_bf33(i30, this.var_117d, this.var_1105, 5);
@@ -1529,7 +1529,7 @@ public final class D_Menu extends A_MenuBase {
 						int i31 = menuHei - i28 * 2 - 2;
 						int i32 = menuWid - (i29 + i30) / 2;
 						if (i31 > 2) {
-							gr.setColor(this.var_fbd);
+							gr.setColor(this.m_bgColorMb);
 							sub_35f8(gr, i32, i28 + 1, i30, i31);
 							int i33;
 							if ((i33 = (i31 - 2) * this.var_10a5

@@ -279,12 +279,12 @@ public final class G_FightAnimation {
 							if (this.unitCharsSprites[j].currentFrameIndex == 1) {
 								this.unitCharsSprites[j].var_80c = 0;
 								this.unitCharsSprites[j].var_87c = 1;
-								E_MainCanvas.sub_233e(200);
+								E_MainCanvas.vibrate(200);
 								this.game.sub_14bd3(1200);
 								E_MainCanvas.playMusicLooped(14, 1);
 								for (int n = 0; n < 2; n++) {
 									F_Sprite localClass_f_0456;
-									(localClass_f_0456 = F_Sprite.sub_1616(
+									(localClass_f_0456 = F_Sprite.someSpriteCopy(
 											this.game.smokeSprite, 0, 0, -1, 1,
 											E_MainCanvas.getRandomMax(4) * 50,
 											(byte) 0))
@@ -300,7 +300,7 @@ public final class G_FightAnimation {
 									localClass_f_0456.var_85c = true;
 									this.game.addSpriteTo(localClass_f_0456);
 								}
-								(localClass_f_0454 = F_Sprite.sub_1616(
+								(localClass_f_0454 = F_Sprite.someSpriteCopy(
 										this.game.smokeSprite, -1, 0, -1, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
 										.setSpritePosition(
@@ -311,7 +311,7 @@ public final class G_FightAnimation {
 														+ 2);
 								localClass_f_0454.var_85c = true;
 								this.game.addSpriteTo(localClass_f_0454);
-								(localClass_f_0454 = F_Sprite.sub_1616(
+								(localClass_f_0454 = F_Sprite.someSpriteCopy(
 										this.game.smokeSprite, 1, 0, -1, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
 										.setSpritePosition(
@@ -371,7 +371,7 @@ public final class G_FightAnimation {
 					this.unitCharsSprites[this.var_c85].startAnimation(2, this.var_b75);
 					this.unitCharsSprites[this.var_c85].var_81c = 1;
 					if ((this.unitType == 3) || (this.unitType == 2)) {
-						this.var_c75[this.var_c85] = F_Sprite.sub_1616(
+						this.var_c75[this.var_c85] = F_Sprite.someSpriteCopy(
 								this.kingWaveSprite, 0, 0, 0, 1, 50, (byte) 0);
 						this.var_c75[this.var_c85]
 								.setSpritePosition(
@@ -383,7 +383,7 @@ public final class G_FightAnimation {
 						this.game.addSpriteTo(this.var_c75[this.var_c85]);
 					} else if (this.unitType == 1) {
 						F_Sprite localClass_f_0451;
-						(localClass_f_0451 = F_Sprite.sub_1616(this.archerArrowSprite,
+						(localClass_f_0451 = F_Sprite.someSpriteCopy(this.archerArrowSprite,
 								0, 0, 0, 1, 0, (byte) 0)).startAnimation(1,
 								this.var_b75);
 						localClass_f_0451
@@ -398,7 +398,7 @@ public final class G_FightAnimation {
 						if (this.unitType == 7) {
 							this.unitCharsSprites[this.var_c85].var_864 = 5;
 							for (int k = 0; k < 3; k++) {
-								(localClass_f_0454 = F_Sprite.sub_1616(
+								(localClass_f_0454 = F_Sprite.someSpriteCopy(
 										this.game.bigSmokeSprite,
 										E_MainCanvas.getRandomWithin(-1, 2), 0, 0, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
@@ -413,14 +413,14 @@ public final class G_FightAnimation {
 						}
 						if (this.unitType == 9) {
 							F_Sprite localClass_f_0452;
-							(localClass_f_0452 = F_Sprite.sub_1616(
+							(localClass_f_0452 = F_Sprite.someSpriteCopy(
 									this.slashSprite, 0, 0, 0, 1, 200, (byte) 0))
 									.setSpritePosition(this.unitCharsSprites[0].posXPixel,
 											this.unitCharsSprites[0].posYPixel
 													+ this.var_b8d.frameHeight);
 							localClass_f_0452.var_80c = (-this.var_b8d.frameHeight);
 							this.game.addSpriteTo(localClass_f_0452);
-							this.var_c75[0] = F_Sprite.sub_1616(
+							this.var_c75[0] = F_Sprite.someSpriteCopy(
 									this.kingWaveSprite, var_b85[this.var_b6d] * 3,
 									-2, 0, -1, 100, (byte) 0);
 							int i1 = this.unitCharsSprites[this.var_c85].posXPixel
@@ -431,7 +431,7 @@ public final class G_FightAnimation {
 									+ this.var_b8d.frameHeight
 									- this.var_c75[this.var_c85].frameHeight + 2;
 							this.var_c75[0].setSpritePosition(i1, i3);
-							this.var_c75[1] = F_Sprite.sub_1616(
+							this.var_c75[1] = F_Sprite.someSpriteCopy(
 									this.kingWaveSprite, var_b85[this.var_b6d] * 3, 1,
 									0, -1, 100, (byte) 0);
 							this.var_c75[1].setSpritePosition(i1, i3);
@@ -440,7 +440,7 @@ public final class G_FightAnimation {
 							this.game.addSpriteTo(this.var_c75[0]);
 							this.var_c75[0].var_86c = this.var_b6d;
 						} else if (this.unitType == 8) {
-							this.var_c75[this.var_c85] = F_Sprite.sub_1616(
+							this.var_c75[this.var_c85] = F_Sprite.someSpriteCopy(
 									null, var_b85[this.var_b6d], 0, 0, -1,
 									2000, (byte) 6);
 							this.var_c75[this.var_c85]
@@ -451,7 +451,7 @@ public final class G_FightAnimation {
 															this.unitCharsSprites[this.var_c85].frameWidth + 2),
 											this.unitCharsSprites[this.var_c85].posYPixel + 30);
 							this.var_c75[this.var_c85].var_85c = true;
-							E_MainCanvas.sub_233e(200);
+							E_MainCanvas.vibrate(200);
 							this.game.sub_14bd3(1200);
 							E_MainCanvas.playMusicLooped(14, 1);
 							this.game.addSpriteTo(this.var_c75[this.var_c85]);
@@ -483,7 +483,7 @@ public final class G_FightAnimation {
 					}
 					if ((this.unitType == 8) && (this.var_c75[m] != null)
 							&& (this.var_c75[m].var_84c)) {
-						(localClass_f_0455 = F_Sprite.sub_1616(
+						(localClass_f_0455 = F_Sprite.someSpriteCopy(
 								this.game.bigSmokeSprite, var_b85[this.var_b6d]
 										* E_MainCanvas.getRandomWithin(1, 4),
 								E_MainCanvas.getRandomWithin(-2, 3), 0, 1,
@@ -520,7 +520,7 @@ public final class G_FightAnimation {
 			i = 1;
 			for (m = 0; m < this.var_c75.length; m++) {
 				if ((this.unitType == 9) && (E_MainCanvas.getRandomMax(2) == 0)) {
-					(localClass_f_0455 = F_Sprite.sub_1616(
+					(localClass_f_0455 = F_Sprite.someSpriteCopy(
 							this.game.bigSmokeSprite, E_MainCanvas.getRandomWithin(-2, 1),
 							0, -1, 1, 100, (byte) 0)).setSpritePosition(
 							this.var_c75[m].posXPixel
@@ -583,7 +583,7 @@ public final class G_FightAnimation {
 					if (this.unitType != 1) {
 						this.game.sub_14bd3(200);
 					}
-					E_MainCanvas.sub_233e(200);
+					E_MainCanvas.vibrate(200);
 					E_MainCanvas.playMusicLooped(14, 1);
 					if (this.archerArrowSprite != null) {
 						this.var_c7d = C_Unit.var_bc3[this.unitType].length;
@@ -595,10 +595,10 @@ public final class G_FightAnimation {
 					F_Sprite localClass_f_0453;
 					if ((this.unitType == 3) || (this.unitType == 2)
 							|| (this.unitType == 1)) {
-						localClass_f_0453 = F_Sprite.sub_1616(this.archerArrowSprite,
+						localClass_f_0453 = F_Sprite.someSpriteCopy(this.archerArrowSprite,
 								0, 0, 0, 1, 0, (byte) 0);
 					} else {
-						localClass_f_0453 = F_Sprite.sub_1616(this.archerArrowSprite,
+						localClass_f_0453 = F_Sprite.someSpriteCopy(this.archerArrowSprite,
 								0, 0, 0, -1, 0, (byte) 0);
 					}
 					if ((this.unitType == 2) || (this.unitType == 1)) {
@@ -626,7 +626,7 @@ public final class G_FightAnimation {
 					for (int i5 = 0; i5 < 3; i5++) {
 						F_Sprite localClass_f_0457;
 						if ((this.unitType == 7) || (this.unitType == 6)) {
-							(localClass_f_0457 = F_Sprite.sub_1616(
+							(localClass_f_0457 = F_Sprite.someSpriteCopy(
 									this.game.smokeSprite,
 									E_MainCanvas.getRandomWithin(-1, 2), 0,
 									E_MainCanvas.getRandomWithin(-2, 0), 1,
@@ -642,7 +642,7 @@ public final class G_FightAnimation {
 													+ 1);
 							localClass_f_0457.var_80c = (-localClass_f_0453.frameHeight / 2);
 						} else {
-							(localClass_f_0457 = F_Sprite.sub_1616(
+							(localClass_f_0457 = F_Sprite.someSpriteCopy(
 									this.game.bigSmokeSprite,
 									E_MainCanvas.getRandomWithin(-1, 2), 0, -1, 1, 100,
 									(byte) 0))
@@ -696,7 +696,7 @@ public final class G_FightAnimation {
 					}
 					if ((this.var_c45 - 20) % 15 == 0) {
 						for (int i = 0; i < this.unitCharsSprites.length; i++) {
-							(localClass_f_0451 = F_Sprite.sub_1616(
+							(localClass_f_0451 = F_Sprite.someSpriteCopy(
 									this.game.bigSmokeSprite,
 									E_MainCanvas.getRandomWithin(-1, 2), 0, 0, 1, 100,
 									(byte) 0))
@@ -723,7 +723,7 @@ public final class G_FightAnimation {
 				if (++this.var_c3d >= 2) {
 					for (int i = 0; i < this.otherFightAnim.unitCharsSprites.length; i++) {
 						(localClass_f_0451 = F_Sprite
-								.sub_1616(this.game.redsparkSprite, 0, 0, 0, 1,
+								.someSpriteCopy(this.game.redsparkSprite, 0, 0, 0, 1,
 										50, (byte) 0))
 								.setSpritePosition(
 										this.otherFightAnim.unitCharsSprites[i].posXPixel
@@ -757,7 +757,7 @@ public final class G_FightAnimation {
 		for (int j = 0; j < this.unitCharsSprites.length; j++) {
 			if (i != 0) {
 				F_Sprite localClass_f_0452;
-				(localClass_f_0452 = F_Sprite.sub_1616(null, 0, 0, 0, 1,
+				(localClass_f_0452 = F_Sprite.someSpriteCopy(null, 0, 0, 0, 1,
 						500, (byte) 4))
 						.setSpritePosition(this.unitCharsSprites[j].posXPixel
 								+ (this.unitCharsSprites[j].frameWidth >> 1),
@@ -827,7 +827,7 @@ public final class G_FightAnimation {
 					if (this.unitType == 5) {
 						this.unitCharsSprites[this.var_c4d].var_834 = (2 * var_b85[this.var_b6d]);
 						for (k = 0; k < 3; k++) {
-							(localClass_f_045 = F_Sprite.sub_1616(
+							(localClass_f_045 = F_Sprite.someSpriteCopy(
 									this.game.bigSmokeSprite,
 									E_MainCanvas.getRandomWithin(-1, 2), 0, -1, 1, 100,
 									(byte) 0))
@@ -856,7 +856,7 @@ public final class G_FightAnimation {
 								this.unitCharsSprites[k].startAnimation(2, this.var_b75);
 								this.unitCharsSprites[k].var_834 = 0;
 								this.unitCharsSprites[k].var_87c = -1;
-								(localClass_f_045 = F_Sprite.sub_1616(null,
+								(localClass_f_045 = F_Sprite.someSpriteCopy(null,
 										0, 0, 0, 1, 800, (byte) 2)).setSpritePosition(
 										this.unitCharsSprites[k].posXPixel
 												+ sub_1673(localClass_f_045,
@@ -865,7 +865,7 @@ public final class G_FightAnimation {
 												+ this.var_b8d.frameHeight);
 								this.game.addSpriteTo(localClass_f_045);
 								(localClass_f_045 = F_Sprite
-										.sub_1616(this.slashSprite, 0, 0, 0, 1,
+										.someSpriteCopy(this.slashSprite, 0, 0, 0, 1,
 												150, (byte) 0))
 										.setSpritePosition(
 												this.unitCharsSprites[k].posXPixel
@@ -889,7 +889,7 @@ public final class G_FightAnimation {
 							this.unitCharsSprites[k].startAnimation(2, this.var_b75);
 							if (this.unitType == 0) {
 								(localClass_f_045 = F_Sprite
-										.sub_1616(this.slashSprite, 0, 0, 0, 1,
+										.someSpriteCopy(this.slashSprite, 0, 0, 0, 1,
 												150, (byte) 0))
 										.setSpritePosition(
 												this.unitCharsSprites[k].posXPixel
@@ -901,7 +901,7 @@ public final class G_FightAnimation {
 								localClass_f_045.var_80c = (4 - this.unitCharsSprites[k].frameHeight);
 								this.game.addSpriteTo(localClass_f_045);
 							} else if (this.unitType == 5) {
-								(localClass_f_045 = F_Sprite.sub_1616(
+								(localClass_f_045 = F_Sprite.someSpriteCopy(
 										this.game.redsparkSprite, 0, 0, 0, 1, 50,
 										(byte) 0))
 										.setSpritePosition(
@@ -922,7 +922,7 @@ public final class G_FightAnimation {
 					this.var_b7d = 6;
 					this.otherFightAnim.sub_3363();
 					this.game.sub_14bd3(200);
-					E_MainCanvas.sub_233e(200);
+					E_MainCanvas.vibrate(200);
 					E_MainCanvas.playMusicLooped(14, 1);
 					this.var_bc5 = this.game.time;
 				}
@@ -1001,7 +1001,7 @@ public final class G_FightAnimation {
 		int k;
 		for (int i = 0; i < this.var_c25; i++) {
 			this.game.removeSpriteFrom(this.unitCharsSprites[i]);
-			F_Sprite redSparksSprite = F_Sprite.sub_1616(this.game.redsparkSprite, 0,
+			F_Sprite redSparksSprite = F_Sprite.someSpriteCopy(this.game.redsparkSprite, 0,
 					0, 0, 1, 0, (byte) 0);
 			redSparksSprite.setSpritePosition(
 							this.unitCharsSprites[i].posXPixel
@@ -1012,7 +1012,7 @@ public final class G_FightAnimation {
 			this.game.addSpriteTo(redSparksSprite);
 			F_Sprite sprite1;
 			for (k = 0; k < 3; k++) {
-				sprite1 = F_Sprite.sub_1616(
+				sprite1 = F_Sprite.someSpriteCopy(
 						this.game.bigSmokeSprite, -1 + k, 0,
 						E_MainCanvas.getRandomWithin(-4, -1), 1,
 						E_MainCanvas.getRandomMax(4) * 50, (byte) 0);
@@ -1024,7 +1024,7 @@ public final class G_FightAnimation {
 										- sprite1.frameHeight + 3);
 				this.game.addSpriteTo(sprite1);
 			}
-			sprite1 = F_Sprite.sub_1616(this.game.smokeSprite, 0,
+			sprite1 = F_Sprite.someSpriteCopy(this.game.smokeSprite, 0,
 					0, -1, 1, 200, (byte) 0);
 			sprite1.setSpritePosition(
 							this.unitCharsSprites[i].posXPixel
