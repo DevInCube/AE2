@@ -7,8 +7,7 @@ public final class D_Menu extends A_MenuBase {
 
 	public boolean[] menuActionsMb = { false, false };
 	public int m_bgColorMb = 13553358; // #CECECE light gray
-	public static final int someXPadding = E_MainCanvas.canvasHeight <= 143 ? 1
-			: 2;
+	public static final int someXPadding = E_MainCanvas.canvasHeight <= 143 ? 1 : 2;
 	public static final int var_fcd = someXPadding * 2 + 1;
 	public byte var_fd5 = 2;
 	public short var_fdd = 3;
@@ -1430,9 +1429,6 @@ public final class D_Menu extends A_MenuBase {
 								+ this.var_108d, 20);
 				i21 = this.menuWidth - this.var_101d;
 				mapUnitsCount = this.menuItemsCount - 1;
-			case 7:
-			case 10:
-			case 11:
 				
 				try{
 					//@todo if(what?)
@@ -1451,7 +1447,10 @@ public final class D_Menu extends A_MenuBase {
 				}catch(Exception exx){
 					//
 				}
-	
+			case 7:
+			case 10:
+			case 11:
+
 					gr.setFont(E_MainCanvas.font8);
 					//show portrait
 					if (this.portraitSpriteIndex != -1) {
