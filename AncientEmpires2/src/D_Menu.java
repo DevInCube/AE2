@@ -1225,7 +1225,7 @@ public final class D_Menu extends A_MenuBase {
 					i12 = i10 - cUnit.posXPixel - cUnit.frameWidth / 2;
 					i13 = i1 - cUnit.posYPixel - cUnit.frameHeight / 2;
 					cUnit.sub_2551(gr, i12, i13,
-							cUnit.cost > gameVar.var_35a3[gameVar.playerId]);
+							cUnit.cost > gameVar.playersMoney[gameVar.playerId]);
 					if (i9 == this.activeItemPositionMb) {
 						i14 = i10 - this.wheelItemBgImage.frameWidth / 2;
 						sTileWidth = i1 - this.wheelItemBgImage.frameWidth / 2;

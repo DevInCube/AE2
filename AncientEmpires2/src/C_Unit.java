@@ -334,7 +334,7 @@ public final class C_Unit extends F_Sprite {
 						} else if ((this.unitTypeId == 7)
 								&& (sGame.getTileType(x, y) == 8)
 								&& (sGame.mapTilesIds[x][y] >= sGame.houseTileIdStartIndex)
-								&& (!sGame.sub_e2b4(x, y,
+								&& (!sGame.isInSameTeam(x, y,
 										sGame.playersTeams[this.playerId]))) {
 							C_Unit unit2 = createUnit((byte) 0, (byte) 0, x,
 									y, false);

@@ -123,7 +123,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public C_Unit[] playersKings;
 	public C_Unit[][] playerKingsMb;
 	public int[] playerUnitsCount;
-	public int[] var_35a3 = new int[4];
+	public int[] playersMoney = new int[4];
 	public byte[][] kingsPositions = new byte[4][2];
 	public byte[] var_35b3 = new byte[4];
 	public D_Menu unitActionsMenu;
@@ -280,22 +280,22 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public static final byte[] var_3a63 = { 0, 2, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3 };
 	public byte var_3a6b = 0;
 	public int var_3a73;
-	public int var_3a7b;
+	public int someTileType;
 	public C_Unit var_3a83;
 	public C_Unit var_3a8b;
 	public C_Unit var_3a93;
 	public int var_3a9b;
-	public long aSomeOtherTime;
+	public long aSomeOtherStartTime;
 	public C_Unit[] someUnits5;
 	public C_Unit[] var_3ab3;
 	public byte[] var_3abb;
-	public int[][] var_3ac3;
+	public int[][] someAIPosAValArr;
 	public int[] var_3acb;
 	public int var_3ad3;
-	public byte[][] var_3adb;
+	public byte[][] someMData;
 	public int mapCastlesCount;
-	public int var_3aeb;
-	public int var_3af3;
+	public int someXPos;
+	public int someYPos;
 	public int var_3afb;
 	public int var_3b03;
 	public Vector var_3b0b;
@@ -652,7 +652,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							missionComplete();
 						}
 					} else if (j == 1) {
-						this.var_35a3[this.playerId] += 1000;
+						this.playersMoney[this.playerId] += 1000;
 					}
 					this.var_397b = true;
 				} else if (var_39a3[j].startsWith(str)) {
@@ -689,7 +689,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
 			stream.writeByte(this.playersTeams[i]);
 			stream.writeByte(this.var_35b3[i]);
-			stream.writeShort(this.var_35a3[i]);
+			stream.writeShort(this.playersMoney[i]);
 			stream.writeByte(this.kingsPositions[i][0]);
 			stream.writeByte(this.kingsPositions[i][1]);
 		}
@@ -748,7 +748,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
 			this.playersTeams[i] = stream.readByte();
 			this.var_35b3[i] = stream.readByte();
-			this.var_35a3[i] = stream.readShort();
+			this.playersMoney[i] = stream.readShort();
 			this.kingsPositions[i][0] = stream.readByte();
 			this.kingsPositions[i][1] = stream.readByte();
 		}
@@ -879,7 +879,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			clearActiveUnit();
 			this.cursorSprite.setFrameSequence(cursorFrameSequences[0]);
 			if (this.var_35b3[this.playerId] == 0) {
-				this.aSomeOtherTime = this.time;
+				this.aSomeOtherStartTime = this.time;
 				this.var_3a6b = 6;
 			}
 		} else {
@@ -931,7 +931,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		this.var_35e3 = this.time;
 		if (this.var_35b3[this.playerId] == 0) {
-			this.aSomeOtherTime = this.time;
+			this.aSomeOtherStartTime = this.time;
 			this.var_3a6b = 6;
 		}
 		this.cursorSprite.setFrameSequence(cursorFrameSequences[0]);
@@ -1213,7 +1213,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				localObject1 = this.castleBuyAllUnitsMenu.buyUnits[this.castleBuyAllUnitsMenu.activeItemPositionMb];
 				if (sub_e9d0((C_Unit) localObject1, this.var_34ab,
 						this.var_34b3)) {
-					this.activeUnit = sub_8722((C_Unit) localObject1,
+					this.activeUnit = buyUnit((C_Unit) localObject1,
 							this.var_34ab, this.var_34b3);
 					this.var_3723 = true;
 					sub_58af(this.activeUnit);
@@ -1695,7 +1695,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			checkResources();
 			loadMap(this.scenarioMapIndex);
 			this.isBlackLoading = false;
-			sub_10c83();
+			initScenarioMap();
 			this.activeUnitState = 0;
 			return;
 		}
@@ -1969,7 +1969,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (itemName.equals(A_MenuBase.getLangString(67))) { //OCCUPY
 			if (canOccupyVillageOrTown(this.activeUnit.positionX, this.activeUnit.positionY,
 					this.activeUnit)) {
-				sub_e1a9(this.activeUnit.positionX, this.activeUnit.positionY,
+				occupyHouse(this.activeUnit.positionX, this.activeUnit.positionY,
 						this.playersIndexes[this.activeUnit.playerId]);
 				A_MenuBase.mainCanvas.showMenu(createDialog(null,
 						A_MenuBase.getLangString(73), this.someGHeight, 1000));
@@ -2021,24 +2021,21 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final C_Unit sub_8722(C_Unit paramClass_c_032,
-			int paramInt1, int paramInt2) {
-		this.var_35a3[this.playerId] -= paramClass_c_032.cost;
-		paramClass_c_032.unitHealthMb = 100;
-		paramClass_c_032.setUnitPosition(paramInt1, paramInt2);
-		if (!this.mapUnitsSprites.contains(paramClass_c_032)) {
-			this.mapUnitsSprites.addElement(paramClass_c_032);
+	public final C_Unit buyUnit(C_Unit unit, int inX, int inY) {
+		this.playersMoney[this.playerId] -= unit.cost;
+		unit.unitHealthMb = 100;
+		unit.setUnitPosition(inX, inY);
+		if (!this.mapUnitsSprites.contains(unit)) {
+			this.mapUnitsSprites.addElement(unit);
 		}
 		this.var_397b = true;
-		return paramClass_c_032;
+		return unit;
 	}
 
-	public final C_Unit sub_8788(byte paramByte, int paramInt1,
-			int paramInt2) {
-		this.var_35a3[this.playerId] -= C_Unit.unitsCosts[paramByte];
+	public final C_Unit aiBuyUnit(byte uType, int inX, int inY) {
+		this.playersMoney[this.playerId] -= C_Unit.unitsCosts[uType];
 		this.var_397b = true;
-		return C_Unit.createUnitOnMap(paramByte, this.playerId, paramInt1,
-				paramInt2);
+		return C_Unit.createUnitOnMap(uType, this.playerId, inX, inY);
 	}
 
 	public final F_Sprite sub_87c3(byte paramByte1, byte paramByte2) {
@@ -2091,7 +2088,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.mapHeight = dis.readInt();
 		this.mapTilesIds = new byte[this.mapWidth][this.mapHeight];
 		this.someMapData = new byte[this.mapWidth][this.mapHeight];
-		this.var_3adb = new byte[this.mapWidth][this.mapHeight];
+		this.someMData = new byte[this.mapWidth][this.mapHeight];
 		this.mapCastlesCount = 0;
 		int countHouses = 0;
 		byte[][] housesArr = new byte[30][3];
@@ -2133,12 +2130,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3413 = (this.mapHeight * 24);
 		if (this.mapModeCampIf0 == 1) {
 			for (short i = 0; i < this.mapMaxPlayersMb; i = (short) (i + 1)) {
-				this.var_35a3[i] = this.mapStartMoney;
+				this.playersMoney[i] = this.mapStartMoney;
 			}
 		}
 		this.mapMaxPlayersMb = 2;
-		this.var_35a3[0] = 0;
-		this.var_35a3[1] = 0;
+		this.playersMoney[0] = 0;
+		this.playersMoney[1] = 0;
 		this.var_3563[1] = 0;
 		this.var_3563[2] = 1;
 		this.playersIndexes[0] = 1;
@@ -2151,7 +2148,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		for (short i = 0; i < this.housesDataArr.length; i = (short) (i + 1)) {
 			m = this.housesDataArr[i][2];
 			if ((m > 0) && (this.var_35b3[sub_e276(m)] == 2)) {
-				sub_e1a9(this.housesDataArr[i][0], this.housesDataArr[i][1], 0);
+				occupyHouse(this.housesDataArr[i][0], this.housesDataArr[i][1], 0);
 			}
 		}
 		int m1 = dis.readInt();
@@ -2551,7 +2548,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								&& (this.playerId == mUnit.playerId)
 								&& ((getTileType(
 										mUnit.positionX,
-										mUnit.positionY) == 7) || (sub_e2b4(
+										mUnit.positionY) == 7) || (isInSameTeam(
 												mUnit.positionX,
 												mUnit.positionY,
 										this.playersTeams[mUnit.playerId])))
@@ -2624,7 +2621,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 						if (this.scenarioMapIndex <= 7) {
 							loadMap(this.scenarioMapIndex);
-							sub_10c83();
+							initScenarioMap();
 							this.activeUnitState = 0;
 						}
 					}
@@ -3880,12 +3877,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				if (this.mapModeCampIf0 == 1) {
 					i4 = i2 / 2;
 					this.hudIcons2Sprite.drawFrameAt(gr, 0, i4, i3, 6);
-					E_MainCanvas.drawCharedString(
-							gr,
-							countSomeUnits(-1, -1, this.playerId)
-									- countSomeUnits(10, -1, this.playerId) + "/"
-									+ this.mapStartUnitCap, i4 + this.hudIcons2Sprite.frameWidth
-									+ 1, i3, 1, 6);
+					int playerUnits = countUnits(-1, -1, this.playerId) - countUnits(10, -1, this.playerId);
+					E_MainCanvas.drawCharedString( gr,
+							playerUnits + "/" + this.mapStartUnitCap, 
+							i4 + this.hudIcons2Sprite.frameWidth + 1, i3, 1, 6);
 				}
 				i4 = 10;
 				if (this.someGWidth <= 120) {
@@ -3895,7 +3890,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				i4 += this.hudIcons2Sprite.frameWidth + 1;
 				if (this.var_35b3[this.playerId] == 1) {
 					E_MainCanvas.drawCharedString(gr, ""
-							+ this.var_35a3[this.playerId], i4, i3, 1, 6);
+							+ this.playersMoney[this.playerId], i4, i3, 1, 6);
 				} else {
 					E_MainCanvas.drawCharedString(gr, "- - -", i4, i3, 1, 6);
 				}
@@ -4147,7 +4142,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 		}
-		this.var_35a3[this.playerId] += this.playerIncomeMb;
+		this.playersMoney[this.playerId] += this.playerIncomeMb;
 		for (int i = 0; i < this.housesDataArr.length; i++) {
 			this.var_3acb[i] = 0;
 		}
@@ -4162,7 +4157,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		} else {
 			C_Unit.var_a7b = C_Unit.var_a73;
 		}
-		if ((countSomeUnits(-1, 0, this.playerId) <= 0)
+		if ((countUnits(-1, 0, this.playerId) <= 0)
 				&& (countPlayerOwnerCastles(this.playerId) == 0)) {
 			sub_ddbb();
 		}
@@ -4179,7 +4174,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if ((unit.hasProperty((short) 8)) //can occupy villages
 				&& (getTileType(unit.positionX, unit.positionY) == 8)
 				&& (this.mapTilesIds[unit.positionX][unit.positionY] >= this.houseTileIdStartIndex)
-				&& (!sub_e2b4(unit.positionX,
+				&& (!isInSameTeam(unit.positionX,
 						unit.positionY,
 						this.playersTeams[unit.playerId]))) {
 			return true;
@@ -4187,7 +4182,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		// 16 - occupy town
 		return (unit.hasProperty((short) 16)) 
 				&& (getTileType(unit.positionX, unit.positionY) == 9)
-				&& (!sub_e2b4(unit.positionX,
+				&& (!isInSameTeam(unit.positionX,
 						unit.positionY,
 						this.playersTeams[unit.playerId]));
 	}
@@ -4196,9 +4191,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.mapTilesIds[inX][inY] = paramByte;
 	}
 
-	public final void sub_e1a9(int inX, int inY, int paramInt3) {
+	public final void occupyHouse(int inX, int inY, int playerId) {
 		if (this.mapTilesIds[inX][inY] >= this.houseTileIdStartIndex) {
-			byte var = (byte) (this.houseTileIdStartIndex + paramInt3 * 2 + (this.mapTilesIds[inX][inY] - this.houseTileIdStartIndex) % 2);
+			byte var = (byte) (this.houseTileIdStartIndex + playerId * 2 + (this.mapTilesIds[inX][inY] - this.houseTileIdStartIndex) % 2);
 			repairDestroyedHouse(var, inX, inY);
 		}
 	}
@@ -4221,10 +4216,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return -1;
 	}
 
-	public final boolean sub_e2b4(int inX, int inY, int paramInt3) {
-		int i = sub_e276(tileOwnerPlayerIndex(inX, inY));
-		if (i > -1) {
-			return paramInt3 == this.playersTeams[i];
+	public final boolean isInSameTeam(int inX, int inY, int playerTeamId) {
+		int playerId = sub_e276(tileOwnerPlayerIndex(inX, inY));
+		if (playerId > -1) {
+			return playerTeamId == this.playersTeams[playerId];
 		}
 		return false;
 	}
@@ -4243,7 +4238,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return i;
 	}
 
-	public final int countSomeUnits(int unitType, int unitState, byte inPlayer) {
+	public final int countUnits(int unitType, int unitState, byte inPlayer) {
 		int i = 0;
 		int it = 0;
 		int length = this.mapUnitsSprites.size();
@@ -4344,28 +4339,27 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final boolean sub_e943(byte paramByte, int paramInt1, int paramInt2) {
-		if ((this.mapStartUnitCap > countSomeUnits(-1, -1, this.playerId)
-				- countSomeUnits(10, -1, this.playerId))
-				&& (paramByte <= this.var_3703)
-				&& (C_Unit.unitsCosts[paramByte] <= this.var_35a3[this.playerId])
-				&& (C_Unit.unitsCosts[paramByte] > 0)) {
+	public final boolean sub_e943(byte inByte, int inX, int inY) {
+		int plUnitsCount = countUnits(-1, -1, this.playerId) - countUnits(10, -1, this.playerId);
+		if ((this.mapStartUnitCap > plUnitsCount)
+				&& (inByte <= this.var_3703)
+				&& (C_Unit.unitsCosts[inByte] <= this.playersMoney[this.playerId])
+				&& (C_Unit.unitsCosts[inByte] > 0)) {
 			fillArrayWithValue(this.someMapData, 0);
-			return C_Unit.sub_1d7b(this.someMapData, paramInt1, paramInt2,
-					C_Unit.var_b9b[paramByte], -1, paramByte,
+			return C_Unit.sub_1d7b(this.someMapData, inX, inY,
+					C_Unit.var_b9b[inByte], -1, inByte,
 					this.playerId, true);
 		}
 		return false;
 	}
 
-	public final boolean sub_e9d0(C_Unit unit, int paramInt1,
-			int paramInt2) {
-		if ((this.mapStartUnitCap > countSomeUnits(-1, -1, this.playerId)
-				- countSomeUnits(10, -1, this.playerId))
+	public final boolean sub_e9d0(C_Unit unit, int inX, int inY) {
+		int plUnitsCount = countUnits(-1, -1, this.playerId) - countUnits(10, -1, this.playerId);
+		if ((this.mapStartUnitCap > plUnitsCount)
 				&& ((unit.unitTypeId <= this.var_3703) || (unit.unitTypeId == 9))
-				&& (unit.cost <= this.var_35a3[this.playerId])) {
+				&& (unit.cost <= this.playersMoney[this.playerId])) {
 			fillArrayWithValue(this.someMapData, 0);
-			return C_Unit.sub_1d7b(this.someMapData, paramInt1, paramInt2,
+			return C_Unit.sub_1d7b(this.someMapData, inX, inY,
 					C_Unit.var_b9b[unit.unitTypeId], -1,
 					unit.unitTypeId, this.playerId, true);
 		}
@@ -4376,19 +4370,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		C_Unit[] units = getUnitsOfTypeStatePlayer(-1, 0, this.playerId);
 		this.var_3b0b = new Vector(units.length);
 		for (int i = 0; i < units.length; i++) {
-			int j;
-			for (j = 0; j < i; j++) {
-				C_Unit unit = (C_Unit) this.var_3b0b
-						.elementAt(j);
+			int count;
+			for (count = 0; count < i; count++) {
+				C_Unit unit = (C_Unit) this.var_3b0b.elementAt(count);
 				int k = var_3a63[unit.unitTypeId];
-				int m;
-				if (((m = var_3a63[units[i].unitTypeId]) < k)
-						|| ((m == k) && (units[i].unitHealthMb < unit.unitHealthMb))) {
-					this.var_3b0b.insertElementAt(units[i], j);
+				int m = var_3a63[units[i].unitTypeId];
+				if ((m < k) || ((m == k) && (units[i].unitHealthMb < unit.unitHealthMb))) {
+					this.var_3b0b.insertElementAt(units[i], count);
 					break;
 				}
 			}
-			if (j == i) {
+			if (count == i) {
 				this.var_3b0b.addElement(units[i]);
 			}
 		}
@@ -4415,7 +4407,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.activeUnit.positionY);
 				this.var_3523 = true;
 				this.var_351b = true;
-				this.aSomeOtherTime = this.time;
+				this.aSomeOtherStartTime = this.time;
 				if (this.var_3a83 != null) {
 					this.cursorSprite.setFrameSequence(cursorFrameSequences[1]);
 					moveCursorToPos(this.var_3a83.positionX, this.var_3a83.positionY);
@@ -4423,32 +4415,32 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					moveCursorToPos(this.var_3a8b.positionX, this.var_3a8b.positionY);
 				}
 			} else {
-				int i;
+				int houseId;
 				if (canOccupyVillageOrTown(this.activeUnit.positionX, this.activeUnit.positionY,
 						this.activeUnit)) {
-					i = sub_10b21(this.activeUnit.positionX, this.activeUnit.positionY);
-					if ((this.var_3b03 != -1) && (this.var_3b03 != i)) {
-						this.var_3ab3[this.var_3b03] = this.var_3ab3[i];
-						this.var_3ab3[i] = this.activeUnit;
+					houseId = getMapHouseId(this.activeUnit.positionX, this.activeUnit.positionY);
+					if ((this.var_3b03 != -1) && (this.var_3b03 != houseId)) {
+						this.var_3ab3[this.var_3b03] = this.var_3ab3[houseId];
+						this.var_3ab3[houseId] = this.activeUnit;
 					}
-					sub_e1a9(this.activeUnit.positionX, this.activeUnit.positionY,
+					occupyHouse(this.activeUnit.positionX, this.activeUnit.positionY,
 							this.playersIndexes[this.activeUnit.playerId]);
 					A_MenuBase.mainCanvas.showMenu(createDialog(null,
-							A_MenuBase.getLangString(73), this.someGHeight, 1000));
+							A_MenuBase.getLangString(73), this.someGHeight, 700));//OCCUPIED!
 					E_MainCanvas.playMusicLooped(9, 1);
 					this.activeUnitState = 9;
 					this.someStartTime5 = this.time;
 				} else if (canOccupyVillages(this.activeUnit.positionX,
 						this.activeUnit.positionY, this.activeUnit)) {
-					i = sub_10b21(this.activeUnit.positionX, this.activeUnit.positionY);
-					if ((this.var_3b03 != -1) && (this.var_3b03 != i)) {
-						this.var_3ab3[this.var_3b03] = this.var_3ab3[i];
-						this.var_3ab3[i] = this.activeUnit;
+					houseId = getMapHouseId(this.activeUnit.positionX, this.activeUnit.positionY);
+					if ((this.var_3b03 != -1) && (this.var_3b03 != houseId)) {
+						this.var_3ab3[this.var_3b03] = this.var_3ab3[houseId];
+						this.var_3ab3[houseId] = this.activeUnit;
 					}
 					repairDestroyedHouse((byte) this.houseTileIdStartIndex, this.activeUnit.positionX,
 							this.activeUnit.positionY);
 					A_MenuBase.mainCanvas.showMenu(createDialog(null,
-							A_MenuBase.getLangString(74), this.someGHeight, 1000));
+							A_MenuBase.getLangString(74), this.someGHeight, 700)); //REPAIRED!
 					E_MainCanvas.playMusicLooped(9, 1);
 					this.activeUnitState = 0;
 					this.someStartTime5 = this.time;
@@ -4463,7 +4455,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.var_3a6b == 5) {
-			if (this.time - this.aSomeOtherTime >= 500L) {
+			if (this.time - this.aSomeOtherStartTime >= 500L) {
 				if (this.var_3a83 != null) {
 					sub_55bd(this.activeUnit, this.var_3a83);
 				} else if (this.var_3a8b != null) {
@@ -4481,7 +4473,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.activeUnitState = 0;
 			}
 		} else if (this.var_3a6b == 6) {
-			if (this.time - this.aSomeOtherTime >= 1000L) {
+			if (this.time - this.aSomeOtherStartTime >= 1000L) {
 				this.var_3a83 = null;
 				this.var_3a6b = 0;
 				this.activeUnitState = 0;
@@ -4490,7 +4482,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (this.var_3a6b == 2) {
 				return;
 			}
-			Object localObject;
+			C_Unit aiUnit;
 			if (this.var_3a6b == 3) {
 				if (this.var_3a9b == 0) {
 					if (sub_b7ff(this.activeUnit.posXPixel + 12,
@@ -4508,32 +4500,32 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							return;
 						}
 						this.var_3a9b = 1;
-						this.aSomeOtherTime = this.time;
+						this.aSomeOtherStartTime = this.time;
 					}
 				} else if (this.var_3a9b == 1) {
-					if (this.time - this.aSomeOtherTime >= 100L) {
+					if (this.time - this.aSomeOtherStartTime >= 100L) {
 						this.var_351b = true;
 						this.var_3523 = false;
 						this.var_3a9b = 2;
 						this.activeUnitState = 1;
-						this.aSomeOtherTime = this.time;
+						this.aSomeOtherStartTime = this.time;
 					}
 				} else if (this.var_3a9b == 2) {
-					if (this.time - this.aSomeOtherTime >= 200L) {
+					if (this.time - this.aSomeOtherStartTime >= 200L) {
 						this.var_34ab = this.var_3a73;
-						this.var_34b3 = this.var_3a7b;
+						this.var_34b3 = this.someTileType;
 						this.cursorSprite.setSpritePosition(this.var_3a73 * 24,
-								this.var_3a7b * 24);
+								this.someTileType * 24);
 						this.var_353b = this.activeUnit.sub_1b48(
 								this.activeUnit.positionX, this.activeUnit.positionY,
 								this.var_34ab, this.var_34b3);
 						this.var_3a9b = 3;
-						this.aSomeOtherTime = this.time;
+						this.aSomeOtherStartTime = this.time;
 					}
 				} else if ((this.var_3a9b == 3)
-						&& (this.time - this.aSomeOtherTime >= 200L)) {
+						&& (this.time - this.aSomeOtherStartTime >= 200L)) {
 					this.var_353b = null;
-					this.activeUnit.goToPosition(this.var_3a73, this.var_3a7b, true);
+					this.activeUnit.goToPosition(this.var_3a73, this.someTileType, true);
 					this.var_3a6b = 2;
 					this.var_3a9b = 0;
 					this.activeUnitState = 2;
@@ -4541,7 +4533,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				return;
 			}
 			if (this.var_3b0b.size() == 0) {
-				localObject = null;
+				aiUnit = null;
 				int j = 0;
 				int k = 6666;
 				int m = 0;
@@ -4560,17 +4552,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 						j++;
 						int i5 = 0;
-						int i9;
+						int dist1;
 						for (int i61 = this.mapUnitsSprites.size() - 1; i61 >= 0; i61--) {
-							C_Unit localClass_c_032 = (C_Unit) this.mapUnitsSprites
+							C_Unit unit32 = (C_Unit) this.mapUnitsSprites
 									.elementAt(i61);
-							if ((this.playersTeams[localClass_c_032.playerId] != this.playersTeams[this.playerId])
-									&& (localClass_c_032.hasProperty((short) 16))) {
-								if ((i9 = Math.abs(localClass_c_032.positionX
+							if ((this.playersTeams[unit32.playerId] != this.playersTeams[this.playerId])
+									&& (unit32.hasProperty((short) 16))) {
+								dist1 = Math.abs(unit32.positionX
 										- i2)
-										+ Math.abs(localClass_c_032.positionY
-												- i3)) < k) {
-									k = i9;
+										+ Math.abs(unit32.positionY
+												- i3);
+								if (dist1 < k) {
+									k = dist1;
 									m = i2;
 									n = i3;
 								}
@@ -4580,13 +4573,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						if (i5 == 0) {
 							for (i6 = 0; i6 < this.housesDataArr.length; i6++) {
 								int i8 = this.housesDataArr[i6][0];
-								i9 = this.housesDataArr[i6][1];
-								int i10;
-								if ((getTileType(i8, i9) == 9)
-										&& (!playerIsOwnerOfTile(i8, i9, this.playerId))
-										&& ((i10 = Math.abs(i8 - i2)
-												+ Math.abs(i9 - i3)) < k)) {
-									k = i10;
+								dist1 = this.housesDataArr[i6][1];
+								int dist2;
+								if ((getTileType(i8, dist1) == 9)
+										&& (!playerIsOwnerOfTile(i8, dist1, this.playerId))
+										&& ((dist2 = Math.abs(i8 - i2)
+												+ Math.abs(dist1 - i3)) < k)) {
+									k = dist2;
 									m = i2;
 									n = i3;
 								}
@@ -4599,54 +4592,50 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					for (int i1 = 0; i1 < this.playerUnitsCount[this.playerId]; i1++) {
 						if ((this.playerKingsMb[this.playerId][i1] != null)
 								&& (this.playerKingsMb[this.playerId][i1].m_state == 3)
-								&& (sub_e9d0(this.playerKingsMb[this.playerId][i1],
-										m, n))) {
-							localObject = sub_8722(
-									this.playerKingsMb[this.playerId][i1], m, n);
+								&& (sub_e9d0(this.playerKingsMb[this.playerId][i1], m, n))) {
+							aiUnit = buyUnit(this.playerKingsMb[this.playerId][i1], m, n);
 						}
 					}
-					if (localObject == null) {
-						if ((countSomeUnits(0, -1, this.playerId) < 2)
-								&& (sub_e943((byte) 0, m, n))) {
-							localObject = sub_8788((byte) 0, m, n);
-						} else if ((countSomeUnits(1, -1, this.playerId) < 2)
-								&& (sub_e943((byte) 1, m, n))) {
-							localObject = sub_8788((byte) 1, m, n);
+					if (aiUnit == null) {
+						if ((countUnits(0, -1, this.playerId) < 2) && (sub_e943((byte) 0, m, n))) {
+							//buy soldiers
+							aiUnit = aiBuyUnit((byte) 0, m, n);
+						} else if ((countUnits(1, -1, this.playerId) < 2) && (sub_e943((byte) 1, m, n))) {
+							//buy archers
+							aiUnit = aiBuyUnit((byte) 1, m, n);
 						} else {
 							int i1 = 0;
 							i2 = 0;
-							int i4;
-							for (int pIt = 0; pIt < this.mapMaxPlayersMb; i4 = (byte) (pIt + 1)) {
+							for (int pIt = 0; pIt < this.mapMaxPlayersMb; pIt = (byte) (pIt + 1)) {
 								if (this.playersTeams[pIt] == this.playersTeams[this.playerId]) {
-									i1 += countSomeUnits(-1, -1, (byte) pIt);
+									i1 += countUnits(-1, -1, (byte) pIt);
 								} else {
-									i2 += countSomeUnits(-1, -1, (byte) pIt);
+									i2 += countUnits(-1, -1, (byte) pIt);
 								}
 							}
-							if ((this.var_35a3[this.playerId] >= 1000)
-									|| (countSomeUnits(-1, -1, this.playerId) < 8)
+							if ((this.playersMoney[this.playerId] >= 1000)
+									|| (countUnits(-1, -1, this.playerId) < 8)
 									|| (i1 < i2)) {
-								i4 = 0;
-								byte[] arrayOfByte = new byte[12];
-								int i7;
-								for (i6 = 1; i6 < 12; i7 = (byte) (i6 + 1)) {
-									if (((countSomeUnits(i6, -1, this.playerId) < 1) || (C_Unit.unitsCosts[i6] >= 600))
-											&& (sub_e943(i6, m, n))) {
-										arrayOfByte[i4] = i6;
-										i4++;
+								int buyUnitsCount = 0;
+								byte[] unitsToBuy = new byte[12];			
+								//@todo why 1?
+								for (byte u1 = 1; u1 < 12; u1 = (byte) (u1 + 1)) {
+									if (((countUnits(u1, -1, this.playerId) < 1) || (C_Unit.unitsCosts[u1] >= 600))
+											&& (sub_e943(u1, m, n))) {
+										unitsToBuy[buyUnitsCount] = u1;
+										buyUnitsCount++;
 									}
 								}
-								if (i4 > 0) {
-									i7 = arrayOfByte[(Math.abs(E_MainCanvas
-											.getRandom()) % i4)];
-									localObject = sub_8788((byte) i7, m, n);
+								if (buyUnitsCount > 0) {
+									int uBuyType = unitsToBuy[(Math.abs(E_MainCanvas.getRandom()) % buyUnitsCount)];
+									aiUnit = aiBuyUnit((byte) uBuyType, m, n);
 								}
 							}
 						}
 					}
 				}
-				if (localObject != null) {
-					sub_f66c((C_Unit) localObject);
+				if (aiUnit != null) {
+					someAIPriorityCals((C_Unit) aiUnit);
 					return;
 				}
 				this.someUnits5 = null;
@@ -4663,17 +4652,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3b0b.removeElement(this.activeUnit);
 				return;
 			}
-			if ((localObject = this.var_3a93) == null) {
-				localObject = (C_Unit) this.var_3b0b.elementAt(0);
+			aiUnit = this.var_3a93;
+			if (aiUnit == null) {
+				aiUnit = (C_Unit) this.var_3b0b.elementAt(0);
 			}
-			sub_f66c((C_Unit) localObject);
+			someAIPriorityCals(aiUnit);
 			if (this.var_3a93 == null) {
-				this.var_3b0b.removeElement(localObject);
+				this.var_3b0b.removeElement(aiUnit);
 			}
 		}
 	}
 
-	public final void sub_f66c(C_Unit pxUnit) {
+	public final void someAIPriorityCals(C_Unit pxUnit) {
 		this.activeUnit = pxUnit;
 		this.isCursorVisible = true;
 		fillArrayWithValue(this.someMapData, 0);
@@ -4683,11 +4673,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		int i = 0;
 		int j = this.playersKings.length + this.someUnits5.length
 				+ this.housesDataArr.length;
-		this.var_3ac3 = new int[j][5];
+		this.someAIPosAValArr = new int[j][5];
 		this.var_3ad3 = 0;
 		int m = 10000;
-		this.var_3aeb = -1;
-		this.var_3af3 = -1;
+		this.someXPos = -1;
+		this.someYPos = -1;
 		this.var_3afb = -1;
 		this.var_3b03 = -1;
 		for (int n = 0; n < this.someUnits5.length + this.playersKings.length; n++) {
@@ -4699,14 +4689,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						someKingUnit = null;
 					} else if ((this.playersTeams[someKingUnit.playerId] != this.playersTeams[this.playerId])
 							&& (this.playersKings[this.playerId] == null)) {
-						this.var_3ac3[i][2] += someKingUnit.getSomePropSum(
+						this.someAIPosAValArr[i][2] += someKingUnit.getSomePropSum(
 								someKingUnit.positionX,
 								someKingUnit.positionY, null) * 2;
 					} else if ((this.currentTurn >= 15)
 							&& (this.playersTeams[someKingUnit.playerId] != this.playersTeams[this.playerId])
-							&& (countSomeUnits(-1, -1, someKingUnit.playerId) < 4)
-							&& (countSomeUnits(-1, -1, this.playerId) >= 8)) {
-						this.var_3ac3[i][2] += someKingUnit.getSomePropSum(
+							&& (countUnits(-1, -1, someKingUnit.playerId) < 4)
+							&& (countUnits(-1, -1, this.playerId) >= 8)) {
+						this.someAIPosAValArr[i][2] += someKingUnit.getSomePropSum(
 								someKingUnit.positionX,
 								someKingUnit.positionY, null) * 2;
 					} else if (someKingUnit.playerId != this.playerId) {
@@ -4717,44 +4707,44 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				someKingUnit = this.someUnits5[n];
 			}
 			if (someKingUnit != null) {
-				this.var_3ac3[i][0] = someKingUnit.positionX;
-				this.var_3ac3[i][1] = someKingUnit.positionY;
+				this.someAIPosAValArr[i][0] = someKingUnit.positionX;
+				this.someAIPosAValArr[i][1] = someKingUnit.positionY;
 				if (someKingUnit.playerId == this.playerId) {
 					C_Unit[] sUnit = someKingUnit
 							.getPositionUnitsInAttackRange(someKingUnit.positionX,
 									someKingUnit.positionY, 1, 5, (byte) 0);
 					for (int i3 = 0; i3 < sUnit.length; i3++) {
 						if (sUnit[i3].m_state != 4) {
-							this.var_3ac3[i][2] += sUnit[i3]
+							this.someAIPosAValArr[i][2] += sUnit[i3]
 									.getSomePropSum(sUnit[i3].positionX,
 											sUnit[i3].positionY,
 											someKingUnit);
 						}
 					}
 				}
-				if (this.var_3ac3[i][2] > 0) {
-					this.var_3ac3[i][4] += someKingUnit.getSomePropSum(
+				if (this.someAIPosAValArr[i][2] > 0) {
+					this.someAIPosAValArr[i][4] += someKingUnit.getSomePropSum(
 							someKingUnit.positionX,
 							someKingUnit.positionY, null);
-					this.var_3ac3[i][4] += someKingUnit.var_b93;
-					if (this.var_3ac3[i][2] > this.var_3ad3) {
-						this.var_3ad3 = this.var_3ac3[i][2];
+					this.someAIPosAValArr[i][4] += someKingUnit.var_b93;
+					if (this.someAIPosAValArr[i][2] > this.var_3ad3) {
+						this.var_3ad3 = this.someAIPosAValArr[i][2];
 					}
-					this.var_3ac3[i][3] = (Math.abs(someKingUnit.positionX
+					this.someAIPosAValArr[i][3] = (Math.abs(someKingUnit.positionX
 							- pxUnit.positionX) + Math
 							.abs(someKingUnit.positionY
 									- pxUnit.positionY));
-					if (this.var_3ac3[i][3] < 1) {
-						this.var_3ac3[i][3] = 1;
+					if (this.someAIPosAValArr[i][3] < 1) {
+						this.someAIPosAValArr[i][3] = 1;
 					}
-					if (this.var_3ac3[i][3] < m) {
-						m = this.var_3ac3[i][3];
+					if (this.someAIPosAValArr[i][3] < m) {
+						m = this.someAIPosAValArr[i][3];
 					}
 				} else {
-					this.var_3ac3[i][2] = -6666;
+					this.someAIPosAValArr[i][2] = -6666;
 				}
 			} else {
-				this.var_3ac3[i][2] = -6666;
+				this.someAIPosAValArr[i][2] = -6666;
 			}
 			i++;
 		}
@@ -4762,85 +4752,84 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		int i1 = 666;
 		int i2 = -1;
 		int i3 = -1;
-		int i7;
-		int i5;
-		byte i6;
+		int tileType;
+		int pX;
+		byte pY;
 		for (int i4 = 0; i4 < this.housesDataArr.length; i4++) {
-			i5 = this.housesDataArr[i4][0];
-			i6 = this.housesDataArr[i4][1];
-			i7 = getTileType(i5, i6);
-			boolean bool = playerIsOwnerOfTile(i5, i6, pxUnit.playerId);
-			this.var_3ac3[i][2] = -6666;
-			C_Unit[] localObject;
+			pX = this.housesDataArr[i4][0];
+			pY = this.housesDataArr[i4][1];
+			tileType = getTileType(pX, pY);
+			boolean isOwner = playerIsOwnerOfTile(pX, pY, pxUnit.playerId);
+			this.someAIPosAValArr[i][2] = -6666;
+			C_Unit[] someUnitsInRange;
 			int i10;
-			if ((bool) || (this.var_3ab3[i4] != null)) {
-				localObject = pxUnit.getPositionUnitsInAttackRange(i5, i6, 1, 5, (byte) 0);
-				this.var_3ac3[i][0] = i5;
-				this.var_3ac3[i][1] = i6;
-				this.var_3ac3[i][2] = 0;
-				for (i10 = 0; i10 < localObject.length; i10++) {
-					if (localObject[i10].m_state != 4) {
-						if ((this.var_3ab3[i4] != null) && (!bool)) {
-							this.var_3ac3[i][2] += localObject[i10].getSomePropSum(
-									localObject[i10].positionX,
-									localObject[i10].positionY, null);
-						} else if (((i7 == 8) && (localObject[i10]
-								.hasProperty((short) 8)))
-								|| ((i7 == 9) && (localObject[i10]
-										.hasProperty((short) 16)))) {
-							this.var_3ac3[i][2] += localObject[i10].getSomePropSum(
-									localObject[i10].positionX,
-									localObject[i10].positionY, null);
+			if ((isOwner) || (this.var_3ab3[i4] != null)) {
+				someUnitsInRange = pxUnit.getPositionUnitsInAttackRange(pX, pY, 1, 5, (byte) 0);
+				this.someAIPosAValArr[i][0] = pX;
+				this.someAIPosAValArr[i][1] = pY;
+				this.someAIPosAValArr[i][2] = 0;
+				for (int itx = 0; itx < someUnitsInRange.length; itx++) {
+					if (someUnitsInRange[itx].m_state != 4) {
+						if ((this.var_3ab3[i4] != null) && (!isOwner)) {
+							this.someAIPosAValArr[i][2] += someUnitsInRange[itx].getSomePropSum(
+									someUnitsInRange[itx].positionX,
+									someUnitsInRange[itx].positionY, null);
+						} else if (((tileType == 8) && (someUnitsInRange[itx].hasProperty((short) 8)))
+								|| ((tileType == 9) && (someUnitsInRange[itx].hasProperty((short) 16)))) {
+							 //vilage or castles
+							this.someAIPosAValArr[i][2] += someUnitsInRange[itx].getSomePropSum(
+									someUnitsInRange[itx].positionX,
+									someUnitsInRange[itx].positionY, null);
 						}
 					}
 				}
-				if (this.var_3ac3[i][2] == 0) {
-					if ((this.var_3ab3[i4] != null) && (!bool)) {
-						this.var_3ac3[i][2] = 100;
-						this.var_3ac3[i][4] += 2000;
+				if (this.someAIPosAValArr[i][2] == 0) {
+					if ((this.var_3ab3[i4] != null) && (!isOwner)) {
+						this.someAIPosAValArr[i][2] = 100;
+						this.someAIPosAValArr[i][4] += 2000;
 					} else {
-						this.var_3ac3[i][2] = -6666;
+						this.someAIPosAValArr[i][2] = -6666;
 					}
 				}
-				if (this.var_3ac3[i][2] != -6666) {
-					this.var_3ac3[i][4] += this.var_3acb[i4];
-					if (this.var_3ac3[i][2] > this.var_3ad3) {
-						this.var_3ad3 = this.var_3ac3[i][2];
+				if (this.someAIPosAValArr[i][2] != -6666) {
+					this.someAIPosAValArr[i][4] += this.var_3acb[i4];
+					if (this.someAIPosAValArr[i][2] > this.var_3ad3) {
+						this.var_3ad3 = this.someAIPosAValArr[i][2];
 					}
-					this.var_3ac3[i][3] = (Math.abs(i5
-							- pxUnit.positionX) + Math.abs(i6
+					this.someAIPosAValArr[i][3] = (Math.abs(pX
+							- pxUnit.positionX) + Math.abs(pY
 							- pxUnit.positionY));
-					if (this.var_3ac3[i][3] < 1) {
-						this.var_3ac3[i][3] = 1;
+					if (this.someAIPosAValArr[i][3] < 1) {
+						this.someAIPosAValArr[i][3] = 1;
 					}
-					if (this.var_3ac3[i][3] < m) {
-						m = this.var_3ac3[i][3];
+					if (this.someAIPosAValArr[i][3] < m) {
+						m = this.someAIPosAValArr[i][3];
 					}
 				}
 			}
-			if (sub_e2b4(i5, i6, this.playersTeams[pxUnit.playerId])) {
-				C_Unit localObject1 = getSomeUnit(i5, i6, (byte) 0);
-				if ((((localObject1) == null) || (((C_Unit) localObject1).playerId == pxUnit.playerId))
-						&& ((i10 = Math.abs(i5 - pxUnit.positionX)
-								+ Math.abs(i6 - pxUnit.positionY)) < i1)) {
+			if (isInSameTeam(pX, pY, this.playersTeams[pxUnit.playerId])) {
+				C_Unit unit11 = getSomeUnit(pX, pY, (byte) 0);
+				if (((unit11 == null) || (unit11.playerId == pxUnit.playerId))
+						&& ((i10 = Math.abs(pX - pxUnit.positionX)
+								+ Math.abs(pY - pxUnit.positionY)) < i1)) {
 					i3 = i4;
 					i1 = i10;
 				}
 			} else if (((this.var_3ab3[i4] == null) || (this.var_3ab3[i4] == pxUnit))
-					&& (((i7 == 8) && (pxUnit.hasProperty((short) 8))) || ((i7 == 9) && (pxUnit
-							.hasProperty((short) 16))))) {
-				int i9;
-				if ((i9 = Math.abs(i5 - pxUnit.positionX)
-						+ Math.abs(i6 - pxUnit.positionY)) < n) {
+					&& (((tileType == 8) && (pxUnit.hasProperty((short) 8))) || 
+						((tileType == 9) && (pxUnit.hasProperty((short) 16))))) {
+				//village or castle
+				int distance1 = Math.abs(pX - pxUnit.positionX) + Math.abs(pY - pxUnit.positionY);
+				if (distance1 < n) {
 					i2 = i4;
-					n = i9;
+					n = distance1;
 				}
-				C_Unit localClass_c_0324 = getSomeUnit(i5, i6, (byte) 0);
-				if ((i9 < i1)
-						&& (this.someMapData[i5][i6] > 0)
-						&& ((localClass_c_0324 == null) || (localClass_c_0324.playerId == pxUnit.playerId))) {
+				C_Unit unit24 = getSomeUnit(pX, pY, (byte) 0);
+				if ((distance1 < i1)
+						&& (this.someMapData[pX][pY] > 0)
+						&& ((unit24 == null) || (unit24.playerId == pxUnit.playerId))) {
 					i3 = i4;
-					i1 = i9;
+					i1 = distance1;
 				}
 			}
 			i++;
@@ -4851,34 +4840,33 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.var_3b03 = i2;
 			}
 			this.var_3ab3[i3] = pxUnit;
-			this.var_3aeb = this.housesDataArr[i3][0];
-			this.var_3af3 = this.housesDataArr[i3][1];
-			fillArrayWithValue(this.var_3adb, 0);
-			C_Unit.sub_1d7b(this.var_3adb, this.var_3aeb, this.var_3af3,
+			this.someXPos = this.housesDataArr[i3][0];
+			this.someYPos = this.housesDataArr[i3][1];
+			fillArrayWithValue(this.someMData, 0);
+			C_Unit.sub_1d7b(this.someMData, this.someXPos, this.someYPos,
 					10, -1, pxUnit.unitTypeId, this.playerId, false);
 		} else if ((this.playersKings[this.playerId] != null)
 				&& (i2 != -1)
-				&& ((pxUnit.hasProperty((short) 8)) || (pxUnit
-						.hasProperty((short) 16)))) {
+				&& ((pxUnit.hasProperty((short) 8)) || (pxUnit.hasProperty((short) 16)))) { //occupy
 			this.var_3b03 = i2;
 			this.var_3ab3[i2] = pxUnit;
-			this.var_3aeb = this.housesDataArr[i2][0];
-			this.var_3af3 = this.housesDataArr[i2][1];
-			fillArrayWithValue(this.var_3adb, 0);
-			C_Unit.sub_1d7b(this.var_3adb, this.var_3aeb, this.var_3af3,
+			this.someXPos = this.housesDataArr[i2][0];
+			this.someYPos = this.housesDataArr[i2][1];
+			fillArrayWithValue(this.someMData, 0);
+			C_Unit.sub_1d7b(this.someMData, this.someXPos, this.someYPos,
 					10, -1, pxUnit.unitTypeId, this.playerId, false);
 		} else {
 			i4 = -1;
-			i5 = -6666;
-			for (i6 = 0; i6 < i; i6++) {
-				if (this.var_3ac3[i6][2] > -6666) {
-					if (this.var_3ac3[i6][2] > 0) {
-						this.var_3ac3[i6][2] = (this.var_3ac3[i6][2] * m / this.var_3ac3[i6][3]);
+			pX = -6666;
+			for (pY = 0; pY < i; pY++) {
+				if (this.someAIPosAValArr[pY][2] > -6666) {
+					if (this.someAIPosAValArr[pY][2] > 0) {
+						this.someAIPosAValArr[pY][2] = (this.someAIPosAValArr[pY][2] * m / this.someAIPosAValArr[pY][3]);
 					}
-					this.var_3ac3[i6][2] -= this.var_3ac3[i6][4];
-					if (this.var_3ac3[i6][2] > i5) {
-						i5 = this.var_3ac3[i6][2];
-						i4 = i6;
+					this.someAIPosAValArr[pY][2] -= this.someAIPosAValArr[pY][4];
+					if (this.someAIPosAValArr[pY][2] > pX) {
+						pX = this.someAIPosAValArr[pY][2];
+						i4 = pY;
 					}
 				}
 			}
@@ -4892,76 +4880,76 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.var_3afb = (i4 - this.playersKings.length - this.someUnits5.length);
 					this.var_3acb[this.var_3afb] += someSumVal;
 				}
-				this.var_3aeb = this.var_3ac3[i4][0];
-				this.var_3af3 = this.var_3ac3[i4][1];
-				fillArrayWithValue(this.var_3adb, 0);
-				C_Unit.sub_1d7b(this.var_3adb, this.var_3aeb,
-						this.var_3af3, 10, -1, pxUnit.unitTypeId,
+				this.someXPos = this.someAIPosAValArr[i4][0];
+				this.someYPos = this.someAIPosAValArr[i4][1];
+				fillArrayWithValue(this.someMData, 0);
+				C_Unit.sub_1d7b(this.someMData, this.someXPos,
+						this.someYPos, 10, -1, pxUnit.unitTypeId,
 						this.playerId, false);
 			}
 		}
 		i4 = -10000;
-		int i51 = 0;
-		int i61 = this.someMapData.length;
-		while (i51 < i61) {
-			i7 = 0;
-			int i8 = this.someMapData[i51].length;
-			while (i7 < i8) {
+		int it2 = 0;
+		int length2 = this.someMapData.length;
+		while (it2 < length2) {
+			tileType = 0;
+			int length3 = this.someMapData[it2].length;
+			while (tileType < length3) {
 				C_Unit lcUnit;
-				if ((this.someMapData[i51][i7] > 0)
-						&& (((lcUnit = getSomeUnit(i51, i7, (byte) 0)) == null)
+				if ((this.someMapData[it2][tileType] > 0)
+						&& (((lcUnit = getSomeUnit(it2, tileType, (byte) 0)) == null)
 								|| (lcUnit == pxUnit) || ((this.var_3a93 == null)
 								&& (lcUnit.playerId == pxUnit.playerId) && (lcUnit.m_state == 0)))) {
-					int i11;
+					int cellPrior;
 					if ((!pxUnit.hasProperty((short) 512))
-							|| (lcUnit == pxUnit)) {
-						C_Unit[] arrayOfClass_c_0322 = pxUnit
-								.getActiveUnitsInAttackRange(i51, i7, (byte) 0);
-						for (int i13 = 0; i13 < arrayOfClass_c_0322.length; i13++) {
-							if ((i11 = sub_1062b(pxUnit, i51, i7,
-									arrayOfClass_c_0322[i13], null)) > i4) {
+							|| (lcUnit == pxUnit)) { //not catapult
+						C_Unit[] arUnit = pxUnit
+								.getActiveUnitsInAttackRange(it2, tileType, (byte) 0);
+						for (int it13 = 0; it13 < arUnit.length; it13++) {
+							cellPrior = getUnitCellPriority(pxUnit, it2, tileType, arUnit[it13], null);
+							if (cellPrior > i4) {
 								this.var_3a8b = null;
-								this.var_3a83 = arrayOfClass_c_0322[i13];
-								i4 = i11;
-								this.var_3a73 = i51;
-								this.var_3a7b = i7;
+								this.var_3a83 = arUnit[it13];
+								i4 = cellPrior;
+								this.var_3a73 = it2;
+								this.someTileType = tileType;
 							}
 						}
 					}
-					if (pxUnit.hasProperty((short) 32)) {
-						this.var_34f3 = pxUnit.getActiveUnitsInAttackRange(i51, i7,
-								(byte) 1);
+					if (pxUnit.hasProperty((short) 32)) { //raise
+						this.var_34f3 = pxUnit.getActiveUnitsInAttackRange(it2, tileType, (byte) 1);
 						for (int i12 = 0; i12 < this.var_34f3.length; i12++) {
-							if ((i11 = sub_1062b(pxUnit, i51, i7,
-									null, this.var_34f3[i12])) > i4) {
+							cellPrior = getUnitCellPriority(pxUnit, it2, tileType,
+									null, this.var_34f3[i12]);
+							if (cellPrior > i4) {
 								this.var_3a83 = null;
 								this.var_3a8b = this.var_34f3[i12];
-								i4 = i11;
-								this.var_3a73 = i51;
-								this.var_3a7b = i7;
+								i4 = cellPrior;
+								this.var_3a73 = it2;
+								this.someTileType = tileType;
 							}
 						}
 					}
-					if ((i11 = sub_1062b(pxUnit, i51, i7, null, null)) > i4) {
+					cellPrior = getUnitCellPriority(pxUnit, it2, tileType, null, null);
+					if (cellPrior > i4) {
 						this.var_3a83 = null;
 						this.var_3a8b = null;
-						i4 = i11;
-						this.var_3a73 = i51;
-						this.var_3a7b = i7;
+						i4 = cellPrior;
+						this.var_3a73 = it2;
+						this.someTileType = tileType;
 					}
 				}
-				i7++;
+				tileType++;
 			}
-			i51++;
+			it2++;
 		}
 		if (this.var_3b03 != -1) {
-			this.var_3abb[this.var_3b03] = ((byte) (10 - this.var_3adb[this.var_3a73][this.var_3a7b]));
+			this.var_3abb[this.var_3b03] = ((byte) (10 - this.someMData[this.var_3a73][this.someTileType]));
 		}
 		this.var_3a93 = null;
-		C_Unit localClass_c_0322;
-		if (((localClass_c_0322 = getSomeUnit(this.var_3a73, this.var_3a7b,
-				(byte) 0)) != null) && (localClass_c_0322 != pxUnit)) {
-			this.var_3a93 = localClass_c_0322;
+		C_Unit unit22 = getSomeUnit(this.var_3a73, this.someTileType, (byte) 0);
+		if ((unit22 != null) && (unit22 != pxUnit)) {
+			this.var_3a93 = unit22;
 			this.var_3a6b = 0;
 			return;
 		}
@@ -4970,130 +4958,118 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3a6b = 3;
 	}
 
-	public final int sub_1062b(C_Unit cUnit21, int paramInt1,
-			int paramInt2, C_Unit cUnit1,
-			C_Unit paramClass_c_0323) {
-		int i = 0;
-		int m;
-		if ((this.var_3b03 != -1)
-				&& (this.playersKings[cUnit21.playerId] != null)) {
-			if (this.var_3aeb != -1) {
-				if (this.var_3adb[paramInt1][paramInt2] > 0) {
-					i = 0 + (100 + 100 * this.var_3adb[paramInt1][paramInt2] / 10);
+	public final int getUnitCellPriority(C_Unit cUnit21, int inX, int inY, C_Unit cUnit1, C_Unit inUnit) {
+		int priority = 0;
+		if ((this.var_3b03 != -1) && (this.playersKings[cUnit21.playerId] != null)) {
+			if (this.someXPos != -1) {
+				if (this.someMData[inX][inY] > 0) {
+					priority = 0 + (100 + 100 * this.someMData[inX][inY] / 10);
 				} else {
-					int j = Math.abs(this.var_3aeb - cUnit21.positionX)
-							+ Math.abs(this.var_3af3
+					int j = Math.abs(this.someXPos - cUnit21.positionX)
+							+ Math.abs(this.someYPos
 									- cUnit21.positionY);
-					m = Math.abs(this.var_3aeb - paramInt1)
-							+ Math.abs(this.var_3af3 - paramInt2);
-					i = 0
+					int m = Math.abs(this.someXPos - inX)
+							+ Math.abs(this.someYPos - inY);
+					priority = 0
 							+ 100
 							* (j - m)
 							/ (C_Unit.var_b9b[cUnit21.unitTypeId] - 1);
-					if (tilesMovements[getTileType(paramInt1, paramInt2)] <= 1) {
-						i += 20;
+					if (tilesMovements[getTileType(inX, inY)] <= 1) {
+						priority += 20;
 					}
 				}
 			}
 			if ((cUnit1 == null)
-					&& (!sub_e2b4(paramInt1, paramInt2,
+					&& (!isInSameTeam(inX, inY,
 							this.playersTeams[cUnit21.playerId]))) {
 				if ((cUnit21.hasProperty((short) 16))
-						&& (getTileType(paramInt1, paramInt2) == 9)) {
-					i += 300;
+						&& (getTileType(inX, inY) == 9)) {
+					priority += 300;
 				} else if ((cUnit21.hasProperty((short) 8))
-						&& ((getTileType(paramInt1, paramInt2) == 8) || (this.mapTilesIds[paramInt1][paramInt2] == 27))) {
-					i += 200;
+						&& ((getTileType(inX, inY) == 8) || (this.mapTilesIds[inX][inY] == 27))) {
+					priority += 200;
 				}
 			}
 		}
 		switch (cUnit21.unitTypeId) {
-		case 3:
-			if (paramClass_c_0323 != null) {
-				i += 100;
-			}
-			break;
-		case 4:
-			C_Unit[] arrayOfClass_c_032 = cUnit21.getPositionUnitsInAttackRange(
-					paramInt1, paramInt2, 1, 2, (byte) 2);
-			if (paramClass_c_0323 != null) {
-				i += 25 * arrayOfClass_c_032.length;
-			}
-			break;
-		case 2:
-			if (getTileType(paramInt1, paramInt2) == 5) {
-				i += 25;
-			}
-			break;
+			case 3: //magi
+				if (inUnit != null) {
+					priority += 100;
+				}
+				break;
+			case 4: //wisp
+				C_Unit[] someUnits2 = cUnit21.getPositionUnitsInAttackRange(inX, inY, 1, 2, (byte) 2);
+				if (inUnit != null) {
+					priority += 25 * someUnits2.length;
+				}
+				break;
+			case 2: //elemental
+				if (getTileType(inX, inY) == 5) { //water
+					priority += 25;
+				}
+				break;
 		}
 		if (cUnit1 != null) {
 			if (cUnit1.m_state == 4) {
-				int k = tileOwnerPlayerIndex(cUnit1.positionX, cUnit1.positionY);
-				m = sub_10b21(cUnit1.positionX, cUnit1.positionY);
-				if ((k != 0) && (m != -1) && (this.var_3ab3[m] == null)) {
-					i += cUnit21.getSomePropSum(paramInt1, paramInt2, cUnit1) / 2;
+				int oPlayerId = tileOwnerPlayerIndex(cUnit1.positionX, cUnit1.positionY);
+				int house1Id = getMapHouseId(cUnit1.positionX, cUnit1.positionY);
+				if ((oPlayerId != 0) && (house1Id != -1) && (this.var_3ab3[house1Id] == null)) {
+					priority += cUnit21.getSomePropSum(inX, inY, cUnit1) / 2;
 				}
 			} else {
-				if (!cUnit1.isNearOtherUnit(cUnit21, paramInt1,
-						paramInt2)) {
-					i += cUnit21.getSomePropSum(paramInt1, paramInt2,
-							cUnit1) * 2;
+				if (!cUnit1.isNearOtherUnit(cUnit21, inX, inY)) {
+					priority += cUnit21.getSomePropSum(inX, inY, cUnit1) * 2;
 				} else {
-					i += cUnit21.getSomePropSum(paramInt1, paramInt2,
-							cUnit1)
-							* 3
-							/ 2
-							- cUnit1.getSomePropSum(paramInt1, paramInt2,
-									cUnit21);
+					priority += cUnit21.getSomePropSum(inX, inY, cUnit1)
+							* 3 / 2
+							- cUnit1.getSomePropSum(inX, inY, cUnit21);
 				}
-				if (cUnit1.unitTypeId == 9) {
-					i += 25;
-				} else if (cUnit1.unitTypeId == 11) {
-					i += 100;
+				if (cUnit1.unitTypeId == 9) { //king
+					priority += 25;
+				} else if (cUnit1.unitTypeId == 11) { // crystal
+					priority += 100;
 				}
 			}
 		}
-		i += tilesDefences[getTileType(paramInt1, paramInt2)];
+		priority += tilesDefences[getTileType(inX, inY)];
 		if ((cUnit21.unitHealthMb < 100)
-				&& (sub_e2b4(paramInt1, paramInt2,
-						this.playersTeams[cUnit21.playerId]))) {
-			i += 100 - cUnit21.unitHealthMb;
+				&& (isInSameTeam(inX, inY, this.playersTeams[cUnit21.playerId]))) {
+			priority += 100 - cUnit21.unitHealthMb;
 		}
-		int k = sub_10b21(paramInt1, paramInt2);
-		int n;
-		if (this.var_3adb[paramInt1][paramInt2] > 0) {
-			m = this.var_3adb[paramInt1][paramInt2];
-			n = 10 - C_Unit.var_b9b[cUnit21.unitTypeId] / 2;
+		int house2Id = getMapHouseId(inX, inY);
+		if (this.someMData[inX][inY] > 0) {
+			int m = this.someMData[inX][inY];
+			int n = 10 - C_Unit.var_b9b[cUnit21.unitTypeId] / 2;
 			if (m > n) {
 				m = n;
 			}
-			i += 50 + 100 * m / n;
-		} else if (this.var_3aeb != -1) {
-			m = Math.abs(this.var_3aeb - cUnit21.positionX)
-					+ Math.abs(this.var_3af3 - cUnit21.positionY);
-			n = Math.abs(this.var_3aeb - paramInt1)
-					+ Math.abs(this.var_3af3 - paramInt2);
-			i += 50 * (m - n)
+			priority += 50 + 100 * m / n;
+		} else if (this.someXPos != -1) {
+			int m = Math.abs(this.someXPos - cUnit21.positionX)
+					+ Math.abs(this.someYPos - cUnit21.positionY);
+			int n = Math.abs(this.someXPos - inX)
+					+ Math.abs(this.someYPos - inY);
+			priority += 50 * (m - n)
 					/ (C_Unit.var_b9b[cUnit21.unitTypeId] - 1);
 		}
-		C_Unit localClass_c_032;
-		if ((k != -1)
-				&& ((localClass_c_032 = this.var_3ab3[k]) != null)
-				&& (localClass_c_032 != cUnit21)
-				&& (localClass_c_032.m_state == 0)
-				&& (this.var_3abb[k] < C_Unit.var_b9b[localClass_c_032.unitTypeId])) {
-			i -= 200;
+		C_Unit ssUnit8;
+		if ((house2Id != -1)
+				&& ((ssUnit8 = this.var_3ab3[house2Id]) != null)
+				&& (ssUnit8 != cUnit21)
+				&& (ssUnit8.m_state == 0)
+				&& (this.var_3abb[house2Id] < C_Unit.var_b9b[ssUnit8.unitTypeId])) {
+			priority -= 200;
 		}
-		return i += 20
-				* (Math.abs(paramInt1 - cUnit21.positionX) + Math
-						.abs(paramInt2 - cUnit21.positionY))
+		return priority += 20
+				* (Math.abs(inX - cUnit21.positionX) + Math
+						.abs(inY - cUnit21.positionY))
 				/ (C_Unit.var_b9b[cUnit21.unitTypeId] - 1);
 	}
 
-	public final int sub_10b21(int paramInt1, int paramInt2) {
+	public final int getMapHouseId(int inX, int inY) {
 		for (int i = 0; i < this.housesDataArr.length; i++) {
-			if ((this.housesDataArr[i][0] == paramInt1)
-					&& (this.housesDataArr[i][1] == paramInt2)) {
+			if ((this.housesDataArr[i][0] == inX)
+					&& (this.housesDataArr[i][1] == inY)) {
 				return i;
 			}
 		}
@@ -5129,7 +5105,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return dialog;
 	}
 
-	public final void sub_10c83() throws Exception {
+	public final void initScenarioMap() throws Exception {
 		this.crystal3Unit = null;
 		if (this.mapModeCampIf0 == 0) {
 			this.var_378b = var_32c3;
@@ -5143,8 +5119,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (this.scenarioMapIndex == 0) {
 			this.var_3703 = 0;
-			this.var_35a3[0] = 0;
-			this.var_35a3[1] = 0;
+			this.playersMoney[0] = 0;
+			this.playersMoney[1] = 0;
 			C_Unit.var_a7b = 4;
 			this.someCameraVelocityMb = 2;
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
@@ -5158,8 +5134,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (this.scenarioMapIndex == 1) {
 			this.var_3703 = 1;
-			this.var_35a3[0] = 300;
-			this.var_35a3[1] = 50;
+			this.playersMoney[0] = 300;
+			this.playersMoney[1] = 50;
 			C_Unit.var_a7b = 4;
 			this.someCameraVelocityMb = 2;
 			this.playersKings[0].setKingName(2);
@@ -5174,10 +5150,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (this.scenarioMapIndex == 2) {
 			this.var_3703 = 0;
-			this.var_35a3[0] = 0;
-			this.var_35a3[1] = 0;
+			this.playersMoney[0] = 0;
+			this.playersMoney[1] = 0;
 			C_Unit.var_a7b = 4;
-			this.var_35a3[0] = 0;
+			this.playersMoney[0] = 0;
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			this.skeleton1Map2 = getSomeUnit(8, 17, (byte) 0);
@@ -5195,8 +5171,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.scenarioMapIndex == 3) {
 			this.var_3703 = 7;
 			C_Unit.var_a7b = 4;
-			this.var_35a3[0] = 400;
-			this.var_35a3[1] = 400;
+			this.playersMoney[0] = 400;
+			this.playersMoney[1] = 400;
 			this.skeleton1Map2 = C_Unit.createUnitOnMap((byte) 0, (byte) 0, -1, 5);
 			this.crystalOfWisdom = C_Unit.createUnitOnMap((byte) 2, (byte) 0, -2, 5);
 			this.skeleton2Map2 = C_Unit.createUnitOnMap((byte) 3, (byte) 0, -3, 5);
@@ -5214,27 +5190,27 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.scriptStep = 0;
 			return;
 		}
-		C_Unit localClass_c_0321;
+		C_Unit cUnit;
 		if (this.scenarioMapIndex == 4) {
 			this.var_3703 = 0;
-			this.var_35a3[0] = 0;
-			this.var_35a3[1] = 0;
+			this.playersMoney[0] = 0;
+			this.playersMoney[1] = 0;
 			sub_b998(this.playersKings[0].posXPixel + 12,
 					this.playersKings[0].posYPixel + 12);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
 			C_Unit.var_a7b = 4;
-			(localClass_c_0321 = getSomeUnit(11, 2, (byte) 0)).setUnitPosition(11, -3);
-			localClass_c_0321.goToPosition(11, 2, false);
-			(localClass_c_0321 = getSomeUnit(10, 1, (byte) 0)).setUnitPosition(10, -5);
-			localClass_c_0321.goToPosition(10, 1, false);
-			(localClass_c_0321 = getSomeUnit(11, 1, (byte) 0)).setUnitPosition(11, -5);
-			localClass_c_0321.goToPosition(11, 1, false);
-			(localClass_c_0321 = getSomeUnit(12, 1, (byte) 0)).setUnitPosition(12, -5);
-			localClass_c_0321.goToPosition(12, 1, false);
-			(localClass_c_0321 = getSomeUnit(11, 0, (byte) 0)).setUnitPosition(11, -7);
-			localClass_c_0321.goToPosition(11, 0, false);
-			(localClass_c_0321 = getSomeUnit(12, 0, (byte) 0)).setUnitPosition(12, -7);
-			localClass_c_0321.goToPosition(12, 0, false);
+			(cUnit = getSomeUnit(11, 2, (byte) 0)).setUnitPosition(11, -3);
+			cUnit.goToPosition(11, 2, false);
+			(cUnit = getSomeUnit(10, 1, (byte) 0)).setUnitPosition(10, -5);
+			cUnit.goToPosition(10, 1, false);
+			(cUnit = getSomeUnit(11, 1, (byte) 0)).setUnitPosition(11, -5);
+			cUnit.goToPosition(11, 1, false);
+			(cUnit = getSomeUnit(12, 1, (byte) 0)).setUnitPosition(12, -5);
+			cUnit.goToPosition(12, 1, false);
+			(cUnit = getSomeUnit(11, 0, (byte) 0)).setUnitPosition(11, -7);
+			cUnit.goToPosition(11, 0, false);
+			(cUnit = getSomeUnit(12, 0, (byte) 0)).setUnitPosition(12, -7);
+			cUnit.goToPosition(12, 0, false);
 			A_MenuBase.mainCanvas.showMenu(this.mapNameDialog);
 			this.isCursorVisible = false;
 			this.scriptStep = 0;
@@ -5242,8 +5218,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (this.scenarioMapIndex == 5) {
 			this.var_3703 = 7;
-			this.var_35a3[0] = 600;
-			this.var_35a3[1] = 600;
+			this.playersMoney[0] = 600;
+			this.playersMoney[1] = 600;
 			this.playersKings[0].setKingName(2);
 			sub_b9c5(5, 0);
 			moveCursorToPos(5, 0);
@@ -5254,22 +5230,22 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.scriptStep = 0;
 			return;
 		}
-		C_Unit localClass_c_0322;
-		C_Unit localClass_c_0323;
+		C_Unit cUnit2;
+		C_Unit cUnit3;
 		if (this.scenarioMapIndex == 6) {
 			this.var_3703 = 8;
 			C_Unit.var_a7b = 4;
-			this.var_35a3[0] = 400;
-			this.var_35a3[1] = 600;
-			localClass_c_0321 = C_Unit.createUnitOnMap((byte) 0, (byte) 0, 13, -1);
-			localClass_c_0322 = C_Unit.createUnitOnMap((byte) 1, (byte) 0, 13, -1);
-			localClass_c_0323 = C_Unit.createUnitOnMap((byte) 3, (byte) 0, 13, -1);
+			this.playersMoney[0] = 400;
+			this.playersMoney[1] = 600;
+			cUnit = C_Unit.createUnitOnMap((byte) 0, (byte) 0, 13, -1);
+			cUnit2 = C_Unit.createUnitOnMap((byte) 1, (byte) 0, 13, -1);
+			cUnit3 = C_Unit.createUnitOnMap((byte) 3, (byte) 0, 13, -1);
 			C_Unit localClass_c_0324 = C_Unit.createUnitOnMap((byte) 11,
 					(byte) 0, 13, -1);
-			this.playersKings[0].followerUnitMb = localClass_c_0321;
-			localClass_c_0321.followerUnitMb = localClass_c_0322;
-			localClass_c_0322.followerUnitMb = localClass_c_0323;
-			localClass_c_0323.followerUnitMb = localClass_c_0324;
+			this.playersKings[0].followerUnitMb = cUnit;
+			cUnit.followerUnitMb = cUnit2;
+			cUnit2.followerUnitMb = cUnit3;
+			cUnit3.followerUnitMb = localClass_c_0324;
 			this.playersKings[0].fillWhereUnitCanMove(this.someMapData);
 			this.playersKings[0].goToPosition(14, 3, true);
 			sub_b9c5(this.playersKings[0].positionX, this.playersKings[0].positionY);
@@ -5283,14 +5259,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (this.scenarioMapIndex == 7) {
 			this.var_3703 = 8;
 			C_Unit.var_a7b = 4;
-			this.var_35a3[0] = 800;
-			this.var_35a3[1] = 200;
-			(localClass_c_0321 = getSomeUnit(7, 4, (byte) 0)).setKingName(3);
-			this.playersKings[1] = localClass_c_0321;
-			localClass_c_0322 = getSomeUnit(8, 15, (byte) 0);
-			this.playersKings[0] = localClass_c_0322;
-			localClass_c_0322.setKingName(0);
-			(localClass_c_0323 = getSomeUnit(6, 15, (byte) 0)).setKingName(2);
+			this.playersMoney[0] = 800;
+			this.playersMoney[1] = 200;
+			(cUnit = getSomeUnit(7, 4, (byte) 0)).setKingName(3);
+			this.playersKings[1] = cUnit;
+			cUnit2 = getSomeUnit(8, 15, (byte) 0);
+			this.playersKings[0] = cUnit2;
+			cUnit2.setKingName(0);
+			(cUnit3 = getSomeUnit(6, 15, (byte) 0)).setKingName(2);
 			sub_b998(this.playersKings[0].posXPixel + 12,
 					this.playersKings[0].posYPixel + 12);
 			moveCursorToPos(this.playersKings[0].positionX, this.playersKings[0].positionY);
@@ -5525,7 +5501,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 				break;
 			case 18:
-				if (countSomeUnits(-1, 2, (byte) 0) >= 3) { // 2 - has no turn, noboby has turn
+				if (countUnits(-1, 2, (byte) 0) >= 3) { // 2 - has no turn, noboby has turn
 					this.helpTipId = 4;
 					this.scriptStep += 1;
 				} else if (this.currentTurn >= 1) {
@@ -5549,7 +5525,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 				break;
 			case 22:
-				if (countSomeUnits(-1, -1, (byte) 1) == 0) { // no enemy troops
+				if (countUnits(-1, -1, (byte) 1) == 0) { // no enemy troops
 					this.isUpdatingMb = false;
 					waitScript(20);
 					this.scriptStep += 1;
@@ -5587,7 +5563,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.scriptStep += 1;
 				break;
 			case 30:
-				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (this.activeUnitState == 0)) {
+				if ((countUnits(-1, -1, (byte) 1) == 0) && (this.activeUnitState == 0)) {
 					this.isUpdatingMb = false;
 					this.isCursorVisible = false;
 					waitScript(30);
@@ -5756,7 +5732,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				break;
 			case 23:
 				// no enemies and no enemy castle
-				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) { 
+				if ((countUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) { 
 					this.isUpdatingMb = false;
 					waitScript(20);
 					this.scriptStep += 1;
@@ -5827,7 +5803,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		case 7:
 			if ((this.playerId == 0)
 					&& (this.var_378b == 0)
-					&& (countSomeUnits(-1, 3, (byte) -1) >= 1)) { //there are dead units
+					&& (countUnits(-1, 3, (byte) -1) >= 1)) { //there are dead units
 				this.helpTipId = 15;
 				this.scriptStep += 1;
 			}
@@ -5944,7 +5920,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.scriptStep += 1;
 		   break;
 		case 21:
-			if (countSomeUnits(-1, -1, (byte) 1) == 0) { // no enemies
+			if (countUnits(-1, -1, (byte) 1) == 0) { // no enemies
 				this.isUpdatingMb = false;
 				waitScript(10);
 				this.scriptStep += 1;
@@ -6063,7 +6039,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.scriptStep += 1;
 			break;
 		case 16:
-			if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
+			if ((countUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
 				waitScript(15);
 				this.isUpdatingMb = false;
 				this.scriptStep += 1;
@@ -6280,7 +6256,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.scriptStep = 26;
 						return;
 					}
-					if (countSomeUnits(-1, -1, (byte) 1) == 0) { // no enemies
+					if (countUnits(-1, -1, (byte) 1) == 0) { // no enemies
 						this.isUpdatingMb = false;
 						this.isCursorVisible = false;
 						waitScript(10);
@@ -6310,7 +6286,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.scriptStep += 1;
 				break;
 			case 3:
-				if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
+				if ((countUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
 					this.isUpdatingMb = false;
 					this.isCursorVisible = false;
 					waitScript(15);
@@ -6422,7 +6398,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							break;
 						}
 					}
-					if ((outsideTheRegion) || (countSomeUnits(-1, -1, (byte) 1) == 0)) {
+					if ((outsideTheRegion) || (countUnits(-1, -1, (byte) 1) == 0)) {
 						this.isCursorVisible = false;
 						this.isUpdatingMb = false;
 						waitScript(10);
@@ -6566,7 +6542,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					this.scriptStep += 1;
 					break;
 				case 33:
-					if ((countSomeUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
+					if ((countUnits(-1, -1, (byte) 1) == 0) && (countPlayerOwnerCastles(1) == 0)) {
 						this.isUpdatingMb = false;
 						this.isCursorVisible = false;
 						waitScript(10);
