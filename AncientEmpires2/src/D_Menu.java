@@ -106,7 +106,7 @@ public final class D_Menu extends A_MenuBase {
 			if ((paramInt & 0x2) == 0) {
 				this.menuHeight += 5;
 			}
-			this.buyUnits = C_Unit.sub_240e(gameVar.playerId);
+			this.buyUnits = C_Unit.getSomUnitsList(gameVar.playerId);
 			this.menuItemsCount = this.buyUnits.length;
 			int j = this.menuWidth - gameVar.sideArrowSprite.frameWidth * 2;
 			if ((paramInt & 0x4) == 0) {
@@ -147,7 +147,7 @@ public final class D_Menu extends A_MenuBase {
 		initMenu();
 	}
 
-	//@todo this is on load
+	//this is on load
 	public final void initMenu() {
 		this.var_1205 = 0;
 		if (this.smallSparksMenuSprites != null) {
@@ -1306,7 +1306,7 @@ public final class D_Menu extends A_MenuBase {
 						if ((i141 == 0) || (i151 == 0)) {
 							sTileHeight = n + i12;
 							drawRoundedRect(gr, sTileHeight, i13, i9 - i12, i10);
-							gameVar.smallCircleSprite.draw(gr, n, i1);
+							gameVar.smallCircleSprite.onSpritePaint(gr, n, i1);
 							if (((i17 = i141 * 2 + i151) == 0) || (i17 == 1)) {
 								gameVar.hudIconsSprite.drawFrameAt(gr, i17, sTileHeight, i1
 										+ i12, 3);
@@ -1314,13 +1314,13 @@ public final class D_Menu extends A_MenuBase {
 							i18 = 0;
 							if (i17 == 0) {
 								if (this.menuType == 5) {
-									i18 = this.menuUnit.sub_e5f(null);
+									i18 = this.menuUnit.getUnitExtraAttack(null);
 								}
 								str = this.menuUnit.unitAttackMin + i18 + "-"
 										+ (this.menuUnit.unitAttackMax + i18);
 							} else if (i17 == 1) {
 								if (this.menuType == 5) {
-									i18 = this.menuUnit.sub_f43(null);
+									i18 = this.menuUnit.getUnitResistance(null);
 								}
 								str = "" + (this.menuUnit.unitDefence + i18);
 							} else if (i17 == 2) {
@@ -1433,21 +1433,24 @@ public final class D_Menu extends A_MenuBase {
 			case 7:
 			case 10:
 			case 11:
-				/*
-				while (mapUnitsCount >= 0) {
-					if (mapUnitsCount == this.activeItemPositionMb) {
-						// gameVar.smallCircleSprite.drawFrameAt(paramGraphics, 1,
-						// i21, 0, 20);//@todo here =(
-					} else {
-						gameVar.smallCircleSprite.drawFrameAt(gr, 0, i21, 0, 20);
+				
+				try{
+					//@todo if(what?)
+					while (mapUnitsCount >= 0) {
+						if (mapUnitsCount == this.activeItemPositionMb) {
+						    gameVar.smallCircleSprite.drawFrameAt(gr, 1, i21, 0, 20);
+						} else {
+							gameVar.smallCircleSprite.drawFrameAt(gr, 0, i21, 0, 20);
+						}
+						this.menuItemsImages[mapUnitsCount].drawImageExt(gr, i21
+								+ gameVar.smallCircleSprite.frameWidth / 2,
+								this.menuHeight / 2, 3);
+						i21 -= this.var_101d;
+						mapUnitsCount--;
 					}
-					this.menuItemsImages[mapUnitsCount].drawImageExt(gr, i21
-							+ gameVar.smallCircleSprite.frameWidth / 2,
-							this.menuHeight / 2, 3);
-					i21 -= this.var_101d;
-					mapUnitsCount--;
-				}*/
-					// continue; //@todo
+				}catch(Exception exx){
+					//
+				}
 	
 					gr.setFont(E_MainCanvas.font8);
 					//show portrait

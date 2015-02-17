@@ -44,10 +44,10 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public static Random random = new Random();
 	public static boolean[] settings = { true, true, true, true };
 	public static String[] settingsNames;
-	public boolean var_142c = false;
+	public boolean m_notifyUnkFlag = false;
 	public static int musicPlayerId = -1;
 	public static int musicLoopCount;
-	public static boolean var_1444 = false;
+	public static boolean m_notifyShownMb = false;
 	public static final String[] musicNames = { "main_theme", "bg_story",
 			"bg_good", "bg_bad", "battle_good", "battle_bad", "victory",
 			"gameover", "game_complete" };
@@ -159,8 +159,8 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	}
 
 	public final void showNotify() {
-		this.var_142c = false;
-		var_1444 = false;
+		this.m_notifyUnkFlag = false;
+		m_notifyShownMb = false;
 		clearActions();
 		if (this.mainDrawElement != null) {
 			this.mainDrawElement.onLoad();
@@ -170,8 +170,8 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public final void hideNotify() {
 		clearActions();
 		if (this.mainDrawElement != null) {
-			if (!this.var_142c) {
-				var_1444 = true;
+			if (!this.m_notifyUnkFlag) {
+				m_notifyShownMb = true;
 				if ((currentMusicPlayer != null) && (currentMusicPlayer.getState() == 400)
 						&& (var_1454[currentMusicId] == 1)) {
 					musicPlayerId = currentMusicId;
@@ -179,7 +179,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 				}
 				stopMusic();
 			}
-			this.var_142c = false;
+			this.m_notifyUnkFlag = false;
 		}
 	}
 
@@ -210,7 +210,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 				int j;
 				if ((j = var_13b4[paramInt3][(k - var_13a4[paramInt3])]) != -1) {
 					charsSprites[paramInt3].setCurrentFrameIndex(j);
-					charsSprites[paramInt3].draw(gr, paramInt1,
+					charsSprites[paramInt3].onSpritePaint(gr, paramInt1,
 							paramInt2);
 					paramInt1 += charsSprites[paramInt3].frameWidth;
 				} else {
@@ -422,7 +422,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 			aGame.runLoading();
 			while (this.isRunning) {
 				long time = System.currentTimeMillis();
-				if ((isShown()) && (!var_1444)) {
+				if ((isShown()) && (!m_notifyShownMb)) {
 					if (musicPlayerId >= 0) {
 						playMusicLooped(musicPlayerId, musicLoopCount);
 						if ((currentMusicPlayer != null) && (currentMusicPlayer.getState() == 400)) {
@@ -517,7 +517,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 				if (loopCount == 0) {
 					loopCount = -1;
 				}
-				if (var_1444) {
+				if (m_notifyShownMb) {
 					musicPlayerId = musicId;
 					musicLoopCount = loopCount;
 				} else {
@@ -595,6 +595,15 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public final void commandAction(Command paramCommand,
 			Displayable paramDisplayable) {
 		B_MainMIDlet.midlet.notifyDestroyed();
+	}
+	
+	public final void showMsg(String msg, I_Game game){
+		D_Menu dialog = new D_Menu((byte) 10, 12);
+		dialog.createDescDialogMb(null, msg, this.canvasWidth, -1);
+		dialog.parentMenu = game;
+		dialog.var_10c5 = 500;
+		dialog.setMenuLoc(this.canvasWidth >> 1, this.canvasHeight >> 1, 3);
+		this.showMenu(dialog);
 	}
 
 }

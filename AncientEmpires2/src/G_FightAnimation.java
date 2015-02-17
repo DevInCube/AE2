@@ -169,10 +169,10 @@ public final class G_FightAnimation {
 			this.slashSprite.startAnimation(0, this.var_b75);
 		}
 		if (this.kingHeadsSprite != null) {
-			this.kingHeadsSprite.startAnimation(aUnit.var_b7b, this.var_b75);
-			this.kingHeadsSprite.setCurrentFrameIndex(aUnit.var_b7b);
+			this.kingHeadsSprite.startAnimation(aUnit.kingIndex, this.var_b75);
+			this.kingHeadsSprite.setCurrentFrameIndex(aUnit.kingIndex);
 			this.kingHeadsBackSprite.startAnimation(0, this.var_b75);
-			this.kingHeadsBackSprite.setCurrentFrameIndex(aUnit.var_b7b);
+			this.kingHeadsBackSprite.setCurrentFrameIndex(aUnit.kingIndex);
 		}
 		this.var_c2d = new int[aUnit.charsData.length][2];
 		for (int m = 0; m < this.var_c2d.length; m++) {
@@ -471,7 +471,7 @@ public final class G_FightAnimation {
 							this.unitCharsSprites[m].var_81c = 1;
 							this.unitCharsSprites[m].var_87c = 1;
 							if (this.unitType == 8) {
-								this.var_c75[m].var_84c = false;
+								this.var_c75[m].isUpdatingMb = false;
 							}
 							i = 0;
 						} else if (this.unitCharsSprites[m].var_87c == 1) {
@@ -482,7 +482,7 @@ public final class G_FightAnimation {
 						}
 					}
 					if ((this.unitType == 8) && (this.var_c75[m] != null)
-							&& (this.var_c75[m].var_84c)) {
+							&& (this.var_c75[m].isUpdatingMb)) {
 						(localClass_f_0455 = F_Sprite.someSpriteCopy(
 								this.game.bigSmokeSprite, var_b85[this.var_b6d]
 										* E_MainCanvas.getRandomWithin(1, 4),
@@ -586,7 +586,7 @@ public final class G_FightAnimation {
 					E_MainCanvas.vibrate(200);
 					E_MainCanvas.playMusicLooped(14, 1);
 					if (this.archerArrowSprite != null) {
-						this.var_c7d = C_Unit.var_bc3[this.unitType].length;
+						this.var_c7d = C_Unit.unitsChars[this.unitType].length;
 					}
 					this.var_c4d = 1;
 				}
@@ -612,7 +612,7 @@ public final class G_FightAnimation {
 					}
 					int i4 = (this.game.var_3bfb - i3)
 							* (this.var_c7d * 2 + 1)
-							/ (C_Unit.var_bc3[this.unitType].length * 2)
+							/ (C_Unit.unitsChars[this.unitType].length * 2)
 							- localClass_f_0453.frameHeight / 2 + i3;
 					if (this.var_b6d == 0) {
 						i2 += this.game.viewportWidth;

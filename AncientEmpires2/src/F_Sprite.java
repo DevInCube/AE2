@@ -21,7 +21,7 @@ public class F_Sprite {
 	public int var_834;
 	public int var_83c;
 	public int var_844;
-	public boolean var_84c = true;
+	public boolean isUpdatingMb = true;
 	public boolean var_854;
 	public boolean var_85c;
 	public int var_864 = -1;
@@ -209,7 +209,7 @@ public class F_Sprite {
 	public final void drawFrameAt(Graphics gr, int frameIndex,
 			int inX, int inY, int paramInt4) {
 		if ((this.var_814 == 2) || (this.var_814 == 4) || (this.var_814 == 3)) {
-			draw(gr, inX, inY);
+			onSpritePaint(gr, inX, inY);
 			return;
 		}
 		if (this.var_7ec) {
@@ -225,83 +225,7 @@ public class F_Sprite {
 				inY, paramInt3);
 	}
 
-	//this is not virtual
-	public void draw(Graphics gr, int inX, int inY) {
-		int k = 0;
-		if ((this.var_814 == 2) || (this.var_814 == 4)) {
-			gr.setColor(this.someColor);
-			k = 0;
-		}
-		while (k < 5) {
-			int x;
-			int y;
-			if (this.var_8c4[k] != false) {
-				x = (this.var_8a4[k][0] >> 10) + inX + this.posXPixel;
-				y = (this.var_8a4[k][1] >> 10) + inY + this.posYPixel;
-				gr.fillRect(x, y, this.var_8bc[k], this.var_8bc[k]);
-			}
-			k++;
-			//continue; //@todo
-			if (this.var_814 == 6) {
-				x = 0;
-				if (this.currentFrameIndex == 0) {
-					gr.setColor(15718144); // #EFD700 sand yellow
-				} else {
-					gr.setColor(16777215); // white
-				}
-				if (this.var_834 > 0) {
-					y = this.posXPixel + 15;
-					gr.fillArc(this.posXPixel, this.posYPixel - 15, 30,
-							30, 0, 360);
-					gr.fillRect(y, this.posYPixel - 15,
-							E_MainCanvas.canvasWidth - y, 30);
-					return;
-				}
-				gr.fillArc(this.posXPixel - 30, this.posYPixel - 15, 30,
-						30, 0, 360);
-				gr.fillRect(0, this.posYPixel - 15, this.posXPixel - 15,
-						30);
-				return;
-			}
-			if (this.var_814 == 3) {
-				gr.setColor(0); //black
-				if (this.var_834 > 0) {
-					gr.drawLine(this.posXPixel, this.posYPixel,
-							this.posXPixel + 4, this.posYPixel - 2);
-					return;
-				}
-				gr.drawLine(this.posXPixel - 4, this.posYPixel - 2,
-						this.posXPixel, this.posYPixel);
-				return;
-			}
-			if (this.var_7ec) {
-				x = this.posXPixel + inX;
-				y = this.posYPixel + inY;
-				if (this.spriteString != null) {
-					E_MainCanvas.drawCharedString(gr, this.spriteString, x, y,
-							this.charFontId, 33);
-					return;
-				}
-				if (this.var_864 > 0) {
-					x += E_MainCanvas.getRandomWithin(-4, 5);
-					y += E_MainCanvas.getRandomWithin(-1, 2);
-				}
-				k = this.frameSequence[this.currentFrameIndex];
-				this.frameImages[k].drawImageExt(gr, x, y);
-				if (this.kingHeadSprite != null) {
-					int m = k % (getFramesCount() / 2);
-					F_Sprite sprite;
-					if (m == 2) {
-						sprite = this.kingBackSprite;
-					} else {
-						sprite = this.kingHeadSprite;
-						sprite.setCurrentFrameIndex(m);
-					}
-					sprite.draw(gr, x, y);
-				}
-			}
-		}
-	}
+	
 
 	public static final F_Sprite sub_15c2(String str, int paramInt1,
 			int paramInt2, byte charId) {
@@ -360,71 +284,6 @@ public class F_Sprite {
 		return lspr;
 	}
 
-	//@todo override? what is this code about
-	public void spriteUpdate() {
-		if (this.var_84c) {
-			this.frameTime += 50;
-			if (this.var_864 >= 0) {
-				this.var_864 -= 1;
-			}
-			switch (this.var_814) {
-			case 2:
-			case 4:
-				sub_19ce();
-				return;
-			case 3:
-				setSpritePosition(this.posXPixel + this.var_834, this.posYPixel
-						+ this.var_83c);
-				return;
-			case 6:
-				this.currentFrameIndex = ((this.currentFrameIndex + 1) % 2);
-				if (this.frameTime >= this.mapFrameTime) {
-					this.var_84c = false;
-					return;
-				}
-				break;
-			case 5:
-				if (this.var_81c == -1) {
-					setSpritePosition(this.posXPixel + this.var_834, this.posYPixel);
-					this.var_80c += this.var_844;
-					if (this.var_80c >= 0) {
-						this.var_80c = 0;
-						this.var_844 = (-this.var_844 / 2);
-						if (this.var_844 == 0) {
-							this.var_81c = 1;
-							this.frameTime = 0;
-						}
-					} else {
-						this.var_844 += 1;
-					}
-				} else if (this.frameTime >= 400) {
-					this.var_84c = false;
-					return;
-				}
-				break;
-			default:
-				setSpritePosition(this.posXPixel + this.var_834, this.posYPixel
-						+ this.var_83c);
-				this.var_80c += this.var_844;
-				if ((this.var_81c != 0) && (this.frameTime >= this.mapFrameTime)) {
-					nextFrame();
-					if ((this.var_814 == 0) && (this.currentFrameIndex == 0)
-							&& (this.var_81c > 0)) {
-						this.var_81c -= 1;
-						if (this.var_81c <= 0) {
-							setCurrentFrameIndex(getFrameSequenceLength() - 1);
-							if (this.var_854) {
-								this.var_84c = false;
-							}
-						}
-					}
-					this.frameTime = 0;
-				}
-				break;
-			}
-		}
-	}
-
 	public final void sub_19ce() {
 		if (this.var_814 != 4) {
 			this.someColor += -263168;
@@ -462,8 +321,156 @@ public class F_Sprite {
 			}
 		}
 		if (this.frameTime >= this.mapFrameTime) {
-			this.var_84c = false;
+			this.isUpdatingMb = false;
 		}
+	}
+	
+	//@Virtual
+	public void spriteUpdate() {
+		if (this.isUpdatingMb) {
+			this.frameTime += 50;
+			if (this.var_864 >= 0) {
+				this.var_864 -= 1;
+			}
+			switch (this.var_814) {
+			case 2:
+			case 4:
+				sub_19ce();
+				return;
+			case 3:
+				setSpritePosition(this.posXPixel + this.var_834, this.posYPixel
+						+ this.var_83c);
+				return;
+			case 6:
+				this.currentFrameIndex = ((this.currentFrameIndex + 1) % 2);
+				if (this.frameTime >= this.mapFrameTime) {
+					this.isUpdatingMb = false;
+					return;
+				}
+				break;
+			case 5:
+				if (this.var_81c == -1) {
+					setSpritePosition(this.posXPixel + this.var_834, this.posYPixel);
+					this.var_80c += this.var_844;
+					if (this.var_80c >= 0) {
+						this.var_80c = 0;
+						this.var_844 = (-this.var_844 / 2);
+						if (this.var_844 == 0) {
+							this.var_81c = 1;
+							this.frameTime = 0;
+						}
+					} else {
+						this.var_844 += 1;
+					}
+				} else if (this.frameTime >= 400) {
+					this.isUpdatingMb = false;
+					return;
+				}
+				break;
+			default:
+				setSpritePosition(this.posXPixel + this.var_834, this.posYPixel
+						+ this.var_83c);
+				this.var_80c += this.var_844;
+				if ((this.var_81c != 0) && (this.frameTime >= this.mapFrameTime)) {
+					nextFrame();
+					if ((this.var_814 == 0) && (this.currentFrameIndex == 0)
+							&& (this.var_81c > 0)) {
+						this.var_81c -= 1;
+						if (this.var_81c <= 0) {
+							setCurrentFrameIndex(getFrameSequenceLength() - 1);
+							if (this.var_854) {
+								this.isUpdatingMb = false;
+							}
+						}
+					}
+					this.frameTime = 0;
+				}
+				break;
+			}
+		}
+	}
+
+	//@Virtual
+	public void onSpritePaint(Graphics gr, int inX, int inY) {
+		int k = 0;
+		if ((this.var_814 == 2) || (this.var_814 == 4)) {
+			gr.setColor(this.someColor);
+			k = 0;
+		}
+		
+		//@todo !!! this was fatal for all units!
+		/*
+		while (k < 5) {
+			int x;
+			int y;
+			if (this.var_8c4[k] != false) {
+				x = (this.var_8a4[k][0] >> 10) + inX + this.posXPixel;
+				y = (this.var_8a4[k][1] >> 10) + inY + this.posYPixel;
+				gr.fillRect(x, y, this.var_8bc[k], this.var_8bc[k]);
+			}
+			k++;
+		}*/
+		
+		if (this.var_814 == 6) {
+			int x = 0;
+			if (this.currentFrameIndex == 0) {
+				gr.setColor(15718144); // #EFD700 sand yellow
+			} else {
+				gr.setColor(16777215); // white
+			}
+			if (this.var_834 > 0) {
+				int y = this.posXPixel + 15;
+				gr.fillArc(this.posXPixel, this.posYPixel - 15, 30,
+						30, 0, 360);
+				gr.fillRect(y, this.posYPixel - 15,
+						E_MainCanvas.canvasWidth - y, 30);
+				return;
+			}
+			gr.fillArc(this.posXPixel - 30, this.posYPixel - 15, 30,
+					30, 0, 360);
+			gr.fillRect(0, this.posYPixel - 15, this.posXPixel - 15,
+					30);
+			return;
+		}
+		if (this.var_814 == 3) {
+			gr.setColor(0); //black
+			if (this.var_834 > 0) {
+				gr.drawLine(this.posXPixel, this.posYPixel,
+						this.posXPixel + 4, this.posYPixel - 2);
+				return;
+			}
+			gr.drawLine(this.posXPixel - 4, this.posYPixel - 2,
+					this.posXPixel, this.posYPixel);
+			return;
+		}
+		if (this.var_7ec) {
+			int x = this.posXPixel + inX;
+			int y = this.posYPixel + inY;
+			if (this.spriteString != null) {
+				E_MainCanvas.drawCharedString(gr, this.spriteString, x, y,
+						this.charFontId, 33);
+				return;
+			}
+			if (this.var_864 > 0) {
+				x += E_MainCanvas.getRandomWithin(-4, 5);
+				y += E_MainCanvas.getRandomWithin(-1, 2);
+			}
+			k = this.frameSequence[this.currentFrameIndex];
+			this.frameImages[k].drawImageExt(gr, x, y);
+			if (this.kingHeadSprite != null) {
+				int m = k % (getFramesCount() / 2);
+				F_Sprite sprite;
+				if (m == 2) {
+					sprite = this.kingBackSprite;
+				} else {
+					sprite = this.kingHeadSprite;
+					sprite.setCurrentFrameIndex(m);
+				}
+				sprite.onSpritePaint(gr, x, y);
+			}
+		}
+		
+		
 	}
 }
 

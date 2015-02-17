@@ -67,8 +67,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public static final int[] var_33cb = { -1, 4, 5, 4, 5 };
 	public F_Sprite[][] playersUnitsSprites;
 	public static final byte[] var_33db = { 1, 2 };
-	public static final byte[] var_33e3 = { 0, 5, 10, 10, 15, 0, 5, 15, 15, 15 };
-	public static final byte[] var_33eb = { 1, 1, 2, 2, 3, 3, 1, 1, 1, 1 };
+	public static final byte[] tilesDefences = { 0, 5, 10, 10, 15, 0, 5, 15, 15, 15 };
+	public static final byte[] tilesMovements = { 1, 1, 2, 2, 3, 3, 1, 1, 1, 1 };
 	public int houseTileIdStartIndex;
 	public H_ImageExt[] smallTilesImages;
 	public byte[] tilesProps;
@@ -117,17 +117,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public byte mapMaxPlayersMb = 2;
 	public byte[] var_3563 = new byte[5];
 	public byte[] playersIndexes = new byte[4];
-	public byte[] var_3573 = new byte[4];
+	public byte[] playersTeams = new byte[4];
 	public byte playerId = 0;
 	public short currentTurn;
 	public C_Unit[] playersKings;
-	public C_Unit[][] var_3593;
-	public int[] var_359b;
+	public C_Unit[][] playerKingsMb;
+	public int[] playerUnitsCount;
 	public int[] var_35a3 = new int[4];
 	public byte[][] kingsPositions = new byte[4][2];
 	public byte[] var_35b3 = new byte[4];
-	public D_Menu someGameMenu;
-	public Vector someGameSpritesList = new Vector();
+	public D_Menu unitActionsMenu;
+	public Vector mapEffectsSpritesList = new Vector();
 	public Vector var_35cb = new Vector();
 	public C_Unit dyingUnit;
 	public C_Unit var_35db;
@@ -286,7 +286,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public C_Unit var_3a93;
 	public int var_3a9b;
 	public long aSomeOtherTime;
-	public C_Unit[] var_3aab;
+	public C_Unit[] someUnits5;
 	public C_Unit[] var_3ab3;
 	public byte[] var_3abb;
 	public int[][] var_3ac3;
@@ -567,7 +567,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		this.gameMode2Mb = 1;
-		C_Unit.sub_2745(this);
+		C_Unit.loadUnitsProps(this);
 		E_MainCanvas.loadResourcesPak("/1.pak");
 		this.playersUnitsSprites = new F_Sprite[5][12];
 		F_Sprite sprite1;
@@ -687,7 +687,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		stream.writeByte(this.var_3703);
 		stream.writeByte(this.mapMaxPlayersMb);
 		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
-			stream.writeByte(this.var_3573[i]);
+			stream.writeByte(this.playersTeams[i]);
 			stream.writeByte(this.var_35b3[i]);
 			stream.writeShort(this.var_35a3[i]);
 			stream.writeByte(this.kingsPositions[i][0]);
@@ -716,7 +716,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			stream.writeByte(unit.var_b5b);
 			stream.writeByte(unit.var_b63);
 			if (unit.unitTypeId == 9) {
-				stream.writeByte(unit.var_b7b);
+				stream.writeByte(unit.kingIndex);
 				stream.writeShort(unit.cost);
 				stream
 						.writeByte(this.playersKings[unit.playerId] == unit ? 1
@@ -746,7 +746,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3703 = stream.readByte();
 		this.mapMaxPlayersMb = stream.readByte();
 		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
-			this.var_3573[i] = stream.readByte();
+			this.playersTeams[i] = stream.readByte();
 			this.var_35b3[i] = stream.readByte();
 			this.var_35a3[i] = stream.readShort();
 			this.kingsPositions[i][0] = stream.readByte();
@@ -757,8 +757,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.mapTilesIds[this.housesDataArr[i][0]][this.housesDataArr[i][1]] = stream
 					.readByte();
 		}
-		this.var_3593 = new C_Unit[this.mapMaxPlayersMb][4];
-		this.var_359b = new int[this.mapMaxPlayersMb];
+		this.playerKingsMb = new C_Unit[this.mapMaxPlayersMb][4];
+		this.playerUnitsCount = new int[this.mapMaxPlayersMb];
 		sub_87e6();
 		int j = 0;
 		int length =  stream.readByte();
@@ -916,7 +916,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						+ (this.attackedUnitMb.frameWidth - poisonSprite.frameWidth)
 						/ 2, this.attackedUnitMb.posYPixel - poisonSprite.frameHeight);
 				poisonSprite.setFrameSequence(var_339b);
-				this.someGameSpritesList.addElement(poisonSprite);
+				this.mapEffectsSpritesList.addElement(poisonSprite);
 				this.attackedUnitMb.applyPoisonStatus((byte) 1);
 			}
 			if (this.attackedUnitMb.gotNewLevel()) {
@@ -988,8 +988,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		A_MenuBase.mainCanvas.showMenu(playWheelMenu);
 	}
 
-	public final void sub_5a85(byte[] data, C_Unit unitUnused) {
-		this.someGameMenu = new D_Menu((byte) 0, 0);
+	public final void initUnitActionsMenu(byte[] data, C_Unit unitUnused) {
+		this.unitActionsMenu = new D_Menu((byte) 0, 0);
 		int length = data.length;
 		String[] names = new String[length];
 		H_ImageExt[] images = new H_ImageExt[length];
@@ -998,14 +998,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			images[j] = this.actionIconsFrames[data[j]];
 		}
 		if (this.var_34b3 * 24 <= this.someGHeight / 2 - 24) {
-			this.someGameMenu.sub_1e97(names, images, 0,
+			this.unitActionsMenu.sub_1e97(names, images, 0,
 					this.someGHeight - this.buttonsSprite.frameHeight, 36);
 		} else {
-			this.someGameMenu.sub_1e97(names, images,
-					this.someGWidth, 0, 8);
+			this.unitActionsMenu.sub_1e97(names, images, this.someGWidth, 0, 8);
 		}
-		this.someGameMenu.setParentMenu(this);
-		A_MenuBase.mainCanvas.showMenu(this.someGameMenu);
+		this.unitActionsMenu.setParentMenu(this);
+		A_MenuBase.mainCanvas.showMenu(this.unitActionsMenu);
 	}
 
 	public final D_Menu createSlotsMenu(String desc, H_ImageExt image) {
@@ -1162,7 +1161,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final void sub_6260(D_Menu menu, int itemNumber,
 			String itemName, byte paramByte) throws Exception {
 		this.var_3c73 = true;
-		if ((menu == this.someGameMenu) && (paramByte == 1)) {
+		if ((menu == this.unitActionsMenu) && (paramByte == 1)) {
 			if (this.activeUnitState == 3) {
 				this.activeUnit.setUnitPosition(this.var_3503, this.var_350b);
 				this.activeUnit.fillWhereUnitCanMove(this.someMapData);
@@ -1204,7 +1203,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 										- this.castleBuyAllUnitsMenu.menuHeight);
 				this.castleBuyUnitMenu.menuUnit = this.castleBuyAllUnitsMenu.buyUnits[itemNumber];
 				this.castleBuyDescMenu.onLoad();
-				this.castleBuyUnitMenu.onLoad();
+				//this.castleBuyUnitMenu.onLoad();
 			}
 			return;
 		}
@@ -1344,10 +1343,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						} else if (this.choosePlayerMenuList[i6].activeItemPositionMb == 1) {
 							this.var_35b3[i6] = 0;
 						}
-						this.var_3573[i6] = ((byte) this.chooseTeamMenuList[i6].activeItemPositionMb);
-						if (arrayOfBoolean[this.var_3573[i6]] == false) {
+						this.playersTeams[i6] = ((byte) this.chooseTeamMenuList[i6].activeItemPositionMb);
+						if (arrayOfBoolean[this.playersTeams[i6]] == false) {
 							n++;
-							arrayOfBoolean[this.var_3573[i6]] = true;
+							arrayOfBoolean[this.playersTeams[i6]] = true;
 						}
 					}
 				}
@@ -1968,7 +1967,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (itemName.equals(A_MenuBase.getLangString(67))) { //OCCUPY
-			if (sub_e0c8(this.activeUnit.positionX, this.activeUnit.positionY,
+			if (canOccupyVillageOrTown(this.activeUnit.positionX, this.activeUnit.positionY,
 					this.activeUnit)) {
 				sub_e1a9(this.activeUnit.positionX, this.activeUnit.positionY,
 						this.playersIndexes[this.activeUnit.playerId]);
@@ -2036,7 +2035,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final C_Unit sub_8788(byte paramByte, int paramInt1,
 			int paramInt2) {
-		this.var_35a3[this.playerId] -= C_Unit.var_bcb[paramByte];
+		this.var_35a3[this.playerId] -= C_Unit.unitsCosts[paramByte];
 		this.var_397b = true;
 		return C_Unit.createUnitOnMap(paramByte, this.playerId, paramInt1,
 				paramInt2);
@@ -2055,7 +2054,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final void loadMap(int mapId) throws Exception {
 		E_MainCanvas.stopMusic();
-		this.someGameSpritesList = new Vector();
+		this.mapEffectsSpritesList = new Vector();
 		this.isFadingIn = false;
 		this.isCursorVisible = true;
 		this.var_364b = false;
@@ -2144,8 +2143,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3563[2] = 1;
 		this.playersIndexes[0] = 1;
 		this.playersIndexes[1] = 2;
-		this.var_3573[0] = 0;
-		this.var_3573[1] = 1;
+		this.playersTeams[0] = 0;
+		this.playersTeams[1] = 1;
 		this.var_35b3[0] = 1;
 		this.var_35b3[1] = 0;
 		this.mapStartUnitCap = 100;
@@ -2159,8 +2158,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		dis.skip(m1 * 4);
 		int n = dis.readInt();
 		this.playersKings = new C_Unit[this.mapMaxPlayersMb];
-		this.var_3593 = new C_Unit[this.mapMaxPlayersMb][4];
-		this.var_359b = new int[this.mapMaxPlayersMb];
+		this.playerKingsMb = new C_Unit[this.mapMaxPlayersMb][4];
+		this.playerUnitsCount = new int[this.mapMaxPlayersMb];
 		for (short i = 0; i < n; i = (short) (i + 1)) {
 			int i1 = dis.readByte();
 			int posX = dis.readShort() / 24;
@@ -2222,7 +2221,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (getTileType(this.housesDataArr[i][0], this.housesDataArr[i][1]) == 8) {
 				this.houseSmokeSprites[i] = F_Sprite.someSpriteCopy(this.bigSmokeSprite, 0, -1,
 						0, 1, 250, (byte) 0);
-				this.houseSmokeSprites[i].var_84c = false;
+				this.houseSmokeSprites[i].isUpdatingMb = false;
 			}
 		}
 		if (this.var_35b3[this.playerId] == 0) {
@@ -2247,7 +2246,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final void sub_91c4(C_Unit unit) {
+	public final void initSomeUnitData(C_Unit unit) {
 		E_MainCanvas.stopMusicPlayer(10);
 		this.m_tempUnit = null;
 		fillArrayWithValue(this.someMapData, 0);
@@ -2257,7 +2256,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.isCursorVisible = true;
 			this.cursorSprite.setFrameSequence(cursorFrameSequences[0]);
 			this.activeUnitState = 3;
-			sub_5a85(sub_9267(unit, (byte) 0), unit);
+			initUnitActionsMenu(getUnitActionsData(unit, (byte) 0), unit);
 			E_MainCanvas.playMusicLooped(11, 1);
 			return;
 		}
@@ -2267,42 +2266,37 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final byte[] sub_9267(C_Unit unit, byte paramByte) {
-		int i = 0;
-		byte[] arrayOfByte = new byte[this.unitActionsNames.length];
-		if ((paramByte == 1)
-				&& (getTileType(this.activeUnit.positionX, this.activeUnit.positionY) == 9)
-				&& (sub_e312(this.activeUnit.positionX, this.activeUnit.positionY,
-						unit.playerId))) {
-			arrayOfByte[(i++)] = 0;
+	public final byte[] getUnitActionsData(C_Unit unit, byte moveIf1) {
+		int actionsCount = 0;
+		byte[] data = new byte[this.unitActionsNames.length];
+		//castle and is owner		
+		if ((moveIf1 == 1)
+				&& (getTileType(this.activeUnit.positionX, this.activeUnit.positionY) == 9) 
+				&& (playerIsOwnerOfTile(this.activeUnit.positionX, this.activeUnit.positionY, unit.playerId))) {
+			data[(actionsCount++)] = 0; // BUY
 		}
-		arrayOfByte[(i++)] = 2;
-		if (sub_e0c8(unit.positionX, unit.positionY,
-				unit)) {
-			arrayOfByte[(i++)] = (byte) (sub_e065(unit.positionX,
-					unit.positionY, unit) ? 0 : 1);
+		if (canOccupyVillageOrTown(unit.positionX, unit.positionY, unit)) {
+			data[(actionsCount++)] = (byte) (canOccupyVillages(unit.positionX, unit.positionY, unit) ? 0 : 1);
 		}
-		if (((paramByte == 1) || (unit.unitTypeId != 7))
+		// not catapult
+		if (((moveIf1 == 1) || (unit.unitTypeId != 7))
 				&& (unit.charsData.length > 0)
 				&& (unit.getActiveUnitsInAttackRange(unit.positionX,
 						unit.positionY, (byte) 0).length > 0)) {
-			arrayOfByte[(i++)] = 3;
+			data[(actionsCount++)] = 3; // attack
 		}
-		C_Unit[] lUnit = unit.getActiveUnitsInAttackRange(
-				unit.positionX, unit.positionY,
-				(byte) 1);
-		if ((unit.hasProperty((short) 32))
-				&& (lUnit.length > 0)) {
-			arrayOfByte[(i++)] = 4;
+		C_Unit[] tombs = unit.getActiveUnitsInAttackRange(unit.positionX, unit.positionY, (byte) 1);
+		if ((unit.hasProperty((short) 32)) && (tombs.length > 0)) { // magi 
+			data[(actionsCount++)] = 4; //raise
 		}
-		if (paramByte == 1) {
-			arrayOfByte[(i++)] = 5;
+		if (moveIf1 == 1) {
+			data[(actionsCount++)] = 5;
 		} else {
-			arrayOfByte[(i++)] = 6;
+			data[(actionsCount++)] = 6;
 		}
-		byte[] localObject1 = new byte[i];
-		System.arraycopy(arrayOfByte, 0, localObject1, 0, i);
-		return localObject1;
+		byte[] actionsData = new byte[actionsCount];
+		System.arraycopy(data, 0, actionsData, 0, actionsCount);
+		return actionsData;
 	}
 
 	public final void updateIntro() throws Exception {
@@ -2414,9 +2408,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			for (int i = 0; i < this.houseSmokeSprites.length; i++) {
 				int k = tileOwnerPlayerIndex(this.housesDataArr[i][0], this.housesDataArr[i][1]);
 				if ((this.houseSmokeSprites[i] != null) && (k != -1) && (k != 0)
-						&& (!this.houseSmokeSprites[i].var_84c)
+						&& (!this.houseSmokeSprites[i].isUpdatingMb)
 						&& (E_MainCanvas.random.nextInt() % 8 == 0)) {
-					this.houseSmokeSprites[i].var_84c = true;
+					this.houseSmokeSprites[i].isUpdatingMb = true;
 					this.houseSmokeSprites[i].setCurrentFrameIndex(0);
 					this.houseSmokeSprites[i].var_81c = 1;
 					this.houseSmokeSprites[i].setSpritePosition((this.housesDataArr[i][0] + 1) * 24
@@ -2560,7 +2554,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 										mUnit.positionY) == 7) || (sub_e2b4(
 												mUnit.positionX,
 												mUnit.positionY,
-										this.var_3573[mUnit.playerId])))
+										this.playersTeams[mUnit.playerId])))
 								&& (mUnit.unitHealthMb < 100)) {
 							int uHealth = 100 - mUnit.unitHealthMb;
 							if (uHealth > 20) {
@@ -2574,7 +2568,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 													/ 2,
 											((F_Sprite) mUnit).posYPixel
 													+ ((F_Sprite) mUnit).frameHeight);
-							this.someGameSpritesList.addElement(healSprite);
+							this.mapEffectsSpritesList.addElement(healSprite);
 						}
 					}
 					this.var_354b = 0;
@@ -2640,7 +2634,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						int i2;
 						if (this.var_366b == 0) {
 							E_MainCanvas.vibrate(200);
-							i2 = this.attackerUnitMb.sub_fea(this.attackedUnitMb);
+							i2 = this.attackerUnitMb.getUnitAttackDamage(this.attackedUnitMb);
 							this.attackedUnitMb.shakeUnit(400);
 							E_MainCanvas.playMusicLooped(14, 1);
 							showSpriteOnMap(this.redsparkSprite, this.attackedUnitMb.posXPixel,
@@ -2660,18 +2654,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							((F_Sprite) localObject3).setSpritePosition(i7,
 									this.attackedUnitMb.posYPixel
 											+ this.attackedUnitMb.frameHeight);
-							this.someGameSpritesList.addElement(localObject3);
+							this.mapEffectsSpritesList.addElement(localObject3);
 							this.var_3673 = this.time;
 							this.var_366b += 1;
 						} else if (this.var_366b == 1) {
 							if (this.time - this.var_3673 >= 800L) {
 								moveCursorToPos(this.attackerUnitMb.positionX,
 										this.attackerUnitMb.positionY);
-								if (this.attackedUnitMb.sub_1134(this.attackerUnitMb,
+								if (this.attackedUnitMb.isNearOtherUnit(this.attackerUnitMb,
 										this.attackerUnitMb.positionX,
 										this.attackerUnitMb.positionY)) {
 									E_MainCanvas.vibrate(200);
-									i2 = this.attackedUnitMb.sub_fea(this.attackerUnitMb);
+									i2 = this.attackedUnitMb.getUnitAttackDamage(this.attackerUnitMb);
 									this.attackerUnitMb.shakeUnit(400);
 									E_MainCanvas.playMusicLooped(14, 1);
 									showSpriteOnMap(this.redsparkSprite,
@@ -2694,7 +2688,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									((F_Sprite) localObject3).setSpritePosition(i7,
 											this.attackerUnitMb.posYPixel
 													+ this.attackerUnitMb.frameHeight);
-									this.someGameSpritesList.addElement(localObject3);
+									this.mapEffectsSpritesList.addElement(localObject3);
 									this.var_3673 = this.time;
 									this.var_366b += 1;
 								} else {
@@ -2731,7 +2725,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 										50 * E_MainCanvas.getRandomMax(4));
 							}
 							if (this.heavensFuryMissle.posYPixel >= this.furyTargetUnit.posYPixel) {
-								this.heavensFuryMissle.var_84c = false;
+								this.heavensFuryMissle.isUpdatingMb = false;
 								E_MainCanvas.vibrate(200);
 								startShakingScreen(500);
 								if (this.showFuryAfterEffect) {
@@ -2747,7 +2741,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 															/ 2,
 													this.furyTargetUnit.posYPixel
 															+ this.furyTargetUnit.frameHeight);
-									this.someGameSpritesList.addElement(furyDmgSprite);
+									this.mapEffectsSpritesList.addElement(furyDmgSprite);
 								}
 								showHeavensFuryAfterEffect(this.furyTargetUnit);
 								this.var_3873 = 2;
@@ -2871,7 +2865,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							if (this.activeUnitState == 2) {
 								if ((this.activeUnit.m_state != 1)
 										&& (this.var_39cb)) {
-									sub_91c4(this.activeUnit);
+									initSomeUnitData(this.activeUnit);
 								}
 							} else if (this.var_35b3[this.playerId] == 0) {
 								sub_ebb9();
@@ -2923,7 +2917,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 											this.activeUnit.endMove();
 											this.activeUnitState = 0;
 										}
-										this.someGameMenu = null;
+										this.unitActionsMenu = null;
 										this.var_351b = false;
 										this.var_3523 = false;
 										this.canCancelMb = false;
@@ -3070,7 +3064,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												this.isCursorVisible = false;
 												this.var_351b = false;
 												this.var_353b = null;
-												this.someGameMenu = null;
+												this.unitActionsMenu = null;
 												this.canCancelMb = false;
 												this.canApplyMb = false;
 												this.activeUnitState = 2;
@@ -3086,14 +3080,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 													&& (this.var_3753.unitTypeId == 9)) {
 												//
 											}
-											C_Unit localObject41 = this.var_3593[this.playerId][((this.var_3753.var_b83 + 1) % this.var_359b[this.playerId])];
+											C_Unit localObject41 = this.playerKingsMb[this.playerId][((this.var_3753.unitId + 1) % this.playerUnitsCount[this.playerId])];
 											for (;;) {
 												i4++;
-												if ((i4 >= this.var_359b[this.playerId])
+												if ((i4 >= this.playerUnitsCount[this.playerId])
 														|| (((C_Unit) localObject41).m_state != 3)) {
 													break;
 												}
-												localObject41 = this.var_3593[this.playerId][((localObject41.var_b83 + 1) % this.var_359b[this.playerId])];
+												localObject41 = this.playerKingsMb[this.playerId][((localObject41.unitId + 1) % this.playerUnitsCount[this.playerId])];
 											}
 											if ((localObject41 != null)
 													&& (((C_Unit) localObject41).m_state != 3)) {
@@ -3134,11 +3128,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 											if ((this.activeUnit != null)
 													&& (this.activeUnit.m_state == 0)
 													&& (this.activeUnit.playerId == this.playerId)) {
-												byte[] localObject21 = sub_9267(
+												byte[] unitActionsData = getUnitActionsData(
 														this.activeUnit, (byte) 1);
-												if (localObject21.length > 1) {
-													sub_5a85(
-															(byte[]) localObject21,
+												if (unitActionsData.length > 1) {
+													initUnitActionsMenu(
+															unitActionsData,
 															this.activeUnit);
 													E_MainCanvas.playMusicLooped(11, 1);
 												} else {
@@ -3147,24 +3141,24 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												}
 											} else if ((getTileType(this.var_34ab,
 													this.var_34b3) == 9)
-													&& (sub_e312(this.var_34ab,
+													&& (playerIsOwnerOfTile(this.var_34ab,
 															this.var_34b3,
 															this.playerId))) {
 												localObject2 = new byte[] { 0 };
-												sub_5a85((byte[]) localObject2,
+												initUnitActionsMenu((byte[]) localObject2,
 														null);
 												E_MainCanvas.playMusicLooped(11, 1);
 											} else {
 												this.activeUnit = null;
-												this.someGameMenu = new D_Menu(
+												this.unitActionsMenu = new D_Menu(
 														(byte) 11, 0);
-												this.someGameMenu.createMenuListItems(
+												this.unitActionsMenu.createMenuListItems(
 														this.gameMenuItemsNames, 2, 2,
 														-1, this.someGHeight, 20,
 														0);
-												this.someGameMenu.setParentMenu(this);
+												this.unitActionsMenu.setParentMenu(this);
 												A_MenuBase.mainCanvas
-														.showMenu(this.someGameMenu);
+														.showMenu(this.unitActionsMenu);
 												E_MainCanvas.playMusicLooped(11, 1);
 											}
 											A_MenuBase.mainCanvas.clearActions();
@@ -3202,7 +3196,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				fillArrayWithValue(this.someMapData, 0);
 				this.cursorSprite.setFrameSequence(cursorFrameSequences[0]);
 				moveCursorToPos(this.activeUnit.positionX, this.activeUnit.positionY);
-				A_MenuBase.mainCanvas.showMenu(this.someGameMenu);
+				A_MenuBase.mainCanvas.showMenu(this.unitActionsMenu);
 			}
 			this.var_351b = false;
 			this.var_3523 = false;
@@ -3210,18 +3204,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.canCancelMb = false;
 			this.canApplyMb = false;
 		}
-		for (i = this.someGameSpritesList.size() - 1; i >= 0; i--) {
-			F_Sprite localObject21 = (F_Sprite) this.someGameSpritesList
-					.elementAt(i);
-			localObject21.spriteUpdate();
-			if (!((F_Sprite) localObject21).var_84c) {
-				this.someGameSpritesList.removeElement(localObject21);
+		for (i = this.mapEffectsSpritesList.size() - 1; i >= 0; i--) {
+			F_Sprite sSprite = (F_Sprite) this.mapEffectsSpritesList.elementAt(i);
+			sSprite.spriteUpdate();
+			if (!sSprite.isUpdatingMb) {
+				this.mapEffectsSpritesList.removeElement(sSprite);
 			}
 		}
 		i = 0;
 		j = this.var_35cb.size();
 		while (i < j) {
-			this.someGameSpritesList.addElement(this.var_35cb.elementAt(i));
+			this.mapEffectsSpritesList.addElement(this.var_35cb.elementAt(i));
 			i++;
 		}
 		this.var_35cb.removeAllElements();
@@ -3687,7 +3680,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final void onPaint(Graphics gr) {
-		int m;
+		int sprLength;
 		if (this.gameMode2Mb == 4) { // loading progress
 			gr.setColor(16777215);
 			gr.fillRect(0, 0, this.someCanWidth, this.someCanHeight);
@@ -3699,11 +3692,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if ((i = this.someCanHeight / 18) < 12) {
 				i = 12;
 			}
-			m = this.someCanHeight / 2 + 1;
+			sprLength = this.someCanHeight / 2 + 1;
 			gr.setColor(13553358); // #CECECE light gray
-			D_Menu.drawRoundedRect(gr, 1, m, this.someCanWidth - 2, i);
+			D_Menu.drawRoundedRect(gr, 1, sprLength, this.someCanWidth - 2, i);
 			gr.setColor(2370117); // dark blue
-			D_Menu.drawRoundedRect(gr, 2, m + 2, this.loadingProgress
+			D_Menu.drawRoundedRect(gr, 2, sprLength + 2, this.loadingProgress
 					* (this.someCanWidth - 6) / 100, i - 4);
 			return;
 		}
@@ -3755,8 +3748,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					E_MainCanvas.drawString(gr, str1, this.someCanWidthDiv2,
 							this.someCanHeight - 2, 33);
 				} else {
-					m = this.someCanHeightDiv2 - E_MainCanvas.font8.getHeight() / 2;
-					E_MainCanvas.drawString(gr, str1, this.someCanWidthDiv2, m,
+					sprLength = this.someCanHeightDiv2 - E_MainCanvas.font8.getHeight() / 2;
+					E_MainCanvas.drawString(gr, str1, this.someCanWidthDiv2, sprLength,
 							17);
 				}
 			}
@@ -3769,16 +3762,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			if (this.isShakingScreen) {
 				int j = E_MainCanvas.getRandom() % 10;
-				m = E_MainCanvas.getRandom() % 4;
-				gr.translate(j, m);
+				sprLength = E_MainCanvas.getRandom() % 4;
+				gr.translate(j, sprLength);
 				sub_bbf2(gr);
-				gr.translate(-j, -m);
+				gr.translate(-j, -sprLength);
 			} else {
 				sub_bbf2(gr);
 			}
 			int j = 0;
-			m = this.mapUnitsSprites.size();
-			while (j < m) {
+			sprLength = this.mapUnitsSprites.size();
+			while (j < sprLength) {
 				C_Unit unit3 = (C_Unit) this.mapUnitsSprites.elementAt(j);
 				if (unit3.m_state == 3) {
 					this.tombstoneSprite.drawImageExt(gr, this.var_341b
@@ -3791,9 +3784,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				j++;
 			}
 			j = 0;
-			m = this.mapUnitsSprites.size();
-			while (j < m) {
-				((C_Unit) this.mapUnitsSprites.elementAt(j)).sub_26ca(
+			sprLength = this.mapUnitsSprites.size();
+			while (j < sprLength) {
+				((C_Unit) this.mapUnitsSprites.elementAt(j)).drawUnitHealth(
 						gr, this.var_341b, this.var_3423);
 				j++;
 			}
@@ -3801,8 +3794,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			int i4;
 			if (this.var_353b != null) {
 				gr.setColor(14745682);
-				m = 12 + this.var_3a4b / 4;
-				int n = 24 - m;
+				sprLength = 12 + this.var_3a4b / 4;
+				int n = 24 - sprLength;
 				int i2 = 0;
 				i3 = this.var_353b.size();
 				while (i2 < i3) {
@@ -3817,16 +3810,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						if ((arrayOfShort2 = (short[]) this.var_353b
 								.elementAt(i2 - 1))[0] == arrayOfShort1[0] + 1) {
 							gr.fillRect(i4 + n, i7 - this.var_3a53,
-									m, this.var_3a4b);
+									sprLength, this.var_3a4b);
 						} else if (arrayOfShort2[0] == arrayOfShort1[0] - 1) {
-							gr.fillRect(i4, i7 - this.var_3a53, m,
+							gr.fillRect(i4, i7 - this.var_3a53, sprLength,
 									this.var_3a4b);
 						} else if (arrayOfShort2[1] == arrayOfShort1[1] + 1) {
 							gr.fillRect(i6 - this.var_3a53, i5 + n,
-									this.var_3a4b, m);
+									this.var_3a4b, sprLength);
 						} else if (arrayOfShort2[1] == arrayOfShort1[1] - 1) {
 							gr.fillRect(i6 - this.var_3a53, i5,
-									this.var_3a4b, m);
+									this.var_3a4b, sprLength);
 						}
 					}
 					if (i2 == i3 - 1) {
@@ -3835,17 +3828,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3453.drawCurrentFrame(gr, i6, i7, 3);
 					} else if ((arrayOfShort2 = (short[]) this.var_353b
 							.elementAt(i2 + 1))[0] == arrayOfShort1[0] + 1) {
-						gr.fillRect(i4 + n, i7 - this.var_3a53, m,
+						gr.fillRect(i4 + n, i7 - this.var_3a53, sprLength,
 								this.var_3a4b);
 					} else if (arrayOfShort2[0] == arrayOfShort1[0] - 1) {
-						gr.fillRect(i4, i7 - this.var_3a53, m,
+						gr.fillRect(i4, i7 - this.var_3a53, sprLength,
 								this.var_3a4b);
 					} else if (arrayOfShort2[1] == arrayOfShort1[1] + 1) {
 						gr.fillRect(i6 - this.var_3a53, i5 + n,
-								this.var_3a4b, m);
+								this.var_3a4b, sprLength);
 					} else if (arrayOfShort2[1] == arrayOfShort1[1] - 1) {
 						gr.fillRect(i6 - this.var_3a53, i5,
-								this.var_3a4b, m);
+								this.var_3a4b, sprLength);
 					}
 					i2++;
 				}
@@ -3853,7 +3846,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			if (this.activeUnit != null) {
 				this.activeUnit.sub_252e(gr, this.var_341b,
 						this.var_3423);
-				this.activeUnit.sub_26ca(gr, this.var_341b,
+				this.activeUnit.drawUnitHealth(gr, this.var_341b,
 						this.var_3423);
 			}
 			if (this.isCursorVisible) {
@@ -3861,12 +3854,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3423 + 12, 3);
 			}
 			int k = 0;
-			m = this.someGameSpritesList.size();
-			while (k < m) {
-				F_Sprite localClass_f_045;
-				(localClass_f_045 = (F_Sprite) this.someGameSpritesList.elementAt(k))
-						.draw(gr, this.var_341b, this.var_3423
-								+ localClass_f_045.var_80c);
+			sprLength = this.mapEffectsSpritesList.size();
+			while (k < sprLength) {
+				F_Sprite fSprite = (F_Sprite) this.mapEffectsSpritesList.elementAt(k);
+				fSprite.onSpritePaint(gr, this.var_341b, this.var_3423 + fSprite.var_80c);
 				k++;
 			}
 			gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
@@ -3876,8 +3867,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						var_32c3, 14);
 				gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
 			}
-			m = var_32c3 - 24 >> 1;
-			int i1 = 24 + m * 2;
+			sprLength = var_32c3 - 24 >> 1;
+			int i1 = 24 + sprLength * 2;
 			int i2 = this.someCanWidth - i1;
 			k += this.var_378b;
 			if (this.var_397b) {
@@ -3912,18 +3903,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			if (this.var_3983) {
 				this.var_3983 = false;
-				if (m > 0) {
+				if (sprLength > 0) {
 					drawMenuBorderRect(gr, i2, k, i1, var_32c3);
 				}
-				i3 = i2 + m;
-				i4 = k + m;
+				i3 = i2 + sprLength;
+				i4 = k + sprLength;
 				this.allTilesImages[this.mapTilesIds[this.var_34ab][this.var_34b3]]
 						.drawImageExt(gr, i3, i4);
 				String str2 = "."
-						+ var_33e3[getTileType(this.var_34ab, this.var_34b3)];
+						+ tilesDefences[getTileType(this.var_34ab, this.var_34b3)];
 				E_MainCanvas.drawCharedString(gr, str2, i3 + 24, i4 + 24, 0,
 						40);
-				if (m == 0) {
+				if (sprLength == 0) {
 					gr.setColor(0);
 					gr.drawRect(i3, i4, 24, 24);
 				}
@@ -4022,17 +4013,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				String str = null;
 				if (it == 0) {
 					if ((it2 == 0)
-							|| (unit2.sub_1134(unit1,
+							|| (unit2.isNearOtherUnit(unit1,
 									unit1.positionX,
 									unit1.positionY))) {
-						i7 = u1.sub_e5f(u2);
+						i7 = u1.getUnitExtraAttack(u2);
 						str = u1.unitAttackMin + i7 + "-"
 								+ (u1.unitAttackMax + i7);
 					} else {
 						str = "0-0";
 					}
 				} else if (it == 1) {
-					i7 = u1.sub_f43(u2);
+					i7 = u1.getUnitResistance(u2);
 					str = "" + (u1.unitDefence + i7);
 				} else {
 					str = "" + u1.level;
@@ -4147,7 +4138,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.playerIncomeMb = 0;
 		for (int i = 0; i < this.mapTilesIds.length; i++) {
 			for (int j = 0; j < this.mapTilesIds[i].length; j++) {
-				if (sub_e312(i, j, this.playerId)) {
+				if (playerIsOwnerOfTile(i, j, this.playerId)) {
 					if (getTileType(i, j) == 8) {
 						this.playerIncomeMb += 30;
 					} else if (getTileType(i, j) == 9) {
@@ -4177,21 +4168,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final boolean sub_e065(int paramInt1, int paramInt2,
-			C_Unit paramClass_c_032) {
-		return (paramClass_c_032.hasProperty((short) 8))
-				&& (getTileType(paramClass_c_032.positionX, paramClass_c_032.positionY) == 8)
-				&& (this.mapTilesIds[paramClass_c_032.positionX][paramClass_c_032.positionY] < this.houseTileIdStartIndex);
+	public final boolean canOccupyVillages(int paramInt1, int paramInt2,
+			C_Unit unit) {
+		return (unit.hasProperty((short) 8))
+				&& (getTileType(unit.positionX, unit.positionY) == 8)
+				&& (this.mapTilesIds[unit.positionX][unit.positionY] < this.houseTileIdStartIndex);
 	}
 
-	public final boolean sub_e0c8(int paramInt1, int paramInt2,
-			C_Unit unit) {
+	public final boolean canOccupyVillageOrTown(int paramInt1, int paramInt2, C_Unit unit) {
 		if ((unit.hasProperty((short) 8)) //can occupy villages
 				&& (getTileType(unit.positionX, unit.positionY) == 8)
 				&& (this.mapTilesIds[unit.positionX][unit.positionY] >= this.houseTileIdStartIndex)
 				&& (!sub_e2b4(unit.positionX,
 						unit.positionY,
-						this.var_3573[unit.playerId]))) {
+						this.playersTeams[unit.playerId]))) {
 			return true;
 		}
 		// 16 - occupy town
@@ -4199,7 +4189,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				&& (getTileType(unit.positionX, unit.positionY) == 9)
 				&& (!sub_e2b4(unit.positionX,
 						unit.positionY,
-						this.var_3573[unit.playerId]));
+						this.playersTeams[unit.playerId]));
 	}
 
 	public final void repairDestroyedHouse(byte paramByte, int inX, int inY) {
@@ -4224,9 +4214,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return -1;
 	}
 
-	public final int sub_e276(int paramInt) {
-		if ((paramInt != -1) && (paramInt != 0)) {
-			return this.var_3563[paramInt];
+	public final int sub_e276(int playerId) {
+		if ((playerId != -1) && (playerId != 0)) {
+			return this.var_3563[playerId];
 		}
 		return -1;
 	}
@@ -4234,19 +4224,19 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final boolean sub_e2b4(int inX, int inY, int paramInt3) {
 		int i = sub_e276(tileOwnerPlayerIndex(inX, inY));
 		if (i > -1) {
-			return paramInt3 == this.var_3573[i];
+			return paramInt3 == this.playersTeams[i];
 		}
 		return false;
 	}
 
-	public final boolean sub_e312(int paramInt1, int paramInt2, int playerId) {
-		return tileOwnerPlayerIndex(paramInt1, paramInt2) == this.playersIndexes[playerId];
+	public final boolean playerIsOwnerOfTile(int inX, int inY, int playerId) {
+		return tileOwnerPlayerIndex(inX, inY) == this.playersIndexes[playerId];
 	}
 
 	public final int countPlayerOwnerCastles(int playerId) {
 		int i = 0;
 		for (int j = 0; j < this.mapCastlesCount; j++) {
-			if (sub_e312(this.var_373b[j][0], this.var_373b[j][1], playerId)) {
+			if (playerIsOwnerOfTile(this.var_373b[j][0], this.var_373b[j][1], playerId)) {
 				i++;
 			}
 		}
@@ -4260,7 +4250,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		while (it < length) {
 			C_Unit unit = (C_Unit) this.mapUnitsSprites.elementAt(it);
 			if (((unitType == -1) || (unit.unitTypeId == unitType))
-					&& (((unitState == -1) && (unit.m_state != 3)) || ((unitState == unit.m_state) && ((inPlayer == -1) || (unit.playerId == inPlayer))))) {
+					&& (((unitState == -1) && (unit.m_state != 3)) || (unitState == unit.m_state)) && ((inPlayer == -1) || (unit.playerId == inPlayer))) {
 				i++;
 			}
 			it++;
@@ -4358,8 +4348,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if ((this.mapStartUnitCap > countSomeUnits(-1, -1, this.playerId)
 				- countSomeUnits(10, -1, this.playerId))
 				&& (paramByte <= this.var_3703)
-				&& (C_Unit.var_bcb[paramByte] <= this.var_35a3[this.playerId])
-				&& (C_Unit.var_bcb[paramByte] > 0)) {
+				&& (C_Unit.unitsCosts[paramByte] <= this.var_35a3[this.playerId])
+				&& (C_Unit.unitsCosts[paramByte] > 0)) {
 			fillArrayWithValue(this.someMapData, 0);
 			return C_Unit.sub_1d7b(this.someMapData, paramInt1, paramInt2,
 					C_Unit.var_b9b[paramByte], -1, paramByte,
@@ -4434,7 +4424,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			} else {
 				int i;
-				if (sub_e0c8(this.activeUnit.positionX, this.activeUnit.positionY,
+				if (canOccupyVillageOrTown(this.activeUnit.positionX, this.activeUnit.positionY,
 						this.activeUnit)) {
 					i = sub_10b21(this.activeUnit.positionX, this.activeUnit.positionY);
 					if ((this.var_3b03 != -1) && (this.var_3b03 != i)) {
@@ -4448,7 +4438,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					E_MainCanvas.playMusicLooped(9, 1);
 					this.activeUnitState = 9;
 					this.someStartTime5 = this.time;
-				} else if (sub_e065(this.activeUnit.positionX,
+				} else if (canOccupyVillages(this.activeUnit.positionX,
 						this.activeUnit.positionY, this.activeUnit)) {
 					i = sub_10b21(this.activeUnit.positionX, this.activeUnit.positionY);
 					if ((this.var_3b03 != -1) && (this.var_3b03 != i)) {
@@ -4563,7 +4553,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					i2 = this.housesDataArr[i1][0];
 					i3 = this.housesDataArr[i1][1];
 					if ((getTileType(i2, i3) == 9)
-							&& (sub_e312(i2, i3, this.playerId))) {
+							&& (playerIsOwnerOfTile(i2, i3, this.playerId))) {
 						if (j == 0) {
 							m = i2;
 							n = i3;
@@ -4574,7 +4564,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						for (int i61 = this.mapUnitsSprites.size() - 1; i61 >= 0; i61--) {
 							C_Unit localClass_c_032 = (C_Unit) this.mapUnitsSprites
 									.elementAt(i61);
-							if ((this.var_3573[localClass_c_032.playerId] != this.var_3573[this.playerId])
+							if ((this.playersTeams[localClass_c_032.playerId] != this.playersTeams[this.playerId])
 									&& (localClass_c_032.hasProperty((short) 16))) {
 								if ((i9 = Math.abs(localClass_c_032.positionX
 										- i2)
@@ -4593,7 +4583,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								i9 = this.housesDataArr[i6][1];
 								int i10;
 								if ((getTileType(i8, i9) == 9)
-										&& (!sub_e312(i8, i9, this.playerId))
+										&& (!playerIsOwnerOfTile(i8, i9, this.playerId))
 										&& ((i10 = Math.abs(i8 - i2)
 												+ Math.abs(i9 - i3)) < k)) {
 									k = i10;
@@ -4606,13 +4596,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 				if (j > 0) {
 
-					for (int i1 = 0; i1 < this.var_359b[this.playerId]; i1++) {
-						if ((this.var_3593[this.playerId][i1] != null)
-								&& (this.var_3593[this.playerId][i1].m_state == 3)
-								&& (sub_e9d0(this.var_3593[this.playerId][i1],
+					for (int i1 = 0; i1 < this.playerUnitsCount[this.playerId]; i1++) {
+						if ((this.playerKingsMb[this.playerId][i1] != null)
+								&& (this.playerKingsMb[this.playerId][i1].m_state == 3)
+								&& (sub_e9d0(this.playerKingsMb[this.playerId][i1],
 										m, n))) {
 							localObject = sub_8722(
-									this.var_3593[this.playerId][i1], m, n);
+									this.playerKingsMb[this.playerId][i1], m, n);
 						}
 					}
 					if (localObject == null) {
@@ -4627,7 +4617,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							i2 = 0;
 							int i4;
 							for (int pIt = 0; pIt < this.mapMaxPlayersMb; i4 = (byte) (pIt + 1)) {
-								if (this.var_3573[pIt] == this.var_3573[this.playerId]) {
+								if (this.playersTeams[pIt] == this.playersTeams[this.playerId]) {
 									i1 += countSomeUnits(-1, -1, (byte) pIt);
 								} else {
 									i2 += countSomeUnits(-1, -1, (byte) pIt);
@@ -4640,7 +4630,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								byte[] arrayOfByte = new byte[12];
 								int i7;
 								for (i6 = 1; i6 < 12; i7 = (byte) (i6 + 1)) {
-									if (((countSomeUnits(i6, -1, this.playerId) < 1) || (C_Unit.var_bcb[i6] >= 600))
+									if (((countSomeUnits(i6, -1, this.playerId) < 1) || (C_Unit.unitsCosts[i6] >= 600))
 											&& (sub_e943(i6, m, n))) {
 										arrayOfByte[i4] = i6;
 										i4++;
@@ -4659,7 +4649,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					sub_f66c((C_Unit) localObject);
 					return;
 				}
-				this.var_3aab = null;
+				this.someUnits5 = null;
 				this.var_3b0b = null;
 				sub_dd85();
 				return;
@@ -4683,15 +4673,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 	}
 
-	public final void sub_f66c(C_Unit paramClass_c_032) {
-		this.activeUnit = paramClass_c_032;
+	public final void sub_f66c(C_Unit pxUnit) {
+		this.activeUnit = pxUnit;
 		this.isCursorVisible = true;
 		fillArrayWithValue(this.someMapData, 0);
 		this.activeUnit.fillWhereUnitCanMove(this.someMapData);
 		this.var_351b = false;
-		this.var_3aab = getUnitsOfTypeStatePlayer(0, -1, this.playerId);
+		this.someUnits5 = getUnitsOfTypeStatePlayer(0, -1, this.playerId);
 		int i = 0;
-		int j = this.playersKings.length + this.var_3aab.length
+		int j = this.playersKings.length + this.someUnits5.length
 				+ this.housesDataArr.length;
 		this.var_3ac3 = new int[j][5];
 		this.var_3ad3 = 0;
@@ -4700,23 +4690,23 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3af3 = -1;
 		this.var_3afb = -1;
 		this.var_3b03 = -1;
-		for (int n = 0; n < this.var_3aab.length + this.playersKings.length; n++) {
+		for (int n = 0; n < this.someUnits5.length + this.playersKings.length; n++) {
 			C_Unit someKingUnit = null;
-			if (n >= this.var_3aab.length) {
-				someKingUnit = this.playersKings[(n - this.var_3aab.length)];
+			if (n >= this.someUnits5.length) {
+				someKingUnit = this.playersKings[(n - this.someUnits5.length)];
 				if (someKingUnit != null) {
 					if (someKingUnit.m_state == 3) {
 						someKingUnit = null;
-					} else if ((this.var_3573[someKingUnit.playerId] != this.var_3573[this.playerId])
+					} else if ((this.playersTeams[someKingUnit.playerId] != this.playersTeams[this.playerId])
 							&& (this.playersKings[this.playerId] == null)) {
-						this.var_3ac3[i][2] += someKingUnit.sub_1318(
+						this.var_3ac3[i][2] += someKingUnit.getSomePropSum(
 								someKingUnit.positionX,
 								someKingUnit.positionY, null) * 2;
 					} else if ((this.currentTurn >= 15)
-							&& (this.var_3573[someKingUnit.playerId] != this.var_3573[this.playerId])
+							&& (this.playersTeams[someKingUnit.playerId] != this.playersTeams[this.playerId])
 							&& (countSomeUnits(-1, -1, someKingUnit.playerId) < 4)
 							&& (countSomeUnits(-1, -1, this.playerId) >= 8)) {
-						this.var_3ac3[i][2] += someKingUnit.sub_1318(
+						this.var_3ac3[i][2] += someKingUnit.getSomePropSum(
 								someKingUnit.positionX,
 								someKingUnit.positionY, null) * 2;
 					} else if (someKingUnit.playerId != this.playerId) {
@@ -4724,7 +4714,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 				}
 			} else if (this.playersKings[this.playerId] != null) {
-				someKingUnit = this.var_3aab[n];
+				someKingUnit = this.someUnits5[n];
 			}
 			if (someKingUnit != null) {
 				this.var_3ac3[i][0] = someKingUnit.positionX;
@@ -4736,14 +4726,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					for (int i3 = 0; i3 < sUnit.length; i3++) {
 						if (sUnit[i3].m_state != 4) {
 							this.var_3ac3[i][2] += sUnit[i3]
-									.sub_1318(sUnit[i3].positionX,
+									.getSomePropSum(sUnit[i3].positionX,
 											sUnit[i3].positionY,
 											someKingUnit);
 						}
 					}
 				}
 				if (this.var_3ac3[i][2] > 0) {
-					this.var_3ac3[i][4] += someKingUnit.sub_1318(
+					this.var_3ac3[i][4] += someKingUnit.getSomePropSum(
 							someKingUnit.positionX,
 							someKingUnit.positionY, null);
 					this.var_3ac3[i][4] += someKingUnit.var_b93;
@@ -4751,9 +4741,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3ad3 = this.var_3ac3[i][2];
 					}
 					this.var_3ac3[i][3] = (Math.abs(someKingUnit.positionX
-							- paramClass_c_032.positionX) + Math
+							- pxUnit.positionX) + Math
 							.abs(someKingUnit.positionY
-									- paramClass_c_032.positionY));
+									- pxUnit.positionY));
 					if (this.var_3ac3[i][3] < 1) {
 						this.var_3ac3[i][3] = 1;
 					}
@@ -4779,26 +4769,26 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			i5 = this.housesDataArr[i4][0];
 			i6 = this.housesDataArr[i4][1];
 			i7 = getTileType(i5, i6);
-			boolean bool = sub_e312(i5, i6, paramClass_c_032.playerId);
+			boolean bool = playerIsOwnerOfTile(i5, i6, pxUnit.playerId);
 			this.var_3ac3[i][2] = -6666;
 			C_Unit[] localObject;
 			int i10;
 			if ((bool) || (this.var_3ab3[i4] != null)) {
-				localObject = paramClass_c_032.getPositionUnitsInAttackRange(i5, i6, 1, 5, (byte) 0);
+				localObject = pxUnit.getPositionUnitsInAttackRange(i5, i6, 1, 5, (byte) 0);
 				this.var_3ac3[i][0] = i5;
 				this.var_3ac3[i][1] = i6;
 				this.var_3ac3[i][2] = 0;
 				for (i10 = 0; i10 < localObject.length; i10++) {
 					if (localObject[i10].m_state != 4) {
 						if ((this.var_3ab3[i4] != null) && (!bool)) {
-							this.var_3ac3[i][2] += localObject[i10].sub_1318(
+							this.var_3ac3[i][2] += localObject[i10].getSomePropSum(
 									localObject[i10].positionX,
 									localObject[i10].positionY, null);
 						} else if (((i7 == 8) && (localObject[i10]
 								.hasProperty((short) 8)))
 								|| ((i7 == 9) && (localObject[i10]
 										.hasProperty((short) 16)))) {
-							this.var_3ac3[i][2] += localObject[i10].sub_1318(
+							this.var_3ac3[i][2] += localObject[i10].getSomePropSum(
 									localObject[i10].positionX,
 									localObject[i10].positionY, null);
 						}
@@ -4818,8 +4808,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						this.var_3ad3 = this.var_3ac3[i][2];
 					}
 					this.var_3ac3[i][3] = (Math.abs(i5
-							- paramClass_c_032.positionX) + Math.abs(i6
-							- paramClass_c_032.positionY));
+							- pxUnit.positionX) + Math.abs(i6
+							- pxUnit.positionY));
 					if (this.var_3ac3[i][3] < 1) {
 						this.var_3ac3[i][3] = 1;
 					}
@@ -4828,27 +4818,27 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					}
 				}
 			}
-			if (sub_e2b4(i5, i6, this.var_3573[paramClass_c_032.playerId])) {
+			if (sub_e2b4(i5, i6, this.playersTeams[pxUnit.playerId])) {
 				C_Unit localObject1 = getSomeUnit(i5, i6, (byte) 0);
-				if ((((localObject1) == null) || (((C_Unit) localObject1).playerId == paramClass_c_032.playerId))
-						&& ((i10 = Math.abs(i5 - paramClass_c_032.positionX)
-								+ Math.abs(i6 - paramClass_c_032.positionY)) < i1)) {
+				if ((((localObject1) == null) || (((C_Unit) localObject1).playerId == pxUnit.playerId))
+						&& ((i10 = Math.abs(i5 - pxUnit.positionX)
+								+ Math.abs(i6 - pxUnit.positionY)) < i1)) {
 					i3 = i4;
 					i1 = i10;
 				}
-			} else if (((this.var_3ab3[i4] == null) || (this.var_3ab3[i4] == paramClass_c_032))
-					&& (((i7 == 8) && (paramClass_c_032.hasProperty((short) 8))) || ((i7 == 9) && (paramClass_c_032
+			} else if (((this.var_3ab3[i4] == null) || (this.var_3ab3[i4] == pxUnit))
+					&& (((i7 == 8) && (pxUnit.hasProperty((short) 8))) || ((i7 == 9) && (pxUnit
 							.hasProperty((short) 16))))) {
 				int i9;
-				if ((i9 = Math.abs(i5 - paramClass_c_032.positionX)
-						+ Math.abs(i6 - paramClass_c_032.positionY)) < n) {
+				if ((i9 = Math.abs(i5 - pxUnit.positionX)
+						+ Math.abs(i6 - pxUnit.positionY)) < n) {
 					i2 = i4;
 					n = i9;
 				}
 				C_Unit localClass_c_0324 = getSomeUnit(i5, i6, (byte) 0);
 				if ((i9 < i1)
 						&& (this.someMapData[i5][i6] > 0)
-						&& ((localClass_c_0324 == null) || (localClass_c_0324.playerId == paramClass_c_032.playerId))) {
+						&& ((localClass_c_0324 == null) || (localClass_c_0324.playerId == pxUnit.playerId))) {
 					i3 = i4;
 					i1 = i9;
 				}
@@ -4856,27 +4846,27 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			i++;
 		}
 		int i4;
-		if ((paramClass_c_032.unitHealthMb < 50) && (i3 != -1)) {
+		if ((pxUnit.unitHealthMb < 50) && (i3 != -1)) {
 			if (i3 == i2) {
 				this.var_3b03 = i2;
 			}
-			this.var_3ab3[i3] = paramClass_c_032;
+			this.var_3ab3[i3] = pxUnit;
 			this.var_3aeb = this.housesDataArr[i3][0];
 			this.var_3af3 = this.housesDataArr[i3][1];
 			fillArrayWithValue(this.var_3adb, 0);
 			C_Unit.sub_1d7b(this.var_3adb, this.var_3aeb, this.var_3af3,
-					10, -1, paramClass_c_032.unitTypeId, this.playerId, false);
+					10, -1, pxUnit.unitTypeId, this.playerId, false);
 		} else if ((this.playersKings[this.playerId] != null)
 				&& (i2 != -1)
-				&& ((paramClass_c_032.hasProperty((short) 8)) || (paramClass_c_032
+				&& ((pxUnit.hasProperty((short) 8)) || (pxUnit
 						.hasProperty((short) 16)))) {
 			this.var_3b03 = i2;
-			this.var_3ab3[i2] = paramClass_c_032;
+			this.var_3ab3[i2] = pxUnit;
 			this.var_3aeb = this.housesDataArr[i2][0];
 			this.var_3af3 = this.housesDataArr[i2][1];
 			fillArrayWithValue(this.var_3adb, 0);
 			C_Unit.sub_1d7b(this.var_3adb, this.var_3aeb, this.var_3af3,
-					10, -1, paramClass_c_032.unitTypeId, this.playerId, false);
+					10, -1, pxUnit.unitTypeId, this.playerId, false);
 		} else {
 			i4 = -1;
 			i5 = -6666;
@@ -4893,21 +4883,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 			if (i4 != -1) {
-				int i61 = paramClass_c_032.sub_1318(paramClass_c_032.positionX,
-						paramClass_c_032.positionY, null);
-				if (i4 < this.var_3aab.length) {
-					this.var_3aab[i4].var_b93 += i61;
-				} else if (i4 < this.playersKings.length + this.var_3aab.length) {
-					this.playersKings[(i4 - this.var_3aab.length)].var_b93 += i61;
+				int someSumVal = pxUnit.getSomePropSum(pxUnit.positionX, pxUnit.positionY, null);
+				if (i4 < this.someUnits5.length) {
+					this.someUnits5[i4].var_b93 += someSumVal;
+				} else if (i4 < this.playersKings.length + this.someUnits5.length) {
+					this.playersKings[(i4 - this.someUnits5.length)].var_b93 += someSumVal;
 				} else {
-					this.var_3afb = (i4 - this.playersKings.length - this.var_3aab.length);
-					this.var_3acb[this.var_3afb] += i61;
+					this.var_3afb = (i4 - this.playersKings.length - this.someUnits5.length);
+					this.var_3acb[this.var_3afb] += someSumVal;
 				}
 				this.var_3aeb = this.var_3ac3[i4][0];
 				this.var_3af3 = this.var_3ac3[i4][1];
 				fillArrayWithValue(this.var_3adb, 0);
 				C_Unit.sub_1d7b(this.var_3adb, this.var_3aeb,
-						this.var_3af3, 10, -1, paramClass_c_032.unitTypeId,
+						this.var_3af3, 10, -1, pxUnit.unitTypeId,
 						this.playerId, false);
 			}
 		}
@@ -4921,15 +4910,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				C_Unit lcUnit;
 				if ((this.someMapData[i51][i7] > 0)
 						&& (((lcUnit = getSomeUnit(i51, i7, (byte) 0)) == null)
-								|| (lcUnit == paramClass_c_032) || ((this.var_3a93 == null)
-								&& (lcUnit.playerId == paramClass_c_032.playerId) && (lcUnit.m_state == 0)))) {
+								|| (lcUnit == pxUnit) || ((this.var_3a93 == null)
+								&& (lcUnit.playerId == pxUnit.playerId) && (lcUnit.m_state == 0)))) {
 					int i11;
-					if ((!paramClass_c_032.hasProperty((short) 512))
-							|| (lcUnit == paramClass_c_032)) {
-						C_Unit[] arrayOfClass_c_0322 = paramClass_c_032
+					if ((!pxUnit.hasProperty((short) 512))
+							|| (lcUnit == pxUnit)) {
+						C_Unit[] arrayOfClass_c_0322 = pxUnit
 								.getActiveUnitsInAttackRange(i51, i7, (byte) 0);
 						for (int i13 = 0; i13 < arrayOfClass_c_0322.length; i13++) {
-							if ((i11 = sub_1062b(paramClass_c_032, i51, i7,
+							if ((i11 = sub_1062b(pxUnit, i51, i7,
 									arrayOfClass_c_0322[i13], null)) > i4) {
 								this.var_3a8b = null;
 								this.var_3a83 = arrayOfClass_c_0322[i13];
@@ -4939,11 +4928,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							}
 						}
 					}
-					if (paramClass_c_032.hasProperty((short) 32)) {
-						this.var_34f3 = paramClass_c_032.getActiveUnitsInAttackRange(i51, i7,
+					if (pxUnit.hasProperty((short) 32)) {
+						this.var_34f3 = pxUnit.getActiveUnitsInAttackRange(i51, i7,
 								(byte) 1);
 						for (int i12 = 0; i12 < this.var_34f3.length; i12++) {
-							if ((i11 = sub_1062b(paramClass_c_032, i51, i7,
+							if ((i11 = sub_1062b(pxUnit, i51, i7,
 									null, this.var_34f3[i12])) > i4) {
 								this.var_3a83 = null;
 								this.var_3a8b = this.var_34f3[i12];
@@ -4953,7 +4942,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							}
 						}
 					}
-					if ((i11 = sub_1062b(paramClass_c_032, i51, i7, null, null)) > i4) {
+					if ((i11 = sub_1062b(pxUnit, i51, i7, null, null)) > i4) {
 						this.var_3a83 = null;
 						this.var_3a8b = null;
 						i4 = i11;
@@ -4971,13 +4960,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3a93 = null;
 		C_Unit localClass_c_0322;
 		if (((localClass_c_0322 = getSomeUnit(this.var_3a73, this.var_3a7b,
-				(byte) 0)) != null) && (localClass_c_0322 != paramClass_c_032)) {
+				(byte) 0)) != null) && (localClass_c_0322 != pxUnit)) {
 			this.var_3a93 = localClass_c_0322;
 			this.var_3a6b = 0;
 			return;
 		}
-		moveCursorToPos(paramClass_c_032.positionX, paramClass_c_032.positionY);
-		this.m_tempUnit = paramClass_c_032;
+		moveCursorToPos(pxUnit.positionX, pxUnit.positionY);
+		this.m_tempUnit = pxUnit;
 		this.var_3a6b = 3;
 	}
 
@@ -5001,14 +4990,14 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							+ 100
 							* (j - m)
 							/ (C_Unit.var_b9b[cUnit21.unitTypeId] - 1);
-					if (var_33eb[getTileType(paramInt1, paramInt2)] <= 1) {
+					if (tilesMovements[getTileType(paramInt1, paramInt2)] <= 1) {
 						i += 20;
 					}
 				}
 			}
 			if ((cUnit1 == null)
 					&& (!sub_e2b4(paramInt1, paramInt2,
-							this.var_3573[cUnit21.playerId]))) {
+							this.playersTeams[cUnit21.playerId]))) {
 				if ((cUnit21.hasProperty((short) 16))
 						&& (getTileType(paramInt1, paramInt2) == 9)) {
 					i += 300;
@@ -5042,19 +5031,19 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				int k = tileOwnerPlayerIndex(cUnit1.positionX, cUnit1.positionY);
 				m = sub_10b21(cUnit1.positionX, cUnit1.positionY);
 				if ((k != 0) && (m != -1) && (this.var_3ab3[m] == null)) {
-					i += cUnit21.sub_1318(paramInt1, paramInt2, cUnit1) / 2;
+					i += cUnit21.getSomePropSum(paramInt1, paramInt2, cUnit1) / 2;
 				}
 			} else {
-				if (!cUnit1.sub_1134(cUnit21, paramInt1,
+				if (!cUnit1.isNearOtherUnit(cUnit21, paramInt1,
 						paramInt2)) {
-					i += cUnit21.sub_1318(paramInt1, paramInt2,
+					i += cUnit21.getSomePropSum(paramInt1, paramInt2,
 							cUnit1) * 2;
 				} else {
-					i += cUnit21.sub_1318(paramInt1, paramInt2,
+					i += cUnit21.getSomePropSum(paramInt1, paramInt2,
 							cUnit1)
 							* 3
 							/ 2
-							- cUnit1.sub_1318(paramInt1, paramInt2,
+							- cUnit1.getSomePropSum(paramInt1, paramInt2,
 									cUnit21);
 				}
 				if (cUnit1.unitTypeId == 9) {
@@ -5064,10 +5053,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 		}
-		i += var_33e3[getTileType(paramInt1, paramInt2)];
+		i += tilesDefences[getTileType(paramInt1, paramInt2)];
 		if ((cUnit21.unitHealthMb < 100)
 				&& (sub_e2b4(paramInt1, paramInt2,
-						this.var_3573[cUnit21.playerId]))) {
+						this.playersTeams[cUnit21.playerId]))) {
 			i += 100 - cUnit21.unitHealthMb;
 		}
 		int k = sub_10b21(paramInt1, paramInt2);
@@ -5132,13 +5121,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 
 	public final D_Menu createDialog(String header,
 			String msg, int paramInt1, int paramInt2, int showTime) {
-		D_Menu localClass_d_023;
-		(localClass_d_023 = new D_Menu((byte) 10, 12)).createDescDialogMb(
-				header, msg, this.someCanWidth, paramInt2);
-		localClass_d_023.setMenuLoc(this.someCanWidthDiv2, paramInt1 / 2, 3);
-		localClass_d_023.parentMenu = this;
-		localClass_d_023.var_10c5 = showTime;
-		return localClass_d_023;
+		D_Menu dialog = new D_Menu((byte) 10, 12);
+		dialog.createDescDialogMb(header, msg, this.someCanWidth, paramInt2);
+		dialog.setMenuLoc(this.someCanWidthDiv2, paramInt1 / 2, 3);
+		dialog.parentMenu = this;
+		dialog.var_10c5 = showTime;
+		return dialog;
 	}
 
 	public final void sub_10c83() throws Exception {
@@ -5348,20 +5336,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					if ((this.var_35b3[i1] != 2)
 							&& (((this.playersKings[i1] != null) && (this.playersKings[i1].m_state != 3)) || (countPlayerOwnerCastles(i1) != 0))) {
 						j = i1;
-						if ((i != -1) && (i != this.var_3573[i1])) {
+						if ((i != -1) && (i != this.playersTeams[i1])) {
 							n = 0;
 							break;
 						}
-						i = this.var_3573[i1];
+						i = this.playersTeams[i1];
 					}
 				}
 				if (n != 0) {
 					this.isUpdatingMb = false;
 					this.isCursorVisible = false;
-					str2 = A_MenuBase.replaceStringFirst(38, "" + (this.var_3573[j] + 1)); //Team %U
+					str2 = A_MenuBase.replaceStringFirst(38, "" + (this.playersTeams[j] + 1)); //Team %U
 					str3 = A_MenuBase.replaceStringFirst(81, str2) + "\n("; //%U WINS!
 					for (int pIndex = 0; pIndex < this.mapMaxPlayersMb; pIndex++) {
-						if ((this.var_35b3[pIndex] != 2) && (this.var_3573[pIndex] == this.var_3573[j])) {
+						if ((this.var_35b3[pIndex] != 2) && (this.playersTeams[pIndex] == this.playersTeams[j])) {
 							str3 = str3 + " " + A_MenuBase.getLangString(88 + this.playersIndexes[pIndex]) + " "; // player color
 						}
 					}
@@ -5398,8 +5386,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (this.activeUnitState != 11) {
 			i = 1;
-			for (j = 0; j < this.var_359b[0]; j++) {
-				if (this.var_3593[0][j].m_state != 3) {
+			for (j = 0; j < this.playerUnitsCount[0]; j++) {
+				if (this.playerKingsMb[0][j].m_state != 3) {
 					i = 0;
 					break;
 				}
@@ -5518,8 +5506,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 				break;
 			case 15:
-				if ((this.playerId == 0) && (this.activeUnitState == 1)
-						&& (this.alphaWindowWTF == 0)) { //activeUnitState == 1 chosen
+				//activeUnitState == 1 chosen
+				if ((this.playerId == 0) && (this.activeUnitState == 1) && (this.alphaWindowWTF == 0)) { 
 					this.helpTipId = 1;
 					this.scriptStep += 1;
 				}
@@ -6048,7 +6036,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			waitScript(15);
 			break;
 		case 11:
-			this.var_35db = C_Unit.sub_d60((byte) 0, (byte) 0, 4, 9,
+			this.var_35db = C_Unit.createUnit((byte) 0, (byte) 0, 4, 9,
 					false);
 			this.var_35db.unitTypeId = -1;
 			this.var_35db.m_state = 4;
@@ -6877,10 +6865,10 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.var_3b9b = new G_FightAnimation(this, paramClass_c_0321, null);
 		this.var_3ba3 = new G_FightAnimation(this, paramClass_c_0322, this.var_3b9b);
 		this.var_3b9b.otherFightAnim = this.var_3ba3;
-		paramClass_c_0321.sub_fea(paramClass_c_0322);
-		if (paramClass_c_0322.sub_1134(paramClass_c_0321,
+		paramClass_c_0321.getUnitAttackDamage(paramClass_c_0322);
+		if (paramClass_c_0322.isNearOtherUnit(paramClass_c_0321,
 				paramClass_c_0321.positionX, paramClass_c_0321.positionY)) {
-			paramClass_c_0322.sub_fea(paramClass_c_0321);
+			paramClass_c_0322.getUnitAttackDamage(paramClass_c_0321);
 			this.var_3bdb = true;
 		} else {
 			this.var_3bdb = false;
@@ -6913,7 +6901,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		for (int i = 0; i < this.gameSprites.size(); i++) {
 			sprite = (F_Sprite) this.gameSprites.elementAt(i);
-			if (!sprite.var_84c) {
+			if (!sprite.isUpdatingMb) {
 				removeSpriteFrom(sprite);
 			}
 		}
@@ -6934,7 +6922,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.gameSprites.removeAllElements();
 				this.var_3ba3 = null;
 				this.var_3b9b = null;
-				this.someGameSpritesList = new Vector();
+				this.mapEffectsSpritesList = new Vector();
 				afterUnitsAttacked();
 				this.gameMode2Mb = 1;
 				E_MainCanvas.stopMusic();
@@ -7008,7 +6996,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			} else {
 				gr.setClip(0, 0, this.someGWidth, this.var_3bfb);
 			}
-			sSprite.draw(gr, 0,
+			sSprite.onSpritePaint(gr, 0,
 					sSprite.var_80c);
 		}
 		gr.translate(0, -this.var_3a43);
