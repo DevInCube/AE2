@@ -587,10 +587,10 @@ public final class D_Menu extends A_MenuBase {
 			i = 0;
 			if ((this.menuActionsMb[0] != false)
 					&& ((A_MenuBase.mainCanvas
-							.invertActionCode(I_Game.var_3333)) || (A_MenuBase.mainCanvas
+							.invertActionCode(I_Game.m_actionApply)) || (A_MenuBase.mainCanvas
 							.invertActionCode(16)))) {
 				i = 1;
-				A_MenuBase.mainCanvas.clearActionCode(I_Game.var_3333);
+				A_MenuBase.mainCanvas.clearActionCode(I_Game.m_actionApply);
 				A_MenuBase.mainCanvas.clearActionCode(16);
 			}
 			if ((this.menuType == 0) || (this.menuType == 3)) {
@@ -909,8 +909,8 @@ public final class D_Menu extends A_MenuBase {
 			}
 			if ((this.var_fd5 == 2)
 					&& (this.menuActionsMb[1] != false)
-					&& (A_MenuBase.mainCanvas.invertActionCode(I_Game.var_333b))) {
-				A_MenuBase.mainCanvas.clearActionCode(I_Game.var_333b);
+					&& (A_MenuBase.mainCanvas.invertActionCode(I_Game.m_actionCancel))) {
+				A_MenuBase.mainCanvas.clearActionCode(I_Game.m_actionCancel);
 				A_MenuBase.mainCanvas.clearActions();
 				if (this.parentMenu != null) {
 					A_MenuBase.mainCanvas.showMenu(this.parentMenu);
@@ -1568,10 +1568,10 @@ public final class D_Menu extends A_MenuBase {
 		gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
 		if ((A_MenuBase.mainCanvas.mainDrawElement == this) && (this.var_fd5 == 2)) {
 			if (this.menuActionsMb[0] != false) {
-				gameVar.drawActionButton(gr, I_Game.var_3333, 0, gameVar.someGHeight);
+				gameVar.drawActionButton(gr, I_Game.m_actionApply, 0, gameVar.someGHeight);
 			}
 			if (this.menuActionsMb[1] != false) {
-				gameVar.drawActionButton(gr, I_Game.var_333b, 1, gameVar.someGHeight);
+				gameVar.drawActionButton(gr, I_Game.m_actionCancel, 1, gameVar.someGHeight);
 			}
 		}
 	}

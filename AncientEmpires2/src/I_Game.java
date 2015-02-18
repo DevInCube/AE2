@@ -24,8 +24,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public int mapStartMoney;
 	public int mapStartUnitCap;
 	public byte mapModeCampIf0;
-	public static int var_3333 = 1024;
-	public static int var_333b = 2048;
+	public static int m_actionApply = 1024;
+	public static int m_actionCancel = 2048;
 	public String[] gameMenuItemsNames = { A_MenuBase.getLangString(66),
 			A_MenuBase.getLangString(70), A_MenuBase.getLangString(71),
 			A_MenuBase.getLangString(4), A_MenuBase.getLangString(60) };
@@ -346,6 +346,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public boolean var_3c73;
 	public A_MenuBase var_3c7b;
 	public int var_3c83;
+	
+	private boolean skipIntro = true;
 
 	public I_Game() {
 		this.actionIconsFrames = new H_ImageExt[this.unitActionsNames.length];
@@ -525,8 +527,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		setLoadingProgress(96);
 		if (msSkPos == 1) {
-			var_3333 = 2048;
-			var_333b = 1024;
+			m_actionApply = 2048;
+			m_actionCancel = 1024;
 		}
 		setLoadingProgress(100);
 		E_MainCanvas.playMusicLooped(0, 0);
@@ -2297,13 +2299,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final void updateIntro() throws Exception {
-		boolean skipIntro = true;
 		switch (this.introMode) {
 		case 0: // mslogoStill
 			long showMSLogoStillTime = 0L;
 			if (this.time >= showMSLogoStillTime) {
 				this.introMode = 1;
-				this.waveImageAmplitude = skipIntro ? 0 : 40; //40
+				this.waveImageAmplitude = this.skipIntro ? 0 : 40; //40
 			}
 			return;
 		case 1: // mslogowave
@@ -2311,20 +2312,20 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.msLogoImage = null;
 				this.waveImageAmplitude = 0;
 				this.introMode += 1;
-				if(!skipIntro)
+				if(!this.skipIntro)
 					loadIntro(0, 0, 3);
 				return;
 			}
 			this.waveImageAmplitude -= 1;
 			return;
 		case 2:
-			if(!skipIntro)
+			if(!this.skipIntro)
 				loadIntro(1, 2, 3);
 			this.logoImage = new H_ImageExt("logo");
 			this.introMode += 1;
 			return;
 		case 3:
-			int maxLogoWaveAmp = (skipIntro) ? 0 : 40;
+			int maxLogoWaveAmp = (this.skipIntro) ? 0 : 40;
 			if (++this.waveImageAmplitude > maxLogoWaveAmp) {
 				try {
 					this.splashImage = new H_ImageExt("splash");
@@ -2869,9 +2870,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							} else if (sub_4789()) {
 								if ((this.canApplyMb)
 										&& (A_MenuBase.mainCanvas
-												.someActionCodeIsSet(var_3333))) {
+												.someActionCodeIsSet(m_actionApply))) {
 									A_MenuBase.mainCanvas.addActionCode(16);
-									A_MenuBase.mainCanvas.clearActionCode(var_3333);
+									A_MenuBase.mainCanvas.clearActionCode(m_actionApply);
 								}
 								if ((this.activeUnitState == 6)
 										|| (this.activeUnitState == 7)) {
@@ -3118,7 +3119,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 										} else if ((A_MenuBase.mainCanvas
 												.invertActionCode(16))
 												|| (A_MenuBase.mainCanvas
-														.invertActionCode(var_3333))) {
+														.invertActionCode(m_actionApply))) {
 											this.activeUnit = getSomeUnit(
 													this.var_34ab,
 													this.var_34b3, (byte) 0);
@@ -3180,7 +3181,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.var_36a3 = this.time;
 		}
 		sub_b79b();
-		if ((this.canCancelMb) && (A_MenuBase.mainCanvas.someActionCodeIsSet(var_333b))) {
+		if ((this.canCancelMb) && (A_MenuBase.mainCanvas.someActionCodeIsSet(m_actionCancel))) {
 			if (this.activeUnitState == 1) {
 				this.activeUnitState = 0;
 				fillArrayWithValue(this.someMapData, 0);
@@ -3197,7 +3198,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			}
 			this.var_351b = false;
 			this.var_3523 = false;
-			A_MenuBase.mainCanvas.clearActionCode(var_333b);
+			A_MenuBase.mainCanvas.clearActionCode(m_actionCancel);
 			this.canCancelMb = false;
 			this.canApplyMb = false;
 		}
@@ -3514,7 +3515,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				}
 			}
 			if ((this.var_39f3 >= this.introText.length)
-					|| (A_MenuBase.mainCanvas.someActionCodeIsSet(var_3333))) {
+					|| (A_MenuBase.mainCanvas.someActionCodeIsSet(m_actionApply))) {
 				this.var_3a0b = true;
 				if ((this.introImage != null)
 						|| (this.var_39f3 < this.introText.length)) {
@@ -3596,7 +3597,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			j += this.var_39db;
 		}
 		if (!this.var_3a0b) {
-			drawActionButton(gr, var_3333, 2, this.someCanHeight);
+			drawActionButton(gr, m_actionApply, 2, this.someCanHeight);
 		}
 	}
 
@@ -3927,15 +3928,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (sub_4789()) {
 			if (this.canCancelMb) {
-				drawActionButton(gr, var_333b, 1, this.someGHeight);
+				drawActionButton(gr, m_actionCancel, 1, this.someGHeight);
 			}
 			if (this.canApplyMb) {
-				drawActionButton(gr, var_3333, 0, this.someGHeight);
+				drawActionButton(gr, m_actionApply, 0, this.someGHeight);
 			}
 			if ((this.gameMode2Mb == 1)
 					&& ((this.var_35b3[this.playerId] == 0) || (this.activeUnitState == 0))
 					&& (this.activeUnitState != 11)) {
-				drawActionButton(gr, var_3333, 3, this.someGHeight);
+				drawActionButton(gr, m_actionApply, 3, this.someGHeight);
 			}
 		}
 		if ((this.isFadingIn) || (this.var_380b)) {
@@ -4392,7 +4393,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final void sub_ebb9() throws Exception {
-		if (A_MenuBase.mainCanvas.invertActionCode(var_3333)) {
+		if (A_MenuBase.mainCanvas.invertActionCode(m_actionApply)) {
 			showPlayMenu(this.var_3383, this.viewportHeight, this.someGHeight, this);
 			A_MenuBase.mainCanvas.clearActions();
 			return;
