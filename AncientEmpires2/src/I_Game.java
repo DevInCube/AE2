@@ -943,12 +943,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.attackerUnitMb = null;
 	}
 
-	public final F_Sprite showSpriteOnMap(F_Sprite sprite,
-			int paramInt1, int paramInt2, int paramInt3, int paramInt4,
-			int paramInt5, int paramInt6) {
+	public final F_Sprite showSpriteOnMap(F_Sprite sprite, int inX, int inY, 
+			int paramInt3, int paramInt4,
+			int paramInt5, int inTime) {
 		F_Sprite aSprinte = F_Sprite.someSpriteCopy(sprite, paramInt3,
-				paramInt4, 0, paramInt5, paramInt6, (byte) 0);
-		aSprinte.setSpritePosition(paramInt1, paramInt2);
+				paramInt4, 0, paramInt5, inTime, (byte) 0);
+		aSprinte.setSpritePosition(inX, inY);
 		this.var_35cb.addElement(aSprinte);
 		return aSprinte;
 	}
@@ -2156,16 +2156,16 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		int m1 = dis.readInt();
 		dis.skip(m1 * 4);
-		int n = dis.readInt();
+		int sLength = dis.readInt();
 		this.playersKings = new C_Unit[this.mapMaxPlayersMb];
 		this.playerKingsMb = new C_Unit[this.mapMaxPlayersMb][4];
 		this.playerUnitsCount = new int[this.mapMaxPlayersMb];
-		for (short i = 0; i < n; i = (short) (i + 1)) {
-			int i1 = dis.readByte();
+		for (short i = 0; i < sLength; i = (short) (i + 1)) {
+			int uType = dis.readByte();
 			int posX = dis.readShort() / 24;
 			int posY = dis.readShort() / 24;
-			byte unitType = (byte) (i1 % 12);
-			byte playerID = (byte) sub_e276(1 + i1 / 12);
+			byte unitType = (byte) (uType % 12);
+			byte playerID = (byte) sub_e276(1 + uType / 12);
 			if (this.mapPlayersTypes[playerID] != 2) { //not NONE
 				C_Unit unit1 = C_Unit.createUnitOnMap(unitType, playerID, posX, posY);
 				if (unitType == 9) {
@@ -2537,7 +2537,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						D_Menu newTurnMenu = createDialog(
 								A_MenuBase.getLangString(75),
 								A_MenuBase.replaceStringFirst(76, (String) incomeStr),
-								this.someGHeight, 1500);
+								this.someGHeight, 750);
 						A_MenuBase.mainCanvas.showMenu(newTurnMenu);
 						newTurnMenu.titleGradientColor = playerColors[this.playersIndexes[this.playerId]];
 						E_MainCanvas.playMusicLooped2(
@@ -2629,7 +2629,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 						}
 					}
 				} else {
-					int i7;
+					int iX;
 					if (this.activeUnitState == 13) {
 						int i2;
 						if (this.var_366b == 0) {
@@ -2641,17 +2641,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									this.attackedUnitMb.posYPixel, 0, 0, 2, 50);
 							localObject3 = F_Sprite.sub_15c2("-" + i2, 0,
 									-4, (byte) 1);
-							if ((i7 = this.attackedUnitMb.posXPixel
+							if ((iX = this.attackedUnitMb.posXPixel
 									+ this.attackedUnitMb.frameWidth / 2)
 									+ ((F_Sprite) localObject3).frameWidth / 2 > this.mapWidthPixel) {
-								i7 = this.mapWidthPixel
+								iX = this.mapWidthPixel
 										- ((F_Sprite) localObject3).frameWidth
 										/ 2;
-							} else if (i7
+							} else if (iX
 									- ((F_Sprite) localObject3).frameWidth / 2 < 0) {
-								i7 = ((F_Sprite) localObject3).frameWidth / 2;
+								iX = ((F_Sprite) localObject3).frameWidth / 2;
 							}
-							((F_Sprite) localObject3).setSpritePosition(i7,
+							((F_Sprite) localObject3).setSpritePosition(iX,
 									this.attackedUnitMb.posYPixel
 											+ this.attackedUnitMb.frameHeight);
 							this.mapEffectsSpritesList.addElement(localObject3);
@@ -2673,19 +2673,19 @@ public final class I_Game extends A_MenuBase implements Runnable {
 											this.attackerUnitMb.posYPixel, 0, 0, 2, 50);
 									localObject3 = F_Sprite.sub_15c2("-"
 											+ i2, 0, -4, (byte) 1);
-									if ((i7 = this.attackerUnitMb.posXPixel
+									if ((iX = this.attackerUnitMb.posXPixel
 											+ this.attackerUnitMb.frameWidth / 2)
 											+ ((F_Sprite) localObject3).frameWidth
 											/ 2 > this.mapWidthPixel) {
-										i7 = this.mapWidthPixel
+										iX = this.mapWidthPixel
 												- ((F_Sprite) localObject3).frameWidth
 												/ 2;
-									} else if (i7
+									} else if (iX
 											- ((F_Sprite) localObject3).frameWidth
 											/ 2 < 0) {
-										i7 = ((F_Sprite) localObject3).frameWidth / 2;
+										iX = ((F_Sprite) localObject3).frameWidth / 2;
 									}
-									((F_Sprite) localObject3).setSpritePosition(i7,
+									((F_Sprite) localObject3).setSpritePosition(iX,
 											this.attackerUnitMb.posYPixel
 													+ this.attackerUnitMb.frameHeight);
 									this.mapEffectsSpritesList.addElement(localObject3);
@@ -2791,71 +2791,69 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							this.dyingUnit = null;
 						}
 					} else {
-						C_Unit localClass_c_032;
+						C_Unit lc32;
 						if (this.gotNewLevelUnits.size() > 0) {
-							localClass_c_032 = (C_Unit) this.gotNewLevelUnits
+							lc32 = (C_Unit) this.gotNewLevelUnits
 									.elementAt(0);
 							if (this.var_382b == 0) {
-								moveCursorToPos(localClass_c_032.positionX,
-										localClass_c_032.positionY);
+								moveCursorToPos(lc32.positionX,
+										lc32.positionY);
 								this.var_382b = 1;
-							} else if (sub_b848(localClass_c_032.positionX,
-									localClass_c_032.positionY)) {
+							} else if (sub_b848(lc32.positionX,
+									lc32.positionY)) {
 								showSpriteOnMap(
 										this.smallSparkSprite,
-										localClass_c_032.posXPixel
+										lc32.posXPixel
 												+ E_MainCanvas
-														.getRandomMax(localClass_c_032.frameWidth),
-										localClass_c_032.posYPixel
+														.getRandomMax(lc32.frameWidth),
+										lc32.posYPixel
 												+ E_MainCanvas
-														.getRandomMax(localClass_c_032.frameHeight),
+														.getRandomMax(lc32.frameHeight),
 										0, 0, 1, 50);
 								if (this.var_382b == 1) {
 									E_MainCanvas.playMusicLooped(13, 1);
 								}
 								if (this.var_382b <= 5) {
-									int i6 = 200;
+									int lvlUpTime = 120;
 									if (this.var_382b == 5) {
-										i6 = 1000;
+										lvlUpTime = 600;
 									}
-									i7 = localClass_c_032.posXPixel
-											+ (localClass_c_032.frameWidth - this.levelupSprite.frameWidth)
+									iX = lc32.posXPixel
+											+ (lc32.frameWidth - this.levelupSprite.frameWidth)
 											/ 2;
-									int i8 = localClass_c_032.posYPixel
-											- this.var_382b * 4;
-									if (i7 < 0) {
-										i7 = 0;
-									} else if (i7 + this.levelupSprite.frameWidth > this.mapWidthPixel) {
-										i7 = this.mapWidthPixel
-												- this.levelupSprite.frameWidth;
+									int iY = lc32.posYPixel - this.var_382b * 4;
+									if (iX < 0) {
+										iX = 0;
+									} else if (iX + this.levelupSprite.frameWidth > this.mapWidthPixel) {
+										iX = this.mapWidthPixel - this.levelupSprite.frameWidth;
 									}
-									if (i8 < 0) {
-										i8 = 0;
+									if (iY < 0) {
+										iY = 0;
 									}
-									showSpriteOnMap(this.levelupSprite, i7, i8, 0, 0, 1, i6);
+									showSpriteOnMap(this.levelupSprite, iX, iY, 0, 0, 1, lvlUpTime);
 								}
 								this.var_382b += 1;
 								if (this.var_382b >= 20) {
 									this.gotNewLevelUnits
-											.removeElement(localClass_c_032);
+											.removeElement(lc32);
 									this.var_382b = 0;
-									if ((localClass_c_032.unitTypeId != 9)
-											&& (localClass_c_032.level <= 6)
-											&& (localClass_c_032.level % 2 == 0)) {
+									if ((lc32.unitTypeId != 9)
+											&& (lc32.level <= 6)
+											&& (lc32.level % 2 == 0)) {
 										A_MenuBase.mainCanvas
 												.showMenu(createDialog(
 														null,
 														A_MenuBase.getLangString(80)
 																+ "\n"
-																+ localClass_c_032.unitName,
-														this.someGWidth, 2000));
+																+ lc32.unitName,
+														this.someGWidth, 750));
 									}
 								}
 							}
 						} else if (this.var_35eb != null) {
 							if (this.time - this.var_35fb >= 400L) {
 								this.var_35eb.removeFromMap();
-								(localClass_c_032 = C_Unit.createUnitOnMap(
+								(lc32 = C_Unit.createUnitOnMap(
 										(byte) 10, this.var_35f3,
 										this.var_35eb.positionX,
 										this.var_35eb.positionY)).endMove();
@@ -2986,31 +2984,31 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									if (((this.activeUnitState == 1) || (this.activeUnitState == 0))
 											&& (A_MenuBase.mainCanvas
 													.invertActionCode(256))) {
-										if ((localClass_c_032 = getSomeUnit(
+										if ((lc32 = getSomeUnit(
 												this.var_34ab, this.var_34b3,
 												(byte) 0)) != null) {
 											D_Menu localObject41 = new D_Menu(
 													(byte) 15, 15);
 											localObject41.var_11b5 = this.someGHeight;
-											i7 = 0;
+											iX = 0;
 											D_Menu localClass_d_0234 = new D_Menu(
 													(byte) 5, 2);
 											D_Menu localClass_d_0235;
 											(localClass_d_0235 = new D_Menu(
 													(byte) 10, 1)).var_1125 = true;
 											String str = A_MenuBase
-													.getLangString(184 + localClass_c_032.unitTypeId);
-											if (localClass_c_032.status != 0) {
+													.getLangString(184 + lc32.unitTypeId);
+											if (lc32.status != 0) {
 												StringBuffer localStringBuffer = new StringBuffer(
 														A_MenuBase.getLangString(98));
-												if ((localClass_c_032.status & 0x2) != 0) {
+												if ((lc32.status & 0x2) != 0) {
 													localStringBuffer
 															.append('\n');
 													localStringBuffer
 															.append(A_MenuBase
 																	.getLangString(100));
 												}
-												if ((localClass_c_032.status & 0x1) != 0) {
+												if ((lc32.status & 0x1) != 0) {
 													localStringBuffer
 															.append('\n');
 													localStringBuffer
@@ -3050,11 +3048,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									if (this.activeUnitState == 1) {
 										if ((A_MenuBase.mainCanvas.invertActionCode(16))
 												&& (this.activeUnit != null)) {
-											localClass_c_032 = getSomeUnit(
+											lc32 = getSomeUnit(
 													this.var_34ab,
 													this.var_34b3, (byte) 0);
 											if ((this.someMapData[this.var_34ab][this.var_34b3] > 0)
-													&& ((localClass_c_032 == null) || (localClass_c_032 == this.activeUnit))) {
+													&& ((lc32 == null) || (lc32 == this.activeUnit))) {
 												this.var_3503 = this.activeUnit.positionX;
 												this.var_350b = this.activeUnit.positionY;
 												this.activeUnit.goToPosition(
@@ -5862,19 +5860,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.scriptStep += 1;
 			break;
 		case 14:
-			C_Unit lcaUnit = C_Unit.createUnitOnMap(
-					(byte) 2, (byte) 1, 3, 8); // elemental
-			C_Unit luuUnit = C_Unit.createUnitOnMap((byte) 2,
-					(byte) 1, 4, 7); // elemental
-			C_Unit someUnitx = C_Unit.createUnitOnMap((byte) 2, (byte) 1, 5, 8); // elemental
-			showSpriteOnMap(this.sparkSprite, lcaUnit.posXPixel,
-					lcaUnit.posYPixel, 0, 0, 1, 50);
-			showSpriteOnMap(this.sparkSprite, luuUnit.posXPixel,
-					luuUnit.posYPixel, 0, 0, 1, 50);
-			showSpriteOnMap(this.sparkSprite,
-					((F_Sprite) someUnitx).posXPixel,
-					((F_Sprite) someUnitx).posYPixel, 0, 0, 1,
-					50);
+			C_Unit el1Unit = C_Unit.createUnitOnMap((byte) 2, (byte) 1, 3, 8); // elemental
+			C_Unit el2Unit = C_Unit.createUnitOnMap((byte) 2, (byte) 1, 4, 7); // elemental
+			C_Unit el3Unit = C_Unit.createUnitOnMap((byte) 2, (byte) 1, 5, 8); // elemental
+			showSpriteOnMap(this.sparkSprite, el1Unit.posXPixel, el1Unit.posYPixel, 0, 0, 1, 50);
+			showSpriteOnMap(this.sparkSprite, el2Unit.posXPixel, el2Unit.posYPixel, 0, 0, 1, 50);
+			showSpriteOnMap(this.sparkSprite, el3Unit.posXPixel, el3Unit.posYPixel, 0, 0, 1, 50);
 			waitScript(10);
 			this.scriptStep += 1;
 			break;
@@ -5902,15 +5893,12 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			getSomeUnit(3, 8, (byte) 0).removeFromMap();
 			getSomeUnit(4, 7, (byte) 0).removeFromMap();
 			getSomeUnit(5, 8, (byte) 0).removeFromMap();
-			C_Unit lcaUnit1 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 3, 8);
-			C_Unit luuUnit1 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 4, 7);
-			C_Unit someUnitx1 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 5, 8);
-			showSpriteOnMap(this.sparkSprite, lcaUnit1.posXPixel, lcaUnit1.posYPixel, 0, 0, 1, 50);
-			showSpriteOnMap(this.sparkSprite, luuUnit1.posXPixel, luuUnit1.posYPixel, 0, 0, 1, 50);
-			showSpriteOnMap(this.sparkSprite,
-					((F_Sprite) someUnitx1).posXPixel,
-					((F_Sprite) someUnitx1).posYPixel, 0, 0, 1,
-					50);
+			C_Unit el1 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 3, 8); 
+			C_Unit el2 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 4, 7);
+			C_Unit el3 = C_Unit.createUnitOnMap((byte) 2, (byte) 0, 5, 8);
+			showSpriteOnMap(this.sparkSprite, el1.posXPixel, el1.posYPixel, 0, 0, 1, 50);
+			showSpriteOnMap(this.sparkSprite, el2.posXPixel, el2.posYPixel, 0, 0, 1, 50);
+			showSpriteOnMap(this.sparkSprite, el3.posXPixel, el3.posYPixel, 0, 0, 1, 50);
 			waitScript(10);
 			this.scriptStep += 1;
 			break;
