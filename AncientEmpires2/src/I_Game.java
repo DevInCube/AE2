@@ -148,7 +148,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public int waveImageAmplitude;
 	public int var_365b;
 	public int var_366b;
-	public long var_3673;
+	public long someStartTime8;
 	public C_Unit attackerUnitMb;
 	public C_Unit attackedUnitMb;
 	public boolean var_368b = true;
@@ -204,7 +204,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public boolean isFading;
 	public Vector gotNewLevelUnits = new Vector(2);
 	public F_Sprite levelupSprite;
-	public int var_382b;
+	public int lvlUpEffectStatesMb;
 	public F_Sprite[] kingHeadsSprites;
 	public D_Menu castleBuyMenu;
 	public D_Menu castleBuyUnitMenu;
@@ -213,7 +213,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public F_Sprite arrowIconsSprite;
 	public F_Sprite heavensFuryMissle;
 	public C_Unit furyTargetUnit;
-	public int var_3873 = 0;
+	public int heavensFuryStatesMb = 0;
 	public boolean showFuryAfterEffect = true;
 	public boolean isSaethDead;
 	public String mapName;
@@ -865,7 +865,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	}
 
 	public final void targetUnit(C_Unit unit) {
-		this.var_3873 = 0;
+		this.heavensFuryStatesMb = 0;
 		moveCursorToPos(unit.positionX, unit.positionY);
 		this.furyTargetUnit = unit;
 	}
@@ -2562,7 +2562,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 								uHealth = 20;
 							}
 							mUnit.unitHealthMb += uHealth; // house revive units
-							F_Sprite healSprite = F_Sprite.sub_15c2("+" + uHealth, 0, -4, (byte) 1);
+							F_Sprite healSprite = F_Sprite.createBouncingText("+" + uHealth, 0, -4, (byte) 1);
 							healSprite.setSpritePosition(
 											((F_Sprite) mUnit).posXPixel
 													+ ((F_Sprite) mUnit).frameWidth
@@ -2597,18 +2597,17 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							|| ((this.unkState == 14) && (this.var_3b93 != 2))) {
 						this.scenarioMapIndex += 1;
 						if (this.scenarioMapIndex > this.unlockedScenarioLevelsCount) {
-							incomeStr = skirmishMapsNames[skMapsUnlockWhenCampLvlFin[this.unlockedScenarioLevelsCount]];
-							localObject3 = createDialog(null, A_MenuBase.replaceStringFirst(
-									82, (String) incomeStr), this.someCanHeight,
-									3000);
-							A_MenuBase.mainCanvas
-									.showMenu((A_MenuBase) localObject3);
+							String skMapName = skirmishMapsNames[skMapsUnlockWhenCampLvlFin[this.unlockedScenarioLevelsCount]];
+							A_MenuBase skMapNameDialog = createDialog(null, A_MenuBase.replaceStringFirst(
+									82, skMapName), this.someCanHeight,
+									3000); //Skirmish level: %U
+							A_MenuBase.mainCanvas.showMenu((A_MenuBase) skMapNameDialog);
 							this.unlockedScenarioLevelsCount = this.scenarioMapIndex;
 							try {
-								localObject5 = new byte[] { (byte) this.unlockedScenarioLevelsCount };
-								E_MainCanvas.saveRecordStoreData("settings", 1,
-										(byte[]) localObject5);
-							} catch (Exception localException) {
+								byte[] unlockedCountBytes = new byte[] { (byte) this.unlockedScenarioLevelsCount };
+								E_MainCanvas.saveRecordStoreData("settings", 1, (byte[]) unlockedCountBytes);
+							} catch (Exception ex1) {
+								//
 							}
 						}
 						this.var_3b93 = 2;
@@ -2640,7 +2639,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 							E_MainCanvas.playMusicLooped(14, 1);
 							showSpriteOnMap(this.redsparkSprite, this.attackedUnitMb.posXPixel,
 									this.attackedUnitMb.posYPixel, 0, 0, 2, 50);
-							localObject3 = F_Sprite.sub_15c2("-" + i2, 0,
+							localObject3 = F_Sprite.createBouncingText("-" + i2, 0,
 									-4, (byte) 1);
 							if ((iX = this.attackedUnitMb.posXPixel
 									+ this.attackedUnitMb.frameWidth / 2)
@@ -2656,64 +2655,63 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									this.attackedUnitMb.posYPixel
 											+ this.attackedUnitMb.frameHeight);
 							this.mapEffectsSpritesList.addElement(localObject3);
-							this.var_3673 = this.time;
+							this.someStartTime8 = this.time;
 							this.var_366b += 1;
 						} else if (this.var_366b == 1) {
-							if (this.time - this.var_3673 >= 800L) {
+							if (this.time - this.someStartTime8 >= 800L) {
 								moveCursorToPos(this.attackerUnitMb.positionX,
 										this.attackerUnitMb.positionY);
 								if (this.attackedUnitMb.isNearOtherUnit(this.attackerUnitMb,
 										this.attackerUnitMb.positionX,
 										this.attackerUnitMb.positionY)) {
 									E_MainCanvas.vibrate(200);
-									i2 = this.attackedUnitMb.getUnitAttackDamage(this.attackerUnitMb);
+									int uDamageDone = this.attackedUnitMb.getUnitAttackDamage(this.attackerUnitMb);
 									this.attackerUnitMb.shakeUnit(400);
 									E_MainCanvas.playMusicLooped(14, 1);
 									showSpriteOnMap(this.redsparkSprite,
 											this.attackerUnitMb.posXPixel,
 											this.attackerUnitMb.posYPixel, 0, 0, 2, 50);
-									localObject3 = F_Sprite.sub_15c2("-"
-											+ i2, 0, -4, (byte) 1);
+									F_Sprite bounceText = F_Sprite.createBouncingText("-"
+											+ uDamageDone, 0, -4, (byte) 1);
 									if ((iX = this.attackerUnitMb.posXPixel
 											+ this.attackerUnitMb.frameWidth / 2)
-											+ ((F_Sprite) localObject3).frameWidth
+											+ bounceText.frameWidth
 											/ 2 > this.mapWidthPixel) {
 										iX = this.mapWidthPixel
-												- ((F_Sprite) localObject3).frameWidth
+												- bounceText.frameWidth
 												/ 2;
 									} else if (iX
-											- ((F_Sprite) localObject3).frameWidth
-											/ 2 < 0) {
-										iX = ((F_Sprite) localObject3).frameWidth / 2;
+											- bounceText.frameWidth / 2 < 0) {
+										iX = bounceText.frameWidth / 2;
 									}
-									((F_Sprite) localObject3).setSpritePosition(iX,
+									bounceText.setSpritePosition(iX,
 											this.attackerUnitMb.posYPixel
 													+ this.attackerUnitMb.frameHeight);
-									this.mapEffectsSpritesList.addElement(localObject3);
-									this.var_3673 = this.time;
+									this.mapEffectsSpritesList.addElement(bounceText);
+									this.someStartTime8 = this.time;
 									this.var_366b += 1;
 								} else {
 									afterUnitsAttacked();
 								}
 							}
-						} else if (this.time - this.var_3673 >= 800L) {
+						} else if (this.time - this.someStartTime8 >= 800L) {
 							afterUnitsAttacked();
 						}
 					} else if (this.furyTargetUnit != null) {
-						if (this.var_3873 == 0) {
+						if (this.heavensFuryStatesMb == 0) {
 							if (this.var_39cb) {
 								this.heavensFuryMissle = showSpriteOnMap(this.sparkSprite,
 										this.furyTargetUnit.posXPixel, -this.var_3423,
 										0, 12, -1, 0);
-								D_Menu localClass_d_0232;
-								(localClass_d_0232 = createDialog(null,
+								//HEAVEN'S FURY ACTIVATED
+								D_Menu heavensFuryDialog = createDialog(null,
 										A_MenuBase.getLangString(280),
-										this.someGHeight, 2000)).setMenuLoc(
-										this.viewportWidth, 2, 17);
-								A_MenuBase.mainCanvas.showMenu(localClass_d_0232);
-								this.var_3873 = 1;
+										this.someGHeight, 1000);
+								heavensFuryDialog.setMenuLoc(this.viewportWidth, 2, 17);
+								A_MenuBase.mainCanvas.showMenu(heavensFuryDialog);
+								this.heavensFuryStatesMb = 1;
 							}
-						} else if (this.var_3873 == 1) {
+						} else if (this.heavensFuryStatesMb == 1) {
 							for (int i = 0; i < 3; i++) {
 								showSpriteOnMap(
 										this.bigSmokeSprite,
@@ -2735,7 +2733,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 										furyDmg = this.furyTargetUnit.unitHealthMb;
 									}
 									this.furyTargetUnit.unitHealthMb -= furyDmg;
-									F_Sprite furyDmgSprite = F_Sprite.sub_15c2("-" + furyDmg, 0, -4, (byte) 1);
+									F_Sprite furyDmgSprite = F_Sprite.createBouncingText("-" + furyDmg, 0, -4, (byte) 1);
 									furyDmgSprite.setSpritePosition(
 													this.furyTargetUnit.posXPixel
 															+ this.furyTargetUnit.frameWidth
@@ -2745,9 +2743,9 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									this.mapEffectsSpritesList.addElement(furyDmgSprite);
 								}
 								showHeavensFuryAfterEffect(this.furyTargetUnit);
-								this.var_3873 = 2;
+								this.heavensFuryStatesMb = 2;
 							}
-						} else if (++this.var_3873 >= 20) {
+						} else if (++this.heavensFuryStatesMb >= 20) {
 							if (this.furyTargetUnit.unitHealthMb <= 0) {
 								this.dyingUnit = this.furyTargetUnit;
 								showSpriteOnMap(this.sparkSprite, this.dyingUnit.posXPixel,
@@ -2794,14 +2792,11 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					} else {
 						C_Unit descUnit;
 						if (this.gotNewLevelUnits.size() > 0) {
-							descUnit = (C_Unit) this.gotNewLevelUnits
-									.elementAt(0);
-							if (this.var_382b == 0) {
-								moveCursorToPos(descUnit.positionX,
-										descUnit.positionY);
-								this.var_382b = 1;
-							} else if (sub_b848(descUnit.positionX,
-									descUnit.positionY)) {
+							descUnit = (C_Unit) this.gotNewLevelUnits.elementAt(0);
+							if (this.lvlUpEffectStatesMb == 0) {
+								moveCursorToPos(descUnit.positionX, descUnit.positionY);
+								this.lvlUpEffectStatesMb = 1;
+							} else if (sub_b848(descUnit.positionX, descUnit.positionY)) {
 								showSpriteOnMap(
 										this.smallSparkSprite,
 										descUnit.posXPixel
@@ -2811,18 +2806,18 @@ public final class I_Game extends A_MenuBase implements Runnable {
 												+ E_MainCanvas
 														.getRandomMax(descUnit.frameHeight),
 										0, 0, 1, 50);
-								if (this.var_382b == 1) {
+								if (this.lvlUpEffectStatesMb == 1) {
 									E_MainCanvas.playMusicLooped(13, 1);
 								}
-								if (this.var_382b <= 5) {
+								if (this.lvlUpEffectStatesMb <= 5) {
 									int lvlUpTime = 120;
-									if (this.var_382b == 5) {
+									if (this.lvlUpEffectStatesMb == 5) {
 										lvlUpTime = 600;
 									}
 									iX = descUnit.posXPixel
 											+ (descUnit.frameWidth - this.levelupSprite.frameWidth)
 											/ 2;
-									int iY = descUnit.posYPixel - this.var_382b * 4;
+									int iY = descUnit.posYPixel - this.lvlUpEffectStatesMb * 4;
 									if (iX < 0) {
 										iX = 0;
 									} else if (iX + this.levelupSprite.frameWidth > this.mapWidthPixel) {
@@ -2833,21 +2828,21 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									}
 									showSpriteOnMap(this.levelupSprite, iX, iY, 0, 0, 1, lvlUpTime);
 								}
-								this.var_382b += 1;
-								if (this.var_382b >= 20) {
-									this.gotNewLevelUnits
-											.removeElement(descUnit);
-									this.var_382b = 0;
+								this.lvlUpEffectStatesMb += 1;
+								if (this.lvlUpEffectStatesMb >= 10) {
+									this.gotNewLevelUnits.removeElement(descUnit);
+									this.lvlUpEffectStatesMb = 0;
 									if ((descUnit.unitTypeId != 9)
 											&& (descUnit.level <= 6)
 											&& (descUnit.level % 2 == 0)) {
+										//PROMOTION:
 										A_MenuBase.mainCanvas
 												.showMenu(createDialog(
 														null,
 														A_MenuBase.getLangString(80)
 																+ "\n"
 																+ descUnit.unitName,
-														this.someGWidth, 750));
+														this.someGWidth, 600));
 									}
 								}
 							}
@@ -3730,8 +3725,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				gr.fillRect(0, 0, this.someGWidth, this.someGHeight);
 			}
 			if (this.isShakingScreen) {
-				int j = E_MainCanvas.getRandom() % 10;
-				sprLength = E_MainCanvas.getRandom() % 4;
+				int j = E_MainCanvas.getRandomInt() % 10;
+				sprLength = E_MainCanvas.getRandomInt() % 4;
 				gr.translate(j, sprLength);
 				sub_bbf2(gr);
 				gr.translate(-j, -sprLength);
@@ -3826,7 +3821,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			sprLength = this.mapEffectsSpritesList.size();
 			while (k < sprLength) {
 				F_Sprite fSprite = (F_Sprite) this.mapEffectsSpritesList.elementAt(k);
-				fSprite.onSpritePaint(gr, this.var_341b, this.var_3423 + fSprite.var_80c);
+				fSprite.onSpritePaint(gr, this.var_341b, this.var_3423 + fSprite.someYVal1);
 				k++;
 			}
 			gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
@@ -4597,7 +4592,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 									}
 								}
 								if (buyUnitsCount > 0) {
-									int uBuyType = unitsToBuy[(Math.abs(E_MainCanvas.getRandom()) % buyUnitsCount)];
+									int uBuyType = unitsToBuy[(Math.abs(E_MainCanvas.getRandomInt()) % buyUnitsCount)];
 									aiUnit = aiBuyUnit((byte) uBuyType, m, n);
 								}
 							}
@@ -6597,7 +6592,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.scriptStep += 1;
 				break;
 			case 13:
-				if (this.var_3873 >= 2) {
+				if (this.heavensFuryStatesMb >= 2) {
 					//What in the name of the Creator is that!
 					showUnitDialogMsg(A_MenuBase.getLangString(275), (byte) 0, (byte) 4);
 					C_Unit targetedUnit = getSomeUnit(9, 15, (byte) 0);
@@ -6886,8 +6881,8 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		int i = 0;
 		int j = 0;
 		if (this.isShakingScreen) {
-			i = E_MainCanvas.getRandom() % 10;
-			j = E_MainCanvas.getRandom() % 3;
+			i = E_MainCanvas.getRandomInt() % 10;
+			j = E_MainCanvas.getRandomInt() % 3;
 		}
 		gr.translate(0, this.var_3a43);
 		gr.setClip(0, 0, this.someGWidth, this.var_3bfb);
@@ -6931,8 +6926,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			} else {
 				gr.setClip(0, 0, this.someGWidth, this.var_3bfb);
 			}
-			sSprite.onSpritePaint(gr, 0,
-					sSprite.var_80c);
+			sSprite.onSpritePaint(gr, 0, sSprite.someYVal1);
 		}
 		gr.translate(0, -this.var_3a43);
 		gr.setClip(0, 0, this.someCanWidth, this.someCanHeight);
@@ -7111,7 +7105,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.countExtraMapsMb - index);
 		this.extraSkirmishMapNamesMb = arrayOfString;
 		this.var_3903 = arrayOfInt;
-		E_MainCanvas.sub_16d3("download", i);
+		E_MainCanvas.deleteStoreRecordByIndex("download", i);
 		this.downloadStoreAvailableSize = E_MainCanvas.getRecordStoreAvailableSize("download");
 		saveSettingsMb();
 		for (int j = 0; j < 3; j++) {

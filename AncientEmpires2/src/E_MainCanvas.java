@@ -25,9 +25,9 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public static final int someMenuShiftHeight = font8BaselinePos + 6;
 	public static final int font0BaselinePos = font0.getBaselinePosition();
 	public static final int var_139c = font0BaselinePos + 8;
-	public static final short[] var_13a4 = { 45, 43 };
-	public static final short[] var_13ac = { 57, 57 };
-	public static final byte[][] var_13b4 = {
+	public static final short[] numericAndDelStartingChars = { 45, 43 }; //char 45='/' 43= '-' 44='.' 46='0' 57='9'
+	public static final short[] numericEndChars = { 57, 57 };
+	public static final byte[][] charFontsCharIndexes = {
 			{ 10, 11, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
 			{ 12, -1, 11, -1, 10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } };
 	private static Display display;
@@ -39,7 +39,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public int someActionsSum = 0;
 	public int someActionSum2;
 	public int someActionCode = 0;
-	public long someStartTime11;
+	public long someActionStartTime;
 	public static F_Sprite[] charsSprites = new F_Sprite[2];
 	public static Random random = new Random();
 	public static boolean[] settings = { true, true, true, true };
@@ -51,7 +51,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	public static final String[] musicNames = { "main_theme", "bg_story",
 			"bg_good", "bg_bad", "battle_good", "battle_bad", "victory",
 			"gameover", "game_complete" };
-	public static final byte[] var_1454 = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	public static final byte[] someMusicByteArr = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	public static Player[] musicPlayers;
 	public static Player currentMusicPlayer;
 	public static boolean[] musicPlayersLoaded;
@@ -76,45 +76,40 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public static final int getRandomMax(int paramInt) {
-		return getRandomWithin(0, paramInt);
+	public static final int getRandomMax(int max) {
+		return getRandomWithin(0, max);
 	}
 
 	public static final int getRandomWithin(int min, int max) {
-		return min + Math.abs(random.nextInt())
-				% (max - min);
+		return min + Math.abs(random.nextInt()) % (max - min);
 	}
 
-	public static final int getRandom() {
+	public static final int getRandomInt() {
 		return random.nextInt();
 	}
 
-	public static final byte[] getRecordStoreData(String paramString, int paramInt)
+	public static final byte[] getRecordStoreData(String recName, int recIndex)
 			throws Exception {
-		RecordStore store = RecordStore.openRecordStore(
-				paramString, false);
-		byte[] arrayOfByte = store.getRecord(paramInt + 1);
+		RecordStore store = RecordStore.openRecordStore(recName, false);
+		byte[] recData = store.getRecord(recIndex + 1);
 		store.closeRecordStore();
-		return arrayOfByte;
+		return recData;
 	}
 
-	public static final void saveRecordStoreData(String recordName, int paramInt,
-			byte[] paramArrayOfByte) throws Exception {
-		RecordStore localRecordStore = RecordStore.openRecordStore(recordName,
-				true);
-		int i = localRecordStore.getNumRecords();
-		if (i <= paramInt) {
-			while (i < paramInt) {
-				localRecordStore.addRecord(null, 0, 0);
-				i++;
+	public static final void saveRecordStoreData(String recordName, int recIndex,
+			byte[] data) throws Exception {
+		RecordStore recStore = RecordStore.openRecordStore(recordName, true);
+		int numRecs = recStore.getNumRecords();
+		if (numRecs <= recIndex) {
+			while (numRecs < recIndex) {
+				recStore.addRecord(null, 0, 0);
+				numRecs++;
 			}
-			localRecordStore.addRecord(paramArrayOfByte, 0,
-					paramArrayOfByte.length);
+			recStore.addRecord(data, 0, data.length);
 		} else {
-			localRecordStore.setRecord(paramInt + 1, paramArrayOfByte, 0,
-					paramArrayOfByte.length);
+			recStore.setRecord(recIndex + 1, data, 0, data.length);
 		}
-		localRecordStore.closeRecordStore();
+		recStore.closeRecordStore();
 	}
 
 	public static final int saveDataToStore(String storeName, byte[] data)
@@ -125,21 +120,19 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		return recordSize - 1;
 	}
 
-	public static final void sub_16d3(String paramString, int paramInt)
+	public static final void deleteStoreRecordByIndex(String recName, int recIndex)
 			throws Exception {
-		RecordStore localRecordStore;
-		(localRecordStore = RecordStore.openRecordStore(paramString, true))
-				.deleteRecord(paramInt + 1);
-		localRecordStore.closeRecordStore();
+		RecordStore store = RecordStore.openRecordStore(recName, true);
+		store.deleteRecord(recIndex + 1);
+		store.closeRecordStore();
 	}
 
-	public static final int getRecordStoreAvailableSize(String paramString) {
+	public static final int getRecordStoreAvailableSize(String recordName) {
 		int size = 0;
 		try {
-			RecordStore localRecordStore = RecordStore.openRecordStore(paramString,
-					true);
-			size = localRecordStore.getSizeAvailable();
-			localRecordStore.closeRecordStore();
+			RecordStore locRecord = RecordStore.openRecordStore(recordName, true);
+			size = locRecord.getSizeAvailable();
+			locRecord.closeRecordStore();
 		} catch (Exception ex) {
 			//
 		}
@@ -173,7 +166,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 			if (!this.m_notifyUnkFlag) {
 				m_notifyShownMb = true;
 				if ((currentMusicPlayer != null) && (currentMusicPlayer.getState() == 400)
-						&& (var_1454[currentMusicId] == 1)) {
+						&& (someMusicByteArr[currentMusicId] == 1)) {
 					musicPlayerId = currentMusicId;
 					musicLoopCount = currentMusicLoopCount;
 				}
@@ -184,50 +177,44 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	}
 
 	public static final void drawCharedString(Graphics gr,
-			String paramString, int paramInt1, int paramInt2, int paramInt3,
-			int paramInt4) {
+			String inStr, int inX, int inY, int charInd, int paramInt4) {
 		if ((paramInt4 & 0x8) != 0) {
-			paramInt1 -= getCharedStringWidth((byte) paramInt3, paramString);
+			inX -= getCharedStringWidth((byte) charInd, inStr);
 		} else if ((paramInt4 & 0x1) != 0) {
-			paramInt1 -= getCharedStringWidth((byte) paramInt3, paramString) / 2;
+			inX -= getCharedStringWidth((byte) charInd, inStr) / 2;
 		}
 		if ((paramInt4 & 0x20) != 0) {
-			paramInt2 -= getCharedStringHeight((byte) paramInt3);
+			inY -= getCharedStringHeight((byte) charInd);
 		} else if ((paramInt4 & 0x2) != 0) {
-			paramInt2 -= getCharedStringHeight((byte) paramInt3) / 2;
+			inY -= getCharedStringHeight((byte) charInd) / 2;
 		}
-		drawCharedString(gr, paramString, paramInt1, paramInt2, paramInt3);
+		drawCharedString(gr, inStr, inX, inY, charInd);
 	}
 
-	public static final void drawCharedString(Graphics gr,
-			String paramString, int paramInt1, int paramInt2, int paramInt3) {
-		int m = 0;
-		int n = paramString.length();
-		while (m < n) {
-			int k;
-			if (((k = paramString.charAt(m)) >= var_13a4[paramInt3])
-					&& (k <= var_13ac[paramInt3])) {
-				int j;
-				if ((j = var_13b4[paramInt3][(k - var_13a4[paramInt3])]) != -1) {
-					charsSprites[paramInt3].setCurrentFrameIndex(j);
-					charsSprites[paramInt3].onSpritePaint(gr, paramInt1,
-							paramInt2);
-					paramInt1 += charsSprites[paramInt3].frameWidth;
+	public static final void drawCharedString(Graphics gr, String inStr, int inX, int inY, int charInt) {
+		int mIt = 0;
+		int nLength = inStr.length();
+		while (mIt < nLength) {
+			int ch = inStr.charAt(mIt);
+			if (( ch >= numericAndDelStartingChars[charInt] ) && (ch <= numericEndChars[charInt])) {
+				int frameIndex = charFontsCharIndexes[charInt][(ch - numericAndDelStartingChars[charInt])];
+				if ( frameIndex != -1) {
+					charsSprites[charInt].setCurrentFrameIndex(frameIndex);
+					charsSprites[charInt].onSpritePaint(gr, inX, inY);
+					inX += charsSprites[charInt].frameWidth;
 				} else {
-					byte[] arrayOfByte = { (byte) k };
-					String str = new String(arrayOfByte);
-					gr.drawString(str, paramInt1, paramInt2, 20);
-					paramInt1 += gr.getFont().stringWidth(str);
+					byte[] charBytes = { (byte) ch };
+					String str = new String(charBytes);
+					gr.drawString(str, inX, inY, 20);
+					inX += gr.getFont().stringWidth(str);
 				}
 			}
-			m++;
+			mIt++;
 		}
 	}
 
-	public static final void drawString(Graphics gr,
-			String string, int centerX, int centerY, int anchor) {
-		gr.drawString(string, centerX, centerY - 2,
-				anchor);
+	public static final void drawString(Graphics gr, String string, int centerX, int centerY, int anchor) {
+		gr.drawString(string, centerX, centerY - 2, anchor);
 	}
 
 	public final void showMenu(A_MenuBase menu) {
@@ -356,13 +343,13 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 	}
 
 	public final boolean invertActionCode(int code) {
-		boolean bool = (this.someActionSum2 & code) != 0;
+		boolean isCodeInSum = (this.someActionSum2 & code) != 0;
 		this.someActionSum2 &= (code ^ 0xFFFFFFFF);
-		return bool;
+		return isCodeInSum;
 	}
 
-	public final boolean someActionCodeIsSet(int paramInt) {
-		return (this.someActionsSum & paramInt) != 0;
+	public final boolean someActionCodeIsSet(int actCode) {
+		return (this.someActionsSum & actCode) != 0;
 	}
 
 	public final void keyReleased(int keyCode) {
@@ -370,13 +357,14 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		clearActionCode(actionCode);
 	}
 
-	public final boolean isActionLongPressed(int paramInt) {
-		return (this.someActionCode == paramInt) && (System.currentTimeMillis() - this.someStartTime11 >= 400L);
+	public final boolean isActionLongPressed(int actCode) {
+		long timeElapsed = System.currentTimeMillis() - this.someActionStartTime;
+		return (this.someActionCode == actCode) && (timeElapsed >= 400L);
 	}
 
 	public final void addActionCode(int code) {
 		this.someActionCode = code;
-		this.someStartTime11 = System.currentTimeMillis();
+		this.someActionStartTime = System.currentTimeMillis();
 		this.someActionsSum |= code;
 		this.someActionSum2 |= code;
 	}
@@ -513,7 +501,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 			if (currentMusicPlayer != null) {
 				currentMusicPlayer.stop();
 			}
-			if ((var_1454[musicId] == 1) && (settings[0] != false)) {
+			if ((someMusicByteArr[musicId] == 1) && (settings[0] != false)) {
 				if (loopCount == 0) {
 					loopCount = -1;
 				}

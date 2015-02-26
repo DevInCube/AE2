@@ -692,7 +692,7 @@ public final class C_Unit extends F_Sprite {
 				} else {
 					i = 2;
 				}
-				j = E_MainCanvas.getRandom() % 1;
+				j = E_MainCanvas.getRandomInt() % 1;
 				super.onSpritePaint(gr, paramInt1 + i, paramInt2 + j);
 			} else if ((paramBoolean) || (this.m_state == 2)) {
 				sGame.playersUnitsSprites[0][this.unitTypeId].onSpritePaint(gr,

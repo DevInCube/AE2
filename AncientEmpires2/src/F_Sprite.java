@@ -13,30 +13,30 @@ public class F_Sprite {
 	public int frameWidth;
 	public int frameHeight;
 	public byte[][] frameAnimationsSequences;
-	public int var_80c;
-	public byte var_814 = 0;
+	public int someYVal1;
+	public byte m_spriteType = 0;
 	public int var_81c = -1;
 	public int frameTime;
 	public int mapFrameTime;
-	public int var_834;
-	public int var_83c;
-	public int var_844;
+	public int someXVal3;
+	public int someYOffset3;
+	public int someYVal3;
 	public boolean isUpdatingMb = true;
 	public boolean var_854;
 	public boolean var_85c;
-	public int var_864 = -1;
+	public int randPosCounter = -1;
 	public byte var_86c = -1;
-	public boolean var_874;
+	public boolean m_isRotating;
 	public int var_87c;
 	public String spriteString;
 	public int charFontId;
 	public F_Sprite kingHeadSprite;
 	public F_Sprite kingBackSprite;
-	public int[][] var_8a4;
+	public int[][] someUnusedArr2;
 	public short[][] var_8ac;
 	public int someColor = 16769024; //#FFE000 yellow
-	public byte[] var_8bc;
-	public boolean[] var_8c4;
+	public byte[] someRandUnusedArr;
+	public boolean[] someAlwaysTrueArr;
 
 	public F_Sprite(String spriteId) throws Exception {
 		loadSprite(spriteId, 1);
@@ -147,7 +147,7 @@ public class F_Sprite {
 		this.currentFrameIndex = sprite.currentFrameIndex;
 		this.posXPixel = sprite.posXPixel;
 		this.posYPixel = sprite.posYPixel;
-		this.var_80c = sprite.var_80c;
+		this.someYVal1 = sprite.someYVal1;
 		this.var_7ec = sprite.var_7ec;
 		this.frameWidth = sprite.frameWidth;
 		this.frameHeight = sprite.frameHeight;
@@ -208,7 +208,7 @@ public class F_Sprite {
 
 	public final void drawFrameAt(Graphics gr, int frameIndex,
 			int inX, int inY, int paramInt4) {
-		if ((this.var_814 == 2) || (this.var_814 == 4) || (this.var_814 == 3)) {
+		if ((this.m_spriteType == 2) || (this.m_spriteType == 4) || (this.m_spriteType == 3)) {
 			onSpritePaint(gr, inX, inY);
 			return;
 		}
@@ -227,38 +227,37 @@ public class F_Sprite {
 
 	
 
-	public static final F_Sprite sub_15c2(String str, int paramInt1,
-			int paramInt2, byte charId) {
+	public static final F_Sprite createBouncingText(String str, int inX, int inY, byte charId) {
 		int strWidth = E_MainCanvas.getCharedStringWidth(charId, str);
 		int strHeight = E_MainCanvas.getCharedStringHeight(charId);
 		F_Sprite sprite = new F_Sprite(strWidth, strHeight);
 		sprite.charFontId = charId;
 		sprite.spriteString = str;
-		sprite.var_834 = paramInt1;
-		sprite.var_844 = paramInt2;
-		sprite.var_814 = 5;
+		sprite.someXVal3 = inX;
+		sprite.someYVal3 = inY;
+		sprite.m_spriteType = 5;
 		return sprite;
 	}
 
 	public static final F_Sprite someSpriteCopy(F_Sprite sprite,
 			int paramInt1, int paramInt2, int paramInt3, int paramInt4,
-			int frameTime, byte paramByte) {
+			int frameTime, byte inSprType) {
 		F_Sprite lspr = null;
 		if (sprite != null) {
 			lspr = new F_Sprite(sprite);
 		} else {
 			lspr = new F_Sprite(0, 0);
-			if ((paramByte == 2) || (paramByte == 4)) {
-				if (paramByte == 4) {
+			if ((inSprType == 2) || (inSprType == 4)) {
+				if (inSprType == 4) {
 					lspr.someColor = 15658751;
 				}
-				lspr.var_8a4 = new int[5][2];
+				lspr.someUnusedArr2 = new int[5][2];
 				lspr.var_8ac = new short[5][2];
-				lspr.var_8bc = new byte[5];
-				lspr.var_8c4 = new boolean[5];
+				lspr.someRandUnusedArr = new byte[5];
+				lspr.someAlwaysTrueArr = new boolean[5];
 				for (int k = 0; k < 5; k++) {
-					lspr.var_8c4[k] = true;
-					if (paramByte == 4) {
+					lspr.someAlwaysTrueArr[k] = true;
+					if (inSprType == 4) {
 						lspr.var_8ac[k][0] = ((short) (E_MainCanvas.random
 								.nextInt() % 4 << 10));
 						lspr.var_8ac[k][1] = ((short) (E_MainCanvas.random
@@ -269,30 +268,30 @@ public class F_Sprite {
 						lspr.var_8ac[k][1] = ((short) (Math
 								.abs(E_MainCanvas.random.nextInt()) % 4096 + -2048));
 					}
-					lspr.var_8bc[k] = ((byte) (Math
+					lspr.someRandUnusedArr[k] = ((byte) (Math
 							.abs(E_MainCanvas.random.nextInt()) % 2 + 1));
 				}
 			}
 		}
-		lspr.var_814 = paramByte;
+		lspr.m_spriteType = inSprType;
 		lspr.var_81c = paramInt4;
 		lspr.mapFrameTime = frameTime;
-		lspr.var_834 = paramInt1;
-		lspr.var_83c = paramInt2;
-		lspr.var_844 = paramInt3;
+		lspr.someXVal3 = paramInt1;
+		lspr.someYOffset3 = paramInt2;
+		lspr.someYVal3 = paramInt3;
 		lspr.var_854 = true;
 		return lspr;
 	}
 
 	public final void sub_19ce() {
-		if (this.var_814 != 4) {
+		if (this.m_spriteType != 4) {
 			this.someColor += -263168;
 		}
 		for (int i = 0; i < 5; i++) {
-			if (this.var_8c4[i] != false) {
-				if (this.var_814 == 4) {
-					this.var_8a4[i][0] += this.var_8ac[i][0];
-					this.var_8a4[i][1] += this.var_8ac[i][1];
+			if (this.someAlwaysTrueArr[i] != false) {
+				if (this.m_spriteType == 4) {
+					this.someUnusedArr2[i][0] += this.var_8ac[i][0];
+					this.someUnusedArr2[i][1] += this.var_8ac[i][1];
 					if (this.var_8ac[i][0] < 0) {
 						int tmp102_101 = 0;
 						short[] tmp102_100 = this.var_8ac[i];
@@ -312,8 +311,8 @@ public class F_Sprite {
 						tmp186_184[tmp186_185] = ((short) (tmp186_184[tmp186_185] - 256));
 					}
 				} else {
-					this.var_8a4[i][0] += this.var_8ac[i][0];
-					this.var_8a4[i][1] += this.var_8ac[i][1];
+					this.someUnusedArr2[i][0] += this.var_8ac[i][0];
+					this.someUnusedArr2[i][1] += this.var_8ac[i][1];
 					int tmp242_241 = 1;
 					short[] tmp242_240 = this.var_8ac[i];
 					tmp242_240[tmp242_241] = ((short) (tmp242_240[tmp242_241] + 256));
@@ -329,17 +328,16 @@ public class F_Sprite {
 	public void spriteUpdate() {
 		if (this.isUpdatingMb) {
 			this.frameTime += 50;
-			if (this.var_864 >= 0) {
-				this.var_864 -= 1;
+			if (this.randPosCounter >= 0) {
+				this.randPosCounter -= 1;
 			}
-			switch (this.var_814) {
+			switch (this.m_spriteType) {
 			case 2:
 			case 4:
 				sub_19ce();
 				return;
 			case 3:
-				setSpritePosition(this.posXPixel + this.var_834, this.posYPixel
-						+ this.var_83c);
+				setSpritePosition(this.posXPixel + this.someXVal3, this.posYPixel + this.someYOffset3);
 				return;
 			case 6:
 				this.currentFrameIndex = ((this.currentFrameIndex + 1) % 2);
@@ -350,17 +348,17 @@ public class F_Sprite {
 				break;
 			case 5:
 				if (this.var_81c == -1) {
-					setSpritePosition(this.posXPixel + this.var_834, this.posYPixel);
-					this.var_80c += this.var_844;
-					if (this.var_80c >= 0) {
-						this.var_80c = 0;
-						this.var_844 = (-this.var_844 / 2);
-						if (this.var_844 == 0) {
+					setSpritePosition(this.posXPixel + this.someXVal3, this.posYPixel);
+					this.someYVal1 += this.someYVal3;
+					if (this.someYVal1 >= 0) {
+						this.someYVal1 = 0;
+						this.someYVal3 = (-this.someYVal3 / 2);
+						if (this.someYVal3 == 0) {
 							this.var_81c = 1;
 							this.frameTime = 0;
 						}
 					} else {
-						this.var_844 += 1;
+						this.someYVal3 += 1;
 					}
 				} else if (this.frameTime >= 400) {
 					this.isUpdatingMb = false;
@@ -368,12 +366,11 @@ public class F_Sprite {
 				}
 				break;
 			default:
-				setSpritePosition(this.posXPixel + this.var_834, this.posYPixel
-						+ this.var_83c);
-				this.var_80c += this.var_844;
+				setSpritePosition(this.posXPixel + this.someXVal3, this.posYPixel + this.someYOffset3);
+				this.someYVal1 += this.someYVal3;
 				if ((this.var_81c != 0) && (this.frameTime >= this.mapFrameTime)) {
 					nextFrame();
-					if ((this.var_814 == 0) && (this.currentFrameIndex == 0)
+					if ((this.m_spriteType == 0) && (this.currentFrameIndex == 0)
 							&& (this.var_81c > 0)) {
 						this.var_81c -= 1;
 						if (this.var_81c <= 0) {
@@ -393,7 +390,7 @@ public class F_Sprite {
 	//@Virtual
 	public void onSpritePaint(Graphics gr, int inX, int inY) {
 		int k = 0;
-		if ((this.var_814 == 2) || (this.var_814 == 4)) {
+		if ((this.m_spriteType == 2) || (this.m_spriteType == 4)) {
 			gr.setColor(this.someColor);
 			k = 0;
 		}
@@ -411,14 +408,14 @@ public class F_Sprite {
 			k++;
 		}*/
 		
-		if (this.var_814 == 6) {
+		if (this.m_spriteType == 6) {
 			int x = 0;
 			if (this.currentFrameIndex == 0) {
 				gr.setColor(15718144); // #EFD700 sand yellow
 			} else {
 				gr.setColor(16777215); // white
 			}
-			if (this.var_834 > 0) {
+			if (this.someXVal3 > 0) {
 				int y = this.posXPixel + 15;
 				gr.fillArc(this.posXPixel, this.posYPixel - 15, 30,
 						30, 0, 360);
@@ -432,9 +429,9 @@ public class F_Sprite {
 					30);
 			return;
 		}
-		if (this.var_814 == 3) {
+		if (this.m_spriteType == 3) {
 			gr.setColor(0); //black
-			if (this.var_834 > 0) {
+			if (this.someXVal3 > 0) {
 				gr.drawLine(this.posXPixel, this.posYPixel,
 						this.posXPixel + 4, this.posYPixel - 2);
 				return;
@@ -451,7 +448,7 @@ public class F_Sprite {
 						this.charFontId, 33);
 				return;
 			}
-			if (this.var_864 > 0) {
+			if (this.randPosCounter > 0) {
 				x += E_MainCanvas.getRandomWithin(-4, 5);
 				y += E_MainCanvas.getRandomWithin(-1, 2);
 			}

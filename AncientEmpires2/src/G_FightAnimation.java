@@ -9,7 +9,7 @@ public final class G_FightAnimation {
 	public static final String[] unitTypeNames = { "soldier", "archer", "lizard",
 			"wizard", "wisp", "spider", "golem", "catapult", "wyvern", "king",
 			"skeleton" };
-	public I_Game game;
+	public I_Game m_game;
 	public C_Unit m_unit;
 	public byte unitType;
 	public boolean var_b2d = false;
@@ -31,7 +31,7 @@ public final class G_FightAnimation {
 	public int var_bad;
 	public int var_bb5;
 	public long var_bbd;
-	public long var_bc5;
+	public long someStartTime7;
 	public long someStartTime3;
 	public F_Sprite[] unitCharsSprites;
 	public H_ImageExt[] multipleBgImages;
@@ -59,7 +59,7 @@ public final class G_FightAnimation {
 
 	public G_FightAnimation(I_Game aGame, C_Unit aUnit, G_FightAnimation faInst)
 			throws Exception {
-		this.game = aGame;
+		this.m_game = aGame;
 		this.m_unit = aUnit;
 		this.unitType = aUnit.unitTypeId;
 		this.otherFightAnim = faInst;
@@ -195,15 +195,15 @@ public final class G_FightAnimation {
 			this.unitCharsSprites[m].setSpritePosition(this.var_c2d[m][0], this.var_c2d[m][1]);
 			this.unitCharsSprites[m].startAnimation(0, this.var_b75);
 			this.unitCharsSprites[m].var_854 = false;
-			this.unitCharsSprites[m].var_83c = 0;
+			this.unitCharsSprites[m].someYOffset3 = 0;
 			if (this.unitType == 6) { // golem
-				this.unitCharsSprites[m].var_874 = true;
+				this.unitCharsSprites[m].m_isRotating = true;
 				this.unitsRotationAngles[m] = E_MainCanvas.getRandomMax(360);
-				this.unitCharsSprites[m].var_80c = (-6 + 4
+				this.unitCharsSprites[m].someYVal1 = (-6 + 4
 						* A_MenuBase.getSin1024(this.unitsRotationAngles[m]) >> 10);
 			} else if (this.unitType == 4) { //wisp
-				this.unitCharsSprites[m].var_874 = true;
-				this.unitCharsSprites[m].var_80c = (-5 - E_MainCanvas.getRandomMax(10));
+				this.unitCharsSprites[m].m_isRotating = true;
+				this.unitCharsSprites[m].someYVal1 = (-5 - E_MainCanvas.getRandomMax(10));
 				this.unitsRotationAngles[m] = E_MainCanvas.getRandomMax(360);
 			} else if (this.unitType == 9) { //king
 				this.unitCharsSprites[m].kingHeadSprite = this.kingHeadsSprite;
@@ -222,7 +222,7 @@ public final class G_FightAnimation {
 	public final void sub_16bb() {
 		this.var_b2d = true;
 		this.var_b7d = 1;
-		this.var_bc5 = this.game.time;
+		this.someStartTime7 = this.m_game.time;
 	}
 
 	public final void sub_16eb() {
@@ -235,35 +235,35 @@ public final class G_FightAnimation {
 			F_Sprite localClass_f_0454;
 			if (this.unitType == 6) {
 				if (this.var_c4d == 0) {
-					if (this.game.time - this.var_bc5 >= 200L) {
+					if (this.m_game.time - this.someStartTime7 >= 200L) {
 						if (this.var_c85 < this.unitCharsCount) {
 							this.unitCharsSprites[this.var_c85].var_87c = -1;
-							this.unitCharsSprites[this.var_c85].var_874 = false;
-							this.unitCharsSprites[this.var_c85].var_844 = 0;
+							this.unitCharsSprites[this.var_c85].m_isRotating = false;
+							this.unitCharsSprites[this.var_c85].someYVal3 = 0;
 						}
 						if (++this.var_c85 >= this.unitCharsCount) {
 							this.var_c85 = 0;
 							this.var_c4d = 1;
-							this.var_bc5 = this.game.time;
+							this.someStartTime7 = this.m_game.time;
 						}
 					}
 				} else if (this.var_c4d == 1) {
-					if (this.game.time - this.var_bc5 >= 200L) {
+					if (this.m_game.time - this.someStartTime7 >= 200L) {
 						if (this.var_c85 < this.unitCharsCount) {
-							this.unitCharsSprites[this.var_c85].var_844 = -1;
+							this.unitCharsSprites[this.var_c85].someYVal3 = -1;
 						}
 						if (++this.var_c85 >= this.unitCharsCount) {
 							this.var_c85 = 0;
 							this.var_c4d = 2;
-							this.var_bc5 = this.game.time;
+							this.someStartTime7 = this.m_game.time;
 						}
 					}
 				} else if (this.var_c4d == 2) {
 					i = 1;
-					if (this.game.time - this.var_bc5 >= 200L) {
+					if (this.m_game.time - this.someStartTime7 >= 200L) {
 						if (this.var_c85 < this.unitCharsCount) {
 							this.unitCharsSprites[this.var_c85].var_87c = 0;
-							this.unitCharsSprites[this.var_c85].var_844 = 0;
+							this.unitCharsSprites[this.var_c85].someYVal3 = 0;
 							this.unitCharsSprites[this.var_c85]
 									.startAnimation(2, this.var_b75);
 							this.unitCharsSprites[this.var_c85].var_81c = 1;
@@ -277,15 +277,15 @@ public final class G_FightAnimation {
 					for (int j = 0; j < this.unitCharsCount; j++) {
 						if (this.unitCharsSprites[j].var_87c == 0) {
 							if (this.unitCharsSprites[j].currentFrameIndex == 1) {
-								this.unitCharsSprites[j].var_80c = 0;
+								this.unitCharsSprites[j].someYVal1 = 0;
 								this.unitCharsSprites[j].var_87c = 1;
 								E_MainCanvas.vibrate(200);
-								this.game.startShakingScreen(1200);
+								this.m_game.startShakingScreen(1200);
 								E_MainCanvas.playMusicLooped(14, 1);
 								for (int n = 0; n < 2; n++) {
 									F_Sprite localClass_f_0456;
 									(localClass_f_0456 = F_Sprite.someSpriteCopy(
-											this.game.smokeSprite, 0, 0, -1, 1,
+											this.m_game.smokeSprite, 0, 0, -1, 1,
 											E_MainCanvas.getRandomMax(4) * 50,
 											(byte) 0))
 											.setSpritePosition(
@@ -298,10 +298,10 @@ public final class G_FightAnimation {
 															- localClass_f_0456.frameHeight
 															+ 2);
 									localClass_f_0456.var_85c = true;
-									this.game.addSpriteTo(localClass_f_0456);
+									this.m_game.addSpriteTo(localClass_f_0456);
 								}
 								(localClass_f_0454 = F_Sprite.someSpriteCopy(
-										this.game.smokeSprite, -1, 0, -1, 1,
+										this.m_game.smokeSprite, -1, 0, -1, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
 										.setSpritePosition(
 												this.unitCharsSprites[j].posXPixel,
@@ -310,9 +310,9 @@ public final class G_FightAnimation {
 														- localClass_f_0454.frameHeight
 														+ 2);
 								localClass_f_0454.var_85c = true;
-								this.game.addSpriteTo(localClass_f_0454);
+								this.m_game.addSpriteTo(localClass_f_0454);
 								(localClass_f_0454 = F_Sprite.someSpriteCopy(
-										this.game.smokeSprite, 1, 0, -1, 1,
+										this.m_game.smokeSprite, 1, 0, -1, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
 										.setSpritePosition(
 												this.unitCharsSprites[j].posXPixel
@@ -323,7 +323,7 @@ public final class G_FightAnimation {
 														- localClass_f_0454.frameHeight
 														+ 2);
 								localClass_f_0454.var_85c = true;
-								this.game.addSpriteTo(localClass_f_0454);
+								this.m_game.addSpriteTo(localClass_f_0454);
 							}
 							i = 0;
 						} else if (this.unitCharsSprites[j].var_87c != -1) {
@@ -336,9 +336,9 @@ public final class G_FightAnimation {
 									this.unitCharsSprites[j].var_87c = 2;
 									i = 0;
 								} else if (this.unitCharsSprites[j].var_87c == 2) {
-									this.unitCharsSprites[j].var_80c = -6;
-									this.unitCharsSprites[j].var_874 = true;
-									this.unitCharsSprites[j].var_844 = E_MainCanvas
+									this.unitCharsSprites[j].someYVal1 = -6;
+									this.unitCharsSprites[j].m_isRotating = true;
+									this.unitCharsSprites[j].someYVal3 = E_MainCanvas
 											.getRandomWithin(-2, 3);
 									this.unitCharsSprites[j].startAnimation(0, this.var_b75);
 									this.unitCharsSprites[j].var_81c = -1;
@@ -350,12 +350,12 @@ public final class G_FightAnimation {
 					}
 					if (i != 0) {
 						this.var_c4d = 0;
-						this.var_bc5 = this.game.time;
+						this.someStartTime7 = this.m_game.time;
 						this.var_b7d = 4;
 					}
 				}
 			} else if (this.var_c4d == 0) {
-				if (this.game.time - this.var_bc5 >= 200L) {
+				if (this.m_game.time - this.someStartTime7 >= 200L) {
 					if (this.unitType == 9) {
 						this.var_c75 = new F_Sprite[this.unitCharsCount * 2];
 					} else if ((this.unitType != 7) && (this.unitType != 1)) {
@@ -363,7 +363,7 @@ public final class G_FightAnimation {
 					}
 					this.var_c4d = 1;
 					this.var_c85 = 0;
-					this.var_bc5 = this.game.time;
+					this.someStartTime7 = this.m_game.time;
 				}
 			} else if (this.var_c4d == 1) {
 				i = 1;
@@ -380,7 +380,7 @@ public final class G_FightAnimation {
 														this.var_c75[this.var_c85],
 														this.unitCharsSprites[this.var_c85].frameWidth),
 										this.unitCharsSprites[this.var_c85].posYPixel);
-						this.game.addSpriteTo(this.var_c75[this.var_c85]);
+						this.m_game.addSpriteTo(this.var_c75[this.var_c85]);
 					} else if (this.unitType == 1) {
 						F_Sprite localClass_f_0451;
 						(localClass_f_0451 = F_Sprite.someSpriteCopy(this.archerArrowSprite,
@@ -393,13 +393,13 @@ public final class G_FightAnimation {
 														localClass_f_0451,
 														this.unitCharsSprites[this.var_c85].frameWidth),
 										this.unitCharsSprites[this.var_c85].posYPixel);
-						this.game.addSpriteTo(localClass_f_0451);
+						this.m_game.addSpriteTo(localClass_f_0451);
 					} else {
 						if (this.unitType == 7) {
-							this.unitCharsSprites[this.var_c85].var_864 = 5;
+							this.unitCharsSprites[this.var_c85].randPosCounter = 5;
 							for (int k = 0; k < 3; k++) {
 								(localClass_f_0454 = F_Sprite.someSpriteCopy(
-										this.game.bigSmokeSprite,
+										this.m_game.bigSmokeSprite,
 										E_MainCanvas.getRandomWithin(-1, 2), 0, 0, 1,
 										E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
 										.setSpritePosition(
@@ -408,7 +408,7 @@ public final class G_FightAnimation {
 														/ 2,
 												this.unitCharsSprites[this.var_c85].posYPixel);
 								localClass_f_0454.var_85c = true;
-								this.game.addSpriteTo(localClass_f_0454);
+								this.m_game.addSpriteTo(localClass_f_0454);
 							}
 						}
 						if (this.unitType == 9) {
@@ -418,8 +418,8 @@ public final class G_FightAnimation {
 									.setSpritePosition(this.unitCharsSprites[0].posXPixel,
 											this.unitCharsSprites[0].posYPixel
 													+ this.var_b8d.frameHeight);
-							localClass_f_0452.var_80c = (-this.var_b8d.frameHeight);
-							this.game.addSpriteTo(localClass_f_0452);
+							localClass_f_0452.someYVal1 = (-this.var_b8d.frameHeight);
+							this.m_game.addSpriteTo(localClass_f_0452);
 							this.var_c75[0] = F_Sprite.someSpriteCopy(
 									this.kingWaveSprite, var_b85[this.var_b6d] * 3,
 									-2, 0, -1, 100, (byte) 0);
@@ -435,9 +435,9 @@ public final class G_FightAnimation {
 									this.kingWaveSprite, var_b85[this.var_b6d] * 3, 1,
 									0, -1, 100, (byte) 0);
 							this.var_c75[1].setSpritePosition(i1, i3);
-							this.game.addSpriteTo(this.var_c75[1]);
+							this.m_game.addSpriteTo(this.var_c75[1]);
 							this.var_c75[1].var_86c = this.var_b6d;
-							this.game.addSpriteTo(this.var_c75[0]);
+							this.m_game.addSpriteTo(this.var_c75[0]);
 							this.var_c75[0].var_86c = this.var_b6d;
 						} else if (this.unitType == 8) {
 							this.var_c75[this.var_c85] = F_Sprite.someSpriteCopy(
@@ -452,9 +452,9 @@ public final class G_FightAnimation {
 											this.unitCharsSprites[this.var_c85].posYPixel + 30);
 							this.var_c75[this.var_c85].var_85c = true;
 							E_MainCanvas.vibrate(200);
-							this.game.startShakingScreen(1200);
+							this.m_game.startShakingScreen(1200);
 							E_MainCanvas.playMusicLooped(14, 1);
-							this.game.addSpriteTo(this.var_c75[this.var_c85]);
+							this.m_game.addSpriteTo(this.var_c75[this.var_c85]);
 						}
 					}
 				}
@@ -484,7 +484,7 @@ public final class G_FightAnimation {
 					if ((this.unitType == 8) && (this.var_c75[m] != null)
 							&& (this.var_c75[m].isUpdatingMb)) {
 						(localClass_f_0455 = F_Sprite.someSpriteCopy(
-								this.game.bigSmokeSprite, var_b85[this.var_b6d]
+								this.m_game.bigSmokeSprite, var_b85[this.var_b6d]
 										* E_MainCanvas.getRandomWithin(1, 4),
 								E_MainCanvas.getRandomWithin(-2, 3), 0, 1,
 								50 * E_MainCanvas.getRandomMax(4), (byte) 0))
@@ -497,7 +497,7 @@ public final class G_FightAnimation {
 														.getRandomMax(30 - this.var_c75[m].frameHeight)
 												- 15);
 						localClass_f_0455.var_85c = true;
-						this.game.addSpriteTo(localClass_f_0455);
+						this.m_game.addSpriteTo(localClass_f_0455);
 					}
 				}
 				if (i != 0) {
@@ -510,7 +510,7 @@ public final class G_FightAnimation {
 					if (this.m_unit.unitTypeId == 8) {
 						this.var_c55 = 0;
 					}
-					this.var_bc5 = this.game.time;
+					this.someStartTime7 = this.m_game.time;
 					this.var_c4d = 0;
 					return;
 				}
@@ -521,7 +521,7 @@ public final class G_FightAnimation {
 			for (m = 0; m < this.var_c75.length; m++) {
 				if ((this.unitType == 9) && (E_MainCanvas.getRandomMax(2) == 0)) {
 					(localClass_f_0455 = F_Sprite.someSpriteCopy(
-							this.game.bigSmokeSprite, E_MainCanvas.getRandomWithin(-2, 1),
+							this.m_game.bigSmokeSprite, E_MainCanvas.getRandomWithin(-2, 1),
 							0, -1, 1, 100, (byte) 0)).setSpritePosition(
 							this.var_c75[m].posXPixel
 									+ sub_1673(this.var_c75[m], 0),
@@ -532,20 +532,20 @@ public final class G_FightAnimation {
 					} else {
 						localClass_f_0455.var_86c = this.var_b6d;
 					}
-					this.game.addSpriteTo(localClass_f_0455);
+					this.m_game.addSpriteTo(localClass_f_0455);
 				}
 				if (this.unitType == 9) {
 					if (this.var_b6d == 0) {
-						if (this.var_c75[m].posXPixel >= this.game.someGWidth) {
+						if (this.var_c75[m].posXPixel >= this.m_game.someGWidth) {
 							if (this.var_c75[m].var_87c == 0) {
-								this.var_c75[m].setSpritePosition(this.game.viewportWidth
+								this.var_c75[m].setSpritePosition(this.m_game.viewportWidth
 										- this.var_c75[m].frameWidth,
 										this.var_c75[m].posYPixel);
 								this.var_c75[m].var_86c = this.otherFightAnim.var_b6d;
 								this.var_c75[m].var_87c = 1;
 								i = 0;
 							} else if (this.var_c75[m].var_87c == 1) {
-								this.game.removeSpriteFrom(this.var_c75[m]);
+								this.m_game.removeSpriteFrom(this.var_c75[m]);
 								this.var_c75[m].var_87c = 2;
 							}
 						} else {
@@ -554,13 +554,13 @@ public final class G_FightAnimation {
 					} else if (this.var_b6d == 1) {
 						if (this.var_c75[m].posXPixel + this.var_c75[m].frameWidth < 0) {
 							if (this.var_c75[m].var_87c == 0) {
-								this.var_c75[m].setSpritePosition(this.game.viewportWidth,
+								this.var_c75[m].setSpritePosition(this.m_game.viewportWidth,
 										this.var_c75[m].posYPixel);
 								this.var_c75[m].var_86c = this.otherFightAnim.var_b6d;
 								this.var_c75[m].var_87c = 1;
 								i = 0;
 							} else if (this.var_c75[m].var_87c == 1) {
-								this.game.removeSpriteFrom(this.var_c75[m]);
+								this.m_game.removeSpriteFrom(this.var_c75[m]);
 								this.var_c75[m].var_87c = 2;
 							}
 						} else {
@@ -572,16 +572,16 @@ public final class G_FightAnimation {
 			if (i != 0) {
 				this.var_c4d = 0;
 				this.var_b7d = 4;
-				this.var_bc5 = this.game.time;
+				this.someStartTime7 = this.m_game.time;
 				return;
 			}
 			break;
 		case 4:
 			if (this.var_c4d == 0) {
-				if (this.game.time - this.var_bc5 >= this.var_c55) {
+				if (this.m_game.time - this.someStartTime7 >= this.var_c55) {
 					this.otherFightAnim.sub_3363();
 					if (this.unitType != 1) {
-						this.game.startShakingScreen(200);
+						this.m_game.startShakingScreen(200);
 					}
 					E_MainCanvas.vibrate(200);
 					E_MainCanvas.playMusicLooped(14, 1);
@@ -604,30 +604,30 @@ public final class G_FightAnimation {
 					if ((this.unitType == 2) || (this.unitType == 1)) {
 						localClass_f_0453.var_854 = false;
 					}
-					int i2 = E_MainCanvas.getRandomMax(this.game.someGWidth / 2
+					int i2 = E_MainCanvas.getRandomMax(this.m_game.someGWidth / 2
 							- localClass_f_0453.frameWidth);
 					i3 = 0;
 					if (this.otherFightAnim.var_be5 != null) {
 						i3 = 0 + (this.otherFightAnim.var_be5.imageHeight - localClass_f_0453.frameHeight);
 					}
-					int i4 = (this.game.var_3bfb - i3)
+					int i4 = (this.m_game.var_3bfb - i3)
 							* (this.var_c7d * 2 + 1)
 							/ (C_Unit.unitsChars[this.unitType].length * 2)
 							- localClass_f_0453.frameHeight / 2 + i3;
 					if (this.var_b6d == 0) {
-						i2 += this.game.viewportWidth;
+						i2 += this.m_game.viewportWidth;
 					}
 					if ((this.unitType == 7) || (this.unitType == 6)) {
-						localClass_f_0453.var_80c = i4;
+						localClass_f_0453.someYVal1 = i4;
 						i4 = 0;
 					}
 					localClass_f_0453.setSpritePosition(i2, i4);
-					this.game.addSpriteTo(localClass_f_0453);
+					this.m_game.addSpriteTo(localClass_f_0453);
 					for (int i5 = 0; i5 < 3; i5++) {
 						F_Sprite localClass_f_0457;
 						if ((this.unitType == 7) || (this.unitType == 6)) {
 							(localClass_f_0457 = F_Sprite.someSpriteCopy(
-									this.game.smokeSprite,
+									this.m_game.smokeSprite,
 									E_MainCanvas.getRandomWithin(-1, 2), 0,
 									E_MainCanvas.getRandomWithin(-2, 0), 1,
 									E_MainCanvas.getRandomMax(4) * 50, (byte) 0))
@@ -636,14 +636,14 @@ public final class G_FightAnimation {
 													+ E_MainCanvas
 															.getRandomMax(localClass_f_0453.frameWidth
 																	- localClass_f_0457.frameWidth),
-											localClass_f_0453.var_80c
+											localClass_f_0453.someYVal1
 													+ localClass_f_0453.frameHeight
 													- localClass_f_0457.frameHeight
 													+ 1);
-							localClass_f_0457.var_80c = (-localClass_f_0453.frameHeight / 2);
+							localClass_f_0457.someYVal1 = (-localClass_f_0453.frameHeight / 2);
 						} else {
 							(localClass_f_0457 = F_Sprite.someSpriteCopy(
-									this.game.bigSmokeSprite,
+									this.m_game.bigSmokeSprite,
 									E_MainCanvas.getRandomWithin(-1, 2), 0, -1, 1, 100,
 									(byte) 0))
 									.setSpritePosition(
@@ -655,16 +655,16 @@ public final class G_FightAnimation {
 													- localClass_f_0457.frameHeight
 													+ 1);
 						}
-						this.game.addSpriteTo(localClass_f_0457);
+						this.m_game.addSpriteTo(localClass_f_0457);
 					}
 				}
 				this.var_b7d = 7;
-				this.var_bc5 = this.game.time;
+				this.someStartTime7 = this.m_game.time;
 				return;
 			}
 			break;
 		case 7:
-			if (this.game.time - this.var_bc5 >= 1000L) {
+			if (this.m_game.time - this.someStartTime7 >= 1000L) {
 				this.var_b7d = 0;
 				this.var_b35 = true;
 			}
@@ -674,7 +674,7 @@ public final class G_FightAnimation {
 
 	public final void sub_2730() {
 		for (int i = 0; i < this.unitCharsCount; i++) {
-			this.unitCharsSprites[i].var_864 = 6;
+			this.unitCharsSprites[i].randPosCounter = 6;
 		}
 	}
 
@@ -682,9 +682,9 @@ public final class G_FightAnimation {
 		switch (this.var_b7d) {
 		case 1:
 			if (this.var_c4d == 0) {
-				if (this.game.time - this.var_bc5 >= 200L) {
+				if (this.m_game.time - this.someStartTime7 >= 200L) {
 					this.var_c4d = 1;
-					this.var_bc5 = this.game.time;
+					this.someStartTime7 = this.m_game.time;
 				}
 			} else {
 				F_Sprite localClass_f_0451;
@@ -692,12 +692,12 @@ public final class G_FightAnimation {
 					this.var_c45 += 5;
 					if (this.var_c45 >= 90) {
 						this.var_c4d += 1;
-						this.var_bc5 = this.game.time;
+						this.someStartTime7 = this.m_game.time;
 					}
 					if ((this.var_c45 - 20) % 15 == 0) {
 						for (int i = 0; i < this.unitCharsSprites.length; i++) {
 							(localClass_f_0451 = F_Sprite.someSpriteCopy(
-									this.game.bigSmokeSprite,
+									this.m_game.bigSmokeSprite,
 									E_MainCanvas.getRandomWithin(-1, 2), 0, 0, 1, 100,
 									(byte) 0))
 									.setSpritePosition(
@@ -709,21 +709,21 @@ public final class G_FightAnimation {
 													+ this.var_b8d.frameHeight
 													- localClass_f_0451.frameHeight
 													+ 1);
-							this.game.addSpriteTo(localClass_f_0451);
+							this.m_game.addSpriteTo(localClass_f_0451);
 						}
 					}
 				} else if ((this.var_c4d == 2)
-						&& (this.game.time - this.var_bc5 >= 400L)) {
+						&& (this.m_game.time - this.someStartTime7 >= 400L)) {
 					this.var_c45 = 20;
 					this.otherFightAnim.sub_3363();
 					this.var_b7d = 4;
 					this.otherFightAnim.var_c15 = false;
-					this.var_bc5 = this.game.time;
+					this.someStartTime7 = this.m_game.time;
 				}
 				if (++this.var_c3d >= 2) {
 					for (int i = 0; i < this.otherFightAnim.unitCharsSprites.length; i++) {
 						(localClass_f_0451 = F_Sprite
-								.someSpriteCopy(this.game.redsparkSprite, 0, 0, 0, 1,
+								.someSpriteCopy(this.m_game.redsparkSprite, 0, 0, 0, 1,
 										50, (byte) 0))
 								.setSpritePosition(
 										this.otherFightAnim.unitCharsSprites[i].posXPixel
@@ -735,7 +735,7 @@ public final class G_FightAnimation {
 														.getRandomMax(this.otherFightAnim.unitCharsSprites[i].frameHeight
 																- localClass_f_0451.frameHeight));
 						localClass_f_0451.var_85c = true;
-						this.game.addSpriteTo(localClass_f_0451);
+						this.m_game.addSpriteTo(localClass_f_0451);
 					}
 					this.var_c3d = 0;
 					this.otherFightAnim.sub_2730();
@@ -743,28 +743,26 @@ public final class G_FightAnimation {
 			}
 			break;
 		case 4:
-			if (this.game.time - this.var_bc5 >= 800L) {
+			if (this.m_game.time - this.someStartTime7 >= 800L) {
 				this.var_b35 = true;
 				this.var_b7d = 0;
 			}
 			break;
 		}
 		int i = 0;
-		if (this.game.time - this.var_bbd >= 300L) {
+		if (this.m_game.time - this.var_bbd >= 300L) {
 			i = 1;
-			this.var_bbd = this.game.time;
+			this.var_bbd = this.m_game.time;
 		}
 		for (int j = 0; j < this.unitCharsSprites.length; j++) {
 			if (i != 0) {
-				F_Sprite localClass_f_0452;
-				(localClass_f_0452 = F_Sprite.someSpriteCopy(null, 0, 0, 0, 1,
-						500, (byte) 4))
-						.setSpritePosition(this.unitCharsSprites[j].posXPixel
+				F_Sprite lcSprite1 = F_Sprite.someSpriteCopy(null, 0, 0, 0, 1, 500, (byte) 4);
+				lcSprite1.setSpritePosition(this.unitCharsSprites[j].posXPixel
 								+ (this.unitCharsSprites[j].frameWidth >> 1),
 								this.unitCharsSprites[j].posYPixel
 										+ (this.unitCharsSprites[j].frameHeight >> 1)
 										+ this.var_bb5);
-				this.game.addSpriteTo(localClass_f_0452);
+				this.m_game.addSpriteTo(lcSprite1);
 			}
 			int k = this.unitCharsSprites[j].frameWidth / 3;
 			this.unitCharsSprites[j]
@@ -780,7 +778,7 @@ public final class G_FightAnimation {
 
 	public final void sub_2ae8() {
 		if (this.var_c15) {
-			if (this.game.time - this.someStartTime3 >= 300L) {
+			if (this.m_game.time - this.someStartTime3 >= 300L) {
 				this.var_c15 = false;
 				this.var_bad = 0;
 				this.var_bb5 = 0;
@@ -798,7 +796,7 @@ public final class G_FightAnimation {
 			if (this.unitHealth < this.unitHealth3) {
 				this.unitHealth = this.unitHealth3;
 			}
-			this.game.var_3bf3 = true;
+			this.m_game.var_3bf3 = true;
 		}
 		int i;
 		if ((this.unitType == 8) || (this.unitType == 9) || (this.unitType == 7)
@@ -813,106 +811,101 @@ public final class G_FightAnimation {
 			int k;
 			switch (this.var_b7d) {
 			case 1:
-				if (this.game.time - this.var_bc5 >= 200L) {
+				if (this.m_game.time - this.someStartTime7 >= 200L) {
 					this.var_b7d = 3;
 				}
 				break;
 			case 3:
 				j = 1;
-				F_Sprite localClass_f_045;
+				F_Sprite fSprite1;
 				if (this.var_c4d < this.unitCharsCount) {
 					if ((this.unitType == 0) || (this.unitType == 5)) {
-						this.unitCharsSprites[this.var_c4d].var_844 = -6;
+						this.unitCharsSprites[this.var_c4d].someYVal3 = -6;
 					}
 					if (this.unitType == 5) {
-						this.unitCharsSprites[this.var_c4d].var_834 = (2 * var_b85[this.var_b6d]);
-						for (k = 0; k < 3; k++) {
-							(localClass_f_045 = F_Sprite.someSpriteCopy(
-									this.game.bigSmokeSprite,
+						this.unitCharsSprites[this.var_c4d].someXVal3 = (2 * var_b85[this.var_b6d]);
+						for (int kIt = 0; kIt < 3; kIt++) {
+							fSprite1 = F_Sprite.someSpriteCopy(
+									this.m_game.bigSmokeSprite,
 									E_MainCanvas.getRandomWithin(-1, 2), 0, -1, 1, 100,
-									(byte) 0))
-									.setSpritePosition(
+									(byte) 0);
+							fSprite1.setSpritePosition(
 											this.unitCharsSprites[this.var_c4d].posXPixel
 													+ E_MainCanvas
 															.getRandomMax(this.var_b8d.frameWidth
-																	- localClass_f_045.frameWidth),
+																	- fSprite1.frameWidth),
 											this.unitCharsSprites[this.var_c4d].posYPixel
 													+ this.var_b8d.frameHeight
-													- localClass_f_045.frameHeight
+													- fSprite1.frameHeight
 													+ 1);
-							this.game.addSpriteTo(localClass_f_045);
+							this.m_game.addSpriteTo(fSprite1);
 						}
 					}
-					this.unitCharsSprites[this.var_c4d].var_834 = var_b85[this.var_b6d];
+					this.unitCharsSprites[this.var_c4d].someXVal3 = var_b85[this.var_b6d];
 					this.unitCharsSprites[this.var_c4d].startAnimation(1, this.var_b75);
 					this.var_c4d += 1;
 					j = 0;
 				}
-				for (k = 0; k < this.var_c4d; k++) {
-					if (this.unitType == 10) {
-						if (this.unitCharsSprites[k].var_87c != -1) {
-							this.unitCharsSprites[k].var_87c += 1;
-							if (this.unitCharsSprites[k].var_87c >= 16) {
-								this.unitCharsSprites[k].startAnimation(2, this.var_b75);
-								this.unitCharsSprites[k].var_834 = 0;
-								this.unitCharsSprites[k].var_87c = -1;
-								(localClass_f_045 = F_Sprite.someSpriteCopy(null,
-										0, 0, 0, 1, 800, (byte) 2)).setSpritePosition(
-										this.unitCharsSprites[k].posXPixel
-												+ sub_1673(localClass_f_045,
+				for (int kIt = 0; kIt < this.var_c4d; kIt++) {
+					if (this.unitType == 10) { //skeleton
+						if (this.unitCharsSprites[kIt].var_87c != -1) {
+							this.unitCharsSprites[kIt].var_87c += 1;
+							if (this.unitCharsSprites[kIt].var_87c >= 16) {
+								this.unitCharsSprites[kIt].startAnimation(2, this.var_b75);
+								this.unitCharsSprites[kIt].someXVal3 = 0;
+								this.unitCharsSprites[kIt].var_87c = -1;
+								fSprite1 = F_Sprite.someSpriteCopy(null,
+										0, 0, 0, 1, 800, (byte) 2);
+								fSprite1.setSpritePosition(
+										this.unitCharsSprites[kIt].posXPixel
+												+ sub_1673(fSprite1,
 														this.var_b8d.frameWidth),
-										this.unitCharsSprites[k].posYPixel
+										this.unitCharsSprites[kIt].posYPixel
 												+ this.var_b8d.frameHeight);
-								this.game.addSpriteTo(localClass_f_045);
-								(localClass_f_045 = F_Sprite
-										.someSpriteCopy(this.slashSprite, 0, 0, 0, 1,
-												150, (byte) 0))
-										.setSpritePosition(
-												this.unitCharsSprites[k].posXPixel
-														+ sub_1673(
-																localClass_f_045,
-																24),
-												this.unitCharsSprites[k].posYPixel + 3);
-								this.game.addSpriteTo(localClass_f_045);
+								this.m_game.addSpriteTo(fSprite1);
+								fSprite1 = F_Sprite.someSpriteCopy(this.slashSprite, 0, 0, 0, 1,
+										150, (byte) 0);
+								fSprite1.setSpritePosition(
+												this.unitCharsSprites[kIt].posXPixel
+														+ sub_1673(fSprite1, 24),
+												this.unitCharsSprites[kIt].posYPixel + 3);
+								this.m_game.addSpriteTo(fSprite1);
 							} else {
 								j = 0;
 							}
 						}
-					} else if (this.unitCharsSprites[k].var_80c < 0) {
-						this.unitCharsSprites[k].var_844 += 1;
+					} else if (this.unitCharsSprites[kIt].someYVal1 < 0) {
+						this.unitCharsSprites[kIt].someYVal3 += 1;
 						j = 0;
-					} else if (this.unitCharsSprites[k].var_844 >= 6) {
-						this.unitCharsSprites[k].var_80c = 0;
-						this.unitCharsSprites[k].var_844 = 0;
-						this.unitCharsSprites[k].var_834 = 0;
+					} else if (this.unitCharsSprites[kIt].someYVal3 >= 6) {
+						this.unitCharsSprites[kIt].someYVal1 = 0;
+						this.unitCharsSprites[kIt].someYVal3 = 0;
+						this.unitCharsSprites[kIt].someXVal3 = 0;
 						if ((this.unitType == 0) || (this.unitType == 5)) {
-							this.unitCharsSprites[k].startAnimation(2, this.var_b75);
+							this.unitCharsSprites[kIt].startAnimation(2, this.var_b75);
 							if (this.unitType == 0) {
-								(localClass_f_045 = F_Sprite
-										.someSpriteCopy(this.slashSprite, 0, 0, 0, 1,
-												150, (byte) 0))
-										.setSpritePosition(
-												this.unitCharsSprites[k].posXPixel
-														+ sub_1673(
-																localClass_f_045,
-																14),
-												this.unitCharsSprites[k].posYPixel
-														+ this.unitCharsSprites[k].frameHeight);
-								localClass_f_045.var_80c = (4 - this.unitCharsSprites[k].frameHeight);
-								this.game.addSpriteTo(localClass_f_045);
+								fSprite1 = F_Sprite.someSpriteCopy(this.slashSprite, 0, 0, 0, 1,
+										150, (byte) 0);
+								fSprite1.setSpritePosition(
+												this.unitCharsSprites[kIt].posXPixel
+														+ sub_1673( fSprite1, 14),
+												this.unitCharsSprites[kIt].posYPixel
+														+ this.unitCharsSprites[kIt].frameHeight);
+								fSprite1.someYVal1 = (4 - this.unitCharsSprites[kIt].frameHeight);
+								this.m_game.addSpriteTo(fSprite1);
 							} else if (this.unitType == 5) {
-								(localClass_f_045 = F_Sprite.someSpriteCopy(
-										this.game.redsparkSprite, 0, 0, 0, 1, 50,
-										(byte) 0))
-										.setSpritePosition(
-												this.unitCharsSprites[k].posXPixel
+								fSprite1 = F_Sprite.someSpriteCopy(
+										this.m_game.redsparkSprite, 0, 0, 0, 1, 50,
+										(byte) 0);
+								fSprite1.setSpritePosition(
+												this.unitCharsSprites[kIt].posXPixel
 														+ sub_1673(
-																localClass_f_045,
+																fSprite1,
 																this.var_b8d.frameWidth * 3 / 4),
-												this.unitCharsSprites[k].posYPixel
-														+ this.unitCharsSprites[k].frameHeight);
-								localClass_f_045.var_80c = (-localClass_f_045.frameHeight);
-								this.game.addSpriteTo(localClass_f_045);
+												this.unitCharsSprites[kIt].posYPixel
+														+ this.unitCharsSprites[kIt].frameHeight);
+								fSprite1.someYVal1 = (-fSprite1.frameHeight);
+								this.m_game.addSpriteTo(fSprite1);
 							}
 						}
 					}
@@ -921,17 +914,17 @@ public final class G_FightAnimation {
 					this.var_c4d = 0;
 					this.var_b7d = 6;
 					this.otherFightAnim.sub_3363();
-					this.game.startShakingScreen(200);
+					this.m_game.startShakingScreen(200);
 					E_MainCanvas.vibrate(200);
 					E_MainCanvas.playMusicLooped(14, 1);
-					this.var_bc5 = this.game.time;
+					this.someStartTime7 = this.m_game.time;
 				}
 				break;
 			case 6:
-				if (((this.unitType == 10) && (this.game.time
-						- this.var_bc5 >= 400L))
-						|| (((this.unitType == 0) || (this.unitType == 2) || (this.unitType == 5)) && (this.game.time
-								- this.var_bc5 >= 50L))) {
+				if (((this.unitType == 10) && (this.m_game.time
+						- this.someStartTime7 >= 400L))
+						|| (((this.unitType == 0) || (this.unitType == 2) || (this.unitType == 5)) && (this.m_game.time
+								- this.someStartTime7 >= 50L))) {
 					this.var_b7d = 4;
 				}
 				break;
@@ -940,14 +933,14 @@ public final class G_FightAnimation {
 				if (this.var_c4d < this.unitCharsCount) {
 					if ((this.unitType == 0) || (this.unitType == 2)
 							|| (this.unitType == 5)) {
-						this.unitCharsSprites[this.var_c4d].var_844 = -6;
+						this.unitCharsSprites[this.var_c4d].someYVal3 = -6;
 					} else if (this.unitType == 10) {
 						this.unitCharsSprites[this.var_c4d].var_87c = 0;
 					}
 					if (this.unitType == 5) {
-						this.unitCharsSprites[this.var_c4d].var_834 = (-2 * var_b85[this.var_b6d]);
+						this.unitCharsSprites[this.var_c4d].someXVal3 = (-2 * var_b85[this.var_b6d]);
 					} else {
-						this.unitCharsSprites[this.var_c4d].var_834 = (-var_b85[this.var_b6d]);
+						this.unitCharsSprites[this.var_c4d].someXVal3 = (-var_b85[this.var_b6d]);
 					}
 					this.unitCharsSprites[this.var_c4d].startAnimation(3, this.var_b75);
 					this.var_c4d += 1;
@@ -959,34 +952,34 @@ public final class G_FightAnimation {
 							this.unitCharsSprites[k].var_87c += 1;
 							if (this.unitCharsSprites[k].var_87c >= 16) {
 								this.unitCharsSprites[k].startAnimation(0, this.var_b75);
-								this.unitCharsSprites[k].var_834 = 0;
+								this.unitCharsSprites[k].someXVal3 = 0;
 								this.unitCharsSprites[k].var_87c = -1;
 							} else {
 								j = 0;
 							}
 						}
-					} else if (this.unitCharsSprites[k].var_80c < 0) {
-						this.unitCharsSprites[k].var_844 += 1;
+					} else if (this.unitCharsSprites[k].someYVal1 < 0) {
+						this.unitCharsSprites[k].someYVal3 += 1;
 						j = 0;
-					} else if (this.unitCharsSprites[k].var_844 >= 6) {
-						this.unitCharsSprites[k].var_844 = 0;
-						this.unitCharsSprites[k].var_834 = 0;
-						this.unitCharsSprites[k].var_80c = 0;
+					} else if (this.unitCharsSprites[k].someYVal3 >= 6) {
+						this.unitCharsSprites[k].someYVal3 = 0;
+						this.unitCharsSprites[k].someXVal3 = 0;
+						this.unitCharsSprites[k].someYVal1 = 0;
 						this.unitCharsSprites[k].startAnimation(0, this.var_b75);
 					}
 				}
 				if (j != 0) {
 					this.var_b35 = true;
 					this.var_b7d = 0;
-					this.var_bc5 = this.game.time;
+					this.someStartTime7 = this.m_game.time;
 				}
 				break;
 			}
 		}
-		if (this.unitType == 6) {
+		if (this.unitType == 6) { //golem
 			for (i = 0; i < this.unitCharsSprites.length; i++) {
-				if (this.unitCharsSprites[i].var_874) {
-					this.unitCharsSprites[i].var_80c = (-6 + 4
+				if (this.unitCharsSprites[i].m_isRotating) {
+					this.unitCharsSprites[i].someYVal1 = (-6 + 4
 							* A_MenuBase.getSin1024(this.unitsRotationAngles[i]) >> 10);
 					this.unitsRotationAngles[i] = ((this.unitsRotationAngles[i] + 10) % 360);
 				}
@@ -1000,20 +993,20 @@ public final class G_FightAnimation {
 		this.unitCharsCount = this.unitChars3;
 		int k;
 		for (int i = 0; i < this.var_c25; i++) {
-			this.game.removeSpriteFrom(this.unitCharsSprites[i]);
-			F_Sprite redSparksSprite = F_Sprite.someSpriteCopy(this.game.redsparkSprite, 0,
+			this.m_game.removeSpriteFrom(this.unitCharsSprites[i]);
+			F_Sprite redSparksSprite = F_Sprite.someSpriteCopy(this.m_game.redsparkSprite, 0,
 					0, 0, 1, 0, (byte) 0);
 			redSparksSprite.setSpritePosition(
 							this.unitCharsSprites[i].posXPixel
 									+ (this.unitCharsSprites[i].frameWidth - redSparksSprite.frameWidth)
-									/ 2, this.game.someCanHeight);
-			redSparksSprite.var_80c = (this.unitCharsSprites[i].posYPixel
-					+ (this.unitCharsSprites[i].frameHeight - redSparksSprite.frameHeight) / 2 - this.game.someCanHeight);
-			this.game.addSpriteTo(redSparksSprite);
+									/ 2, this.m_game.someCanHeight);
+			redSparksSprite.someYVal1 = (this.unitCharsSprites[i].posYPixel
+					+ (this.unitCharsSprites[i].frameHeight - redSparksSprite.frameHeight) / 2 - this.m_game.someCanHeight);
+			this.m_game.addSpriteTo(redSparksSprite);
 			F_Sprite sprite1;
 			for (k = 0; k < 3; k++) {
 				sprite1 = F_Sprite.someSpriteCopy(
-						this.game.bigSmokeSprite, -1 + k, 0,
+						this.m_game.bigSmokeSprite, -1 + k, 0,
 						E_MainCanvas.getRandomWithin(-4, -1), 1,
 						E_MainCanvas.getRandomMax(4) * 50, (byte) 0);
 				sprite1.setSpritePosition(
@@ -1022,9 +1015,9 @@ public final class G_FightAnimation {
 										/ 2, this.unitCharsSprites[i].posYPixel
 										+ this.unitCharsSprites[i].frameHeight
 										- sprite1.frameHeight + 3);
-				this.game.addSpriteTo(sprite1);
+				this.m_game.addSpriteTo(sprite1);
 			}
-			sprite1 = F_Sprite.someSpriteCopy(this.game.smokeSprite, 0,
+			sprite1 = F_Sprite.someSpriteCopy(this.m_game.smokeSprite, 0,
 					0, -1, 1, 200, (byte) 0);
 			sprite1.setSpritePosition(
 							this.unitCharsSprites[i].posXPixel
@@ -1032,28 +1025,28 @@ public final class G_FightAnimation {
 									/ 2, this.unitCharsSprites[i].posYPixel
 									+ this.unitCharsSprites[i].frameHeight
 									- sprite1.frameHeight + 3);
-			this.game.addSpriteTo(sprite1);
+			this.m_game.addSpriteTo(sprite1);
 		}
 		F_Sprite[] someSprites = new F_Sprite[this.unitCharsCount];
 		System.arraycopy(this.unitCharsSprites, this.var_c25, someSprites, 0,
 				this.unitCharsCount);
 		this.unitCharsSprites = someSprites;
-		F_Sprite someSprite = F_Sprite.sub_15c2(""
-				+ (this.unitHealth3 - this.unitStartHealth), 0, -4, (byte) 1);
+		int damageDone = this.unitHealth3 - this.unitStartHealth;
+		F_Sprite someSprite = F_Sprite.createBouncingText("" + damageDone, 0, -4, (byte) 1);
 		int j;
 		if (this.unitChars3 == 1) {
 			j = this.unitCharsSprites[0].posXPixel + this.unitCharsSprites[0].frameWidth / 2;
 			k = this.unitCharsSprites[0].posYPixel + this.unitCharsSprites[0].frameHeight + 1;
 		} else {
-			j = this.game.viewportWidth / 2;
+			j = this.m_game.viewportWidth / 2;
 			if (this.var_b6d == 1) {
-				j += this.game.viewportWidth;
+				j += this.m_game.viewportWidth;
 			}
-			k = (this.game.var_3bfb + this.var_bfd) / 2;
+			k = (this.m_game.var_3bfb + this.var_bfd) / 2;
 		}
 		someSprite.setSpritePosition(j, k);
 		someSprite.var_85c = true;
-		this.game.addSpriteTo(someSprite);
+		this.m_game.addSpriteTo(someSprite);
 	}
 
 	public final void sub_35fd(Graphics gr, int inX, int inY) {
@@ -1077,7 +1070,7 @@ public final class G_FightAnimation {
 			int imWidth = this.var_be5.imageWidth;
 			int vX = 0;
 			int it2 = 0;
-			int length2 = this.game.viewportWidth / imWidth;
+			int length2 = this.m_game.viewportWidth / imWidth;
 			while (it2 < length2) {
 				this.var_be5.drawImageExt(gr, vX, 0);
 				vX += imWidth;
@@ -1088,9 +1081,9 @@ public final class G_FightAnimation {
 	}
 
 	public final void drawUnitHealth(Graphics gr) {
-		int hY = this.game.someCanHeight - I_Game.someUnkHeight1 / 2;
+		int hY = this.m_game.someCanHeight - I_Game.someUnkHeight1 / 2;
 		E_MainCanvas.drawCharedString(gr, this.unitHealth + "/" + 100,
-				this.game.viewportWidth / 2, hY, 1, 3);
+				this.m_game.viewportWidth / 2, hY, 1, 3);
 	}
 
 	public final void sub_3788(Graphics gr) {
