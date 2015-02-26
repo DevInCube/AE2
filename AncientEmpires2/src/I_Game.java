@@ -1205,18 +1205,15 @@ public final class I_Game extends A_MenuBase implements Runnable {
 										- this.castleBuyAllUnitsMenu.menuHeight);
 				this.castleBuyUnitMenu.menuUnit = this.castleBuyAllUnitsMenu.buyUnits[itemNumber];
 				this.castleBuyDescMenu.onLoad();
-				//this.castleBuyUnitMenu.onLoad();
+				this.castleBuyUnitMenu.onLoad(); // to update top selection unit menu
 			}
 			return;
 		}
-		Object localObject1;
 		if (menu == this.castleBuyMenu) {
 			if (paramByte == 0) {
-				localObject1 = this.castleBuyAllUnitsMenu.buyUnits[this.castleBuyAllUnitsMenu.activeItemPositionMb];
-				if (sub_e9d0((C_Unit) localObject1, this.someCursorXPos,
-						this.someCursorYPos)) {
-					this.activeUnit = buyUnit((C_Unit) localObject1,
-							this.someCursorXPos, this.someCursorYPos);
+				C_Unit bUnit = this.castleBuyAllUnitsMenu.buyUnits[this.castleBuyAllUnitsMenu.activeItemPositionMb];
+				if (sub_e9d0(bUnit, this.someCursorXPos, this.someCursorYPos)) {
+					this.activeUnit = buyUnit(bUnit, this.someCursorXPos, this.someCursorYPos);
 					this.var_3723 = true;
 					sub_58af(this.activeUnit);
 					A_MenuBase.mainCanvas.showMenu(this);
@@ -1232,13 +1229,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		if (menu == this.instructionsItemsMenu) {
 			if ((paramByte == 2) || (paramByte == 3)) {
+				String helpStr;
 				if (itemNumber == 0) {
-					localObject1 = A_MenuBase.getLangString(15);
+					helpStr = A_MenuBase.getLangString(15); //Ancient Empires II is a thrilling...
 				} else {
-					localObject1 = A_MenuBase
-							.getSomeHelpString(196 + itemNumber - 1, true);
+					helpStr = A_MenuBase.getSomeHelpString(196 + itemNumber - 1, true); //Use %KM to move the cursor...
 				}
-				this.instructionsDescMenu.createDescDialogMb(null, (String) localObject1,
+				this.instructionsDescMenu.createDescDialogMb(null, (String) helpStr,
 						this.someGWidth, this.instructionsDescMenu.menuHeight);
 				this.instructionsDescMenu.onLoad();
 			}
