@@ -128,8 +128,8 @@ public final class D_Menu extends A_MenuBase {
 					+ someXPadding + 1);
 			if (inMenuType == 5) {
 				this.menuHeight += var_fcd + E_MainCanvas.font8BaselinePos;
-				this.menuUnit = gameVar.getSomeUnit(gameVar.var_34ab,
-						gameVar.var_34b3, (byte) 0);
+				this.menuUnit = gameVar.getSomeUnit(gameVar.someCursorXPos,
+						gameVar.someCursorYPos, (byte) 0);
 				this.activeItemPositionMb = this.menuUnit.unitTypeId;
 				this.menuWidth = gameVar.someGWidth;
 			} else {
@@ -963,7 +963,7 @@ public final class D_Menu extends A_MenuBase {
 						this.wheelItemDegree[i] = ((short) ((this.wheelItemDegree[i] + this.var_11e5) % 360));
 					}
 				}
-				if ((A_MenuBase.mainCanvas.isActionPressed())
+				if ((A_MenuBase.mainCanvas.isAnyActionPressed())
 						|| ((this.var_11cd >= this.var_11d5) && (this.wheelItemDegree[0] == 0))) {
 					this.var_11cd = this.var_11d5;
 					for (i = 0; i < this.wheelItemDegree.length; i++) {
@@ -1325,7 +1325,7 @@ public final class D_Menu extends A_MenuBase {
 							} else if (i17 == 2) {
 								gameVar.actionIconsFrames[5].drawImageExt(gr, sTileHeight,
 										i1 + i12, 3);
-								str = "" + C_Unit.var_b9b[this.menuUnit.unitTypeId];
+								str = "" + C_Unit.unitsMoveRanges[this.menuUnit.unitTypeId];
 							}
 							E_MainCanvas.drawCharedString(gr, str, n + i11 + 1, i1
 									+ i12, 0, 6);

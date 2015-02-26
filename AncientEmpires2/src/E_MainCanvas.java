@@ -345,7 +345,7 @@ public final class E_MainCanvas extends Canvas implements Runnable,
 		}
 	}
 
-	public final boolean isActionPressed() {
+	public final boolean isAnyActionPressed() {
 		return this.someActionsSum != 0;
 	}
 

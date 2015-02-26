@@ -16,9 +16,9 @@ public final class G_FightAnimation {
 	public boolean var_b35 = false;
 	public boolean var_b3d;
 	public byte unitStartHealth;
-	public byte var_b4d;
+	public byte unitHealth3;
 	public byte unitStartCharsCount;
-	public byte var_b5d;
+	public byte unitChars3;
 	public byte unitCharsCount;
 	public byte var_b6d;
 	public boolean var_b75;
@@ -793,10 +793,10 @@ public final class G_FightAnimation {
 				this.var_bb5 = (E_MainCanvas.random.nextInt() % 1);
 			}
 		}
-		if ((this.var_b3d) && (this.unitHealth > this.var_b4d)) {
+		if ((this.var_b3d) && (this.unitHealth > this.unitHealth3)) {
 			this.unitHealth -= 2;
-			if (this.unitHealth < this.var_b4d) {
-				this.unitHealth = this.var_b4d;
+			if (this.unitHealth < this.unitHealth3) {
+				this.unitHealth = this.unitHealth3;
 			}
 			this.game.var_3bf3 = true;
 		}
@@ -996,8 +996,8 @@ public final class G_FightAnimation {
 
 	public final void sub_3363() {
 		this.var_b3d = true;
-		this.var_c25 = (this.unitStartCharsCount - this.var_b5d);
-		this.unitCharsCount = this.var_b5d;
+		this.var_c25 = (this.unitStartCharsCount - this.unitChars3);
+		this.unitCharsCount = this.unitChars3;
 		int k;
 		for (int i = 0; i < this.var_c25; i++) {
 			this.game.removeSpriteFrom(this.unitCharsSprites[i]);
@@ -1039,9 +1039,9 @@ public final class G_FightAnimation {
 				this.unitCharsCount);
 		this.unitCharsSprites = someSprites;
 		F_Sprite someSprite = F_Sprite.sub_15c2(""
-				+ (this.var_b4d - this.unitStartHealth), 0, -4, (byte) 1);
+				+ (this.unitHealth3 - this.unitStartHealth), 0, -4, (byte) 1);
 		int j;
-		if (this.var_b5d == 1) {
+		if (this.unitChars3 == 1) {
 			j = this.unitCharsSprites[0].posXPixel + this.unitCharsSprites[0].frameWidth / 2;
 			k = this.unitCharsSprites[0].posYPixel + this.unitCharsSprites[0].frameHeight + 1;
 		} else {
@@ -1088,7 +1088,7 @@ public final class G_FightAnimation {
 	}
 
 	public final void drawUnitHealth(Graphics gr) {
-		int hY = this.game.someCanHeight - I_Game.var_32c3 / 2;
+		int hY = this.game.someCanHeight - I_Game.someUnkHeight1 / 2;
 		E_MainCanvas.drawCharedString(gr, this.unitHealth + "/" + 100,
 				this.game.viewportWidth / 2, hY, 1, 3);
 	}
