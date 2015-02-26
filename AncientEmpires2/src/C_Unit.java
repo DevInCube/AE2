@@ -473,8 +473,7 @@ public final class C_Unit extends F_Sprite {
 			byte paramByte1, byte paramByte2, boolean paramBoolean) {
 		if (sTileType > mdata[inX][inY]) {
 			mdata[inX][inY] = ((byte) sTileType);
-			if ((paramBoolean)
-					&& (sGame.getSomeUnit(inX, inY, (byte) 0) == null)) {
+			if ((paramBoolean) && (sGame.getSomeUnit(inX, inY, (byte) 0) == null)) {
 				return true;
 			}
 		} else {
@@ -596,8 +595,7 @@ public final class C_Unit extends F_Sprite {
 				} else if (xPosYPix < this.posYPixel) {
 					this.posYPixel -= m_speed;
 					if (somSprite != null) {
-						somSprite
-								.setSpritePosition(
+						somSprite.setSpritePosition(
 										this.posXPixel
 												+ (this.frameWidth - somSprite.frameWidth)
 												/ 2, this.posYPixel
@@ -606,8 +604,7 @@ public final class C_Unit extends F_Sprite {
 				} else if (xPosYPix > this.posYPixel) {
 					this.posYPixel += m_speed;
 					if (somSprite != null) {
-						somSprite
-								.setSpritePosition(
+						somSprite.setSpritePosition(
 										this.posXPixel
 												+ (this.frameWidth - somSprite.frameWidth)
 												/ 2, this.posYPixel
@@ -665,7 +662,7 @@ public final class C_Unit extends F_Sprite {
 				units[(uCount++)] = sGame.playerKingsMb[sGame.playerId][j];
 			}
 		}
-		C_Unit[] units2 = new C_Unit[sGame.var_3703 + 1 + uCount]; 
+		C_Unit[] units2 = new C_Unit[sGame.unlockedUnitsTypeMax + 1 + uCount]; 
 		for (int k = 0; k < units2.length; k = (byte) (k + 1)) {
 			if (k < uCount) {
 				units2[k] = units[k];
@@ -681,44 +678,43 @@ public final class C_Unit extends F_Sprite {
 		sub_2551(gr, paramInt1, paramInt2, false);
 	}
 
-	public final void sub_2551(Graphics gr, int paramInt1,
-			int paramInt2, boolean paramBoolean) {
+	public final void sub_2551(Graphics gr, int inX, int inY, boolean paramBoolean) {
 		if (this.m_state != 4) {
-			int i;
-			int j;
+			int shX;
+			int shY;
 			if (this.isUnitSchaking) {
 				if (this.m_shakeDirection) {
-					i = -2;
+					shX = -2;
 				} else {
-					i = 2;
+					shX = 2;
 				}
-				j = E_MainCanvas.getRandomInt() % 1;
-				super.onSpritePaint(gr, paramInt1 + i, paramInt2 + j);
+				shY = E_MainCanvas.getRandomInt() % 1;
+				super.onSpritePaint(gr, inX + shX, inY + shY);
 			} else if ((paramBoolean) || (this.m_state == 2)) {
 				sGame.playersUnitsSprites[0][this.unitTypeId].onSpritePaint(gr,
-						this.posXPixel + paramInt1, this.posYPixel + paramInt2);
+						this.posXPixel + inX, this.posYPixel + inY);
 			} else {
-				super.onSpritePaint(gr, paramInt1, paramInt2);
+				super.onSpritePaint(gr, inX, inY);
 			}
 			if (this.unitTypeId == 9) {
-				i = this.posXPixel + paramInt1;
-				j = this.posYPixel + paramInt2;
+				shX = this.posXPixel + inX;
+				shY = this.posYPixel + inY;
 				if ((paramBoolean) || (this.m_state == 2)) {
 					sGame.kingHeadsSprites[1].drawFrameAt(gr, this.kingIndex
-							* 2 + this.currentFrameIndex, i, j, 0);
+							* 2 + this.currentFrameIndex, shX, shY, 0);
 					return;
 				}
 				sGame.kingHeadsSprites[0].drawFrameAt(gr, this.kingIndex * 2
-						+ this.currentFrameIndex, i, j, 0);
+						+ this.currentFrameIndex, shX, shY, 0);
 			}
 		}
 	}
 
-	public final void drawUnitHealth(Graphics paramGraphics, int shiftX, int shiftY) {
+	public final void drawUnitHealth(Graphics gr, int shiftX, int shiftY) {
 		int hX = this.posXPixel + shiftX;
 		int hY = this.posYPixel + shiftY;
 		if ((this.m_state != 3) && (this.unitHealthMb < 100)) {
-			E_MainCanvas.drawCharedString(paramGraphics, "" + this.unitHealthMb, hX, hY
+			E_MainCanvas.drawCharedString(gr, "" + this.unitHealthMb, hX, hY
 					+ this.frameHeight - 7, 0);
 		}
 	}

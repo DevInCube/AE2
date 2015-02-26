@@ -167,7 +167,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public D_Menu instructionsItemsMenu;
 	public D_Menu instructionsDescMenu;
 	public D_Menu startupMessageBox;
-	public int var_3703 = 8;
+	public int unlockedUnitsTypeMax = 8;
 	public D_Menu skirmishMapsItemsMenu;
 	public D_Menu skirmishMapsMenu;
 	public D_Menu selectLevelMenu;
@@ -686,7 +686,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		stream.writeByte(this.playerId);
 		stream.writeByte(this.playersIndexes[this.playerId]);
 		stream.writeShort(this.currentTurn);
-		stream.writeByte(this.var_3703);
+		stream.writeByte(this.unlockedUnitsTypeMax);
 		stream.writeByte(this.mapMaxPlayersMb);
 		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
 			stream.writeByte(this.playersTeams[i]);
@@ -745,7 +745,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		this.playerId = stream.readByte();
 		stream.readByte();
 		this.currentTurn = stream.readShort();
-		this.var_3703 = stream.readByte();
+		this.unlockedUnitsTypeMax = stream.readByte();
 		this.mapMaxPlayersMb = stream.readByte();
 		for (int i = 0; i < this.mapMaxPlayersMb; i++) {
 			this.playersTeams[i] = stream.readByte();
@@ -1212,7 +1212,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		if (menu == this.castleBuyMenu) {
 			if (paramByte == 0) {
 				C_Unit bUnit = this.castleBuyAllUnitsMenu.buyUnits[this.castleBuyAllUnitsMenu.activeItemPositionMb];
-				if (sub_e9d0(bUnit, this.someCursorXPos, this.someCursorYPos)) {
+				if (unitCanBeBought(bUnit, this.someCursorXPos, this.someCursorYPos)) {
 					this.activeUnit = buyUnit(bUnit, this.someCursorXPos, this.someCursorYPos);
 					this.var_3723 = true;
 					sub_58af(this.activeUnit);
@@ -1365,7 +1365,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 				this.chooseMoneyItemsMenu = null;
 				this.chooseUnitCapItemsMenu = null;
 				this.mapModeCampIf0 = 1;
-				this.var_3703 = 8;
+				this.unlockedUnitsTypeMax = 8;
 				this.isBlackLoading = true;
 				A_MenuBase.mainCanvas.repaintAll();
 				checkResources();
@@ -4304,7 +4304,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 	public final boolean sub_e943(byte inByte, int inX, int inY) {
 		int plUnitsCount = countUnits(-1, -1, this.playerId) - countUnits(10, -1, this.playerId);
 		if ((this.mapStartUnitCap > plUnitsCount)
-				&& (inByte <= this.var_3703)
+				&& (inByte <= this.unlockedUnitsTypeMax)
 				&& (C_Unit.unitsCosts[inByte] <= this.playersMoney[this.playerId])
 				&& (C_Unit.unitsCosts[inByte] > 0)) {
 			fillArrayWithValue(this.someMapData, 0);
@@ -4315,14 +4315,13 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		return false;
 	}
 
-	public final boolean sub_e9d0(C_Unit unit, int inX, int inY) {
+	public final boolean unitCanBeBought(C_Unit unit, int inX, int inY) {
 		int plUnitsCount = countUnits(-1, -1, this.playerId) - countUnits(10, -1, this.playerId);
 		if ((this.mapStartUnitCap > plUnitsCount)
-				&& ((unit.unitTypeId <= this.var_3703) || (unit.unitTypeId == 9))
+				&& ((unit.unitTypeId <= this.unlockedUnitsTypeMax) || (unit.unitTypeId == 9))
 				&& (unit.cost <= this.playersMoney[this.playerId])) {
 			fillArrayWithValue(this.someMapData, 0);
-			return C_Unit.sub_1d7b(this.someMapData, inX, inY,
-					C_Unit.unitsMoveRanges[unit.unitTypeId], -1,
+			return C_Unit.sub_1d7b(this.someMapData, inX, inY, C_Unit.unitsMoveRanges[unit.unitTypeId], -1,
 					unit.unitTypeId, this.playerId, true);
 		}
 		return false;
@@ -4554,7 +4553,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 					for (int i1 = 0; i1 < this.playerUnitsCount[this.playerId]; i1++) {
 						if ((this.playerKingsMb[this.playerId][i1] != null)
 								&& (this.playerKingsMb[this.playerId][i1].m_state == 3)
-								&& (sub_e9d0(this.playerKingsMb[this.playerId][i1], m, n))) {
+								&& (unitCanBeBought(this.playerKingsMb[this.playerId][i1], m, n))) {
 							aiUnit = buyUnit(this.playerKingsMb[this.playerId][i1], m, n);
 						}
 					}
@@ -5080,7 +5079,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			this.fadeInColor = 0;
 		}
 		if (this.scenarioMapIndex == 0) {
-			this.var_3703 = 0;
+			this.unlockedUnitsTypeMax = 0;
 			this.playersMoney[0] = 0;
 			this.playersMoney[1] = 0;
 			C_Unit.m_speed = 4;
@@ -5095,7 +5094,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.scenarioMapIndex == 1) {
-			this.var_3703 = 1;
+			this.unlockedUnitsTypeMax = 1;
 			this.playersMoney[0] = 300;
 			this.playersMoney[1] = 50;
 			C_Unit.m_speed = 4;
@@ -5111,7 +5110,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.scenarioMapIndex == 2) {
-			this.var_3703 = 0;
+			this.unlockedUnitsTypeMax = 0;
 			this.playersMoney[0] = 0;
 			this.playersMoney[1] = 0;
 			C_Unit.m_speed = 4;
@@ -5131,7 +5130,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.scenarioMapIndex == 3) {
-			this.var_3703 = 7;
+			this.unlockedUnitsTypeMax = 7;
 			C_Unit.m_speed = 4;
 			this.playersMoney[0] = 400;
 			this.playersMoney[1] = 400;
@@ -5154,7 +5153,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		}
 		C_Unit cUnit;
 		if (this.scenarioMapIndex == 4) {
-			this.var_3703 = 0;
+			this.unlockedUnitsTypeMax = 0;
 			this.playersMoney[0] = 0;
 			this.playersMoney[1] = 0;
 			sub_b998(this.playersKings[0].posXPixel + 12,
@@ -5179,7 +5178,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.scenarioMapIndex == 5) {
-			this.var_3703 = 7;
+			this.unlockedUnitsTypeMax = 7;
 			this.playersMoney[0] = 600;
 			this.playersMoney[1] = 600;
 			this.playersKings[0].setKingName(2);
@@ -5195,7 +5194,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 		C_Unit cUnit2;
 		C_Unit cUnit3;
 		if (this.scenarioMapIndex == 6) {
-			this.var_3703 = 8;
+			this.unlockedUnitsTypeMax = 8;
 			C_Unit.m_speed = 4;
 			this.playersMoney[0] = 400;
 			this.playersMoney[1] = 600;
@@ -5219,7 +5218,7 @@ public final class I_Game extends A_MenuBase implements Runnable {
 			return;
 		}
 		if (this.scenarioMapIndex == 7) {
-			this.var_3703 = 8;
+			this.unlockedUnitsTypeMax = 8;
 			C_Unit.m_speed = 4;
 			this.playersMoney[0] = 800;
 			this.playersMoney[1] = 200;
